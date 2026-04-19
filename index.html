@@ -1245,8 +1245,8 @@ async function fetchWrongReasons(q){
       .map((o,i)=>i===q.correct?null:`${letters[i]}: ${o}`)
       .filter(Boolean).join('\n');
     const text=await callGemini(
-      'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown.',
-      `For this EA exam question, explain in 1 sentence per option WHY each incorrect answer is wrong. Format: "A: reason. B: reason." (skip the correct option).\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]} (${letters[q.correct]})\nIncorrect options:\n${wrongOpts}`
+      '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 요청한 내용만 제공하고, 서론이나 마크다운 없이 답변하세요.',
+      `이 EA 시험 문제에서 각 오답 보기가 왜 틀렸는지 보기당 1문장으로 한국어로 설명하세요. 주요 세법 용어(IRC 조항, 세금 명칭 등)는 영어를 괄호에 병기하세요. 형식: "A: 이유. B: 이유." (정답 보기는 생략)\n문제: ${q.text}\n정답: ${q.options[q.correct]} (${letters[q.correct]})\n오답 보기:\n${wrongOpts}`
     );
     q.wrongReasons=text; save();
     document.getElementById('wrong-body').innerHTML=text;
@@ -1256,8 +1256,8 @@ async function fetchWrongReasons(q){
 async function fetchExamTip(q){
   try{
     const text=await callGemini(
-      'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown. All tips must reflect 2025 U.S. tax law. If the question bank may be from an older year, note the 2025-correct figures.',
-      `For this EA exam question on ${q.topic||q.part}, write an EA Exam Tip (2-3 sentences) covering: common mistakes, memory tricks, related 2025 concepts, or updated thresholds/figures students must know for the 2026 EA exam (based on 2025 tax law).\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]}`
+      '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 요청한 내용만 제공하고, 서론이나 마크다운 없이 답변하세요. 모든 내용은 2025년 미국 세법 기준으로 작성하세요.',
+      `이 EA 시험 문제(${q.topic||q.part})에 대해 2026년 EA 시험 대비 시험 팁을 한국어로 2~3문장 작성하세요. 자주 하는 실수, 암기 요령, 2025년 기준 수치/임계값을 포함하세요. 세법 용어(IRC 조항, 세금 명칭, 양식 번호 등)는 영어를 괄호에 병기하세요.\n문제: ${q.text}\n정답: ${q.options[q.correct]}`
     );
     q.examTip=text; save();
     document.getElementById('tip-body').innerHTML=text;
@@ -1267,22 +1267,22 @@ async function fetchExamTip(q){
 async function fetchFullExplanation(q){
   try{
     const raw=await callGemini(
-      `You are an expert EA exam tutor and fact-checker. Your job has TWO steps:
+      `당신은 EA(Enrolled Agent) 시험 전문 튜터이자 세법 팩트체커입니다. 두 단계로 작업하세요:
 
-STEP 1 — VERIFY THE CORRECT ANSWER INDEPENDENTLY.
-Using your own knowledge of 2025 U.S. tax law, determine which option (A/B/C/D) is actually correct. Do NOT assume the provided "Marked correct" answer is right — it may be wrong in the question bank. If the marked answer is wrong, identify the true correct answer and explain why.
+1단계 — 정답을 독립적으로 검증하세요.
+2025년 미국 세법 지식을 바탕으로 어떤 보기(A/B/C/D)가 실제로 정답인지 직접 판단하세요. 문제은행의 "정답 표시"가 맞다고 가정하지 마세요 — 틀릴 수 있습니다. 표시된 정답이 틀렸다면 실제 정답을 찾아 이유를 설명하세요.
 
-STEP 2 — WRITE ALL EXPLANATIONS BASED ON THE TRUE CORRECT ANSWER.
-If the question bank's marked answer is wrong, explicitly say so at the start of the explanation field: "⚠️ 문제은행 오답 주의: 문제은행의 정답 표시가 잘못되었습니다. 실제 정답은 [X]입니다." then give the correct explanation.
+2단계 — 실제 정답을 기준으로 모든 설명을 작성하세요.
+문제은행 정답이 틀렸다면 explanation 필드 첫 줄에 반드시 다음을 포함하세요: "⚠️ 문제은행 오답 주의: 문제은행의 정답 표시가 잘못되었습니다. 실제 정답은 [X]입니다."
 
-Return ONLY a valid JSON object — no markdown, no preamble. Keys:
-- explanation: Full explanation of WHY the correct answer is correct (based on 2025 tax law). If the question bank answer is wrong, start with the warning above.
-- wrongReasons: 1 sentence per INCORRECT option explaining why it is wrong. Format "A: reason. B: reason." — skip whichever letter is the TRUE correct answer.
-- taxUpdate2025: Start with "⚠️ 문제은행 기준 주의: AI 기준 2025년 세법으로 설명합니다." Then state relevant 2025 figures/thresholds. Note changes from 2024 if applicable.
-- examTip: 2-3 sentence practical tip for the 2026 EA exam based on this topic. Include current 2025 figures.
-- verifiedCorrect: the letter (A/B/C/D) of the TRUE correct answer per 2025 tax law.
+반드시 유효한 JSON 객체만 반환하세요 — 마크다운, 서론 없이. 키:
+- explanation: 정답이 왜 맞는지 한국어로 상세히 설명. 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기. 2025년 세법 기준.
+- wrongReasons: 각 오답 보기가 왜 틀렸는지 보기당 1문장씩 한국어로. 형식: "A: 이유. B: 이유." — 실제 정답 보기는 생략. 용어는 영어 병기.
+- taxUpdate2025: "⚠️ 문제은행 기준 주의: AI 기준 2025년 세법으로 설명합니다."로 시작. 이 문제와 관련된 2025년 기준 수치/임계값/규정 변경사항을 한국어로 설명. 2024년 대비 변경사항 포함.
+- examTip: 2026년 EA 시험 대비 실전 팁을 한국어로 2~3문장. 2025년 기준 수치 포함. 자주 하는 실수와 암기 요령 포함. 용어는 영어 병기.
+- verifiedCorrect: 2025년 세법 기준 실제 정답 보기 (A/B/C/D 중 하나의 알파벳만).
 
-All values must strictly use 2025 U.S. tax law.`,
+모든 내용은 반드시 2025년 미국 세법 기준으로 작성하세요.`,
       `EA exam question:\n${q.text}\n\nOptions:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\nQuestion bank marks this as correct: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nCSV explanation (may be wrong — verify independently): ${q.explanation||'none provided'}`
     );
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
@@ -1425,8 +1425,8 @@ async function sendFollowUp(){
   box.innerHTML='<span class="loading">Thinking…</span>'; box.classList.add('visible');
   try{
     const text=await callGemini(
-      'You are an expert EA exam tutor. IMPORTANT: (1) Always answer strictly using 2025 U.S. tax law for the 2026 EA exam. (2) The question bank answer may be wrong — use your own knowledge to give the correct answer. (3) Be specific with dollar amounts, thresholds, and rates. (4) Keep answers under 300 words but NEVER cut off mid-sentence — always complete your answer. (5) Start with "📌 2025 세법 기준:" if the answer involves a specific dollar figure or threshold.',
-      `EA exam question:\n"${q?.text}"\n\nOptions:\n${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\nQuestion bank marks correct: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}\n\nStudent follow-up question: ${userQ}`
+      '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 중요사항: (1) 반드시 2025년 미국 세법 기준으로 2026년 EA 시험에 맞게 답변하세요. (2) 문제은행 정답이 틀릴 수 있으니 본인 지식으로 정확한 정답을 제시하세요. (3) 달러 금액, 임계값, 세율을 구체적으로 명시하세요. (4) 300단어 이내로 답변하되 절대 문장 중간에 끊지 마세요. (5) 구체적인 수치가 포함된 경우 "📌 2025 세법 기준:"으로 시작하세요. 모든 답변은 한국어로 하되, 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기하세요.',
+      `EA 시험 문제:\n"${q?.text}"\n\n보기:\n${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\n문제은행 정답: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}\n\n수강생 질문: ${userQ}`
     );
     box.innerHTML=text.replace(/\n/g,'<br>');
   }catch(e){ box.innerHTML='<em>'+e.message+'</em>'; }
