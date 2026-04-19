@@ -1099,16 +1099,16 @@ function loadQuestion(){
   document.getElementById('q-topic').textContent=q.topic||'General';
   document.getElementById('q-text').textContent=q.text;
 
-  // Show question_id if available
+  // Show question_id badge only when there is an explicit, clean question_id from CSV
   const idBadge = document.getElementById('q-id-badge');
-  if(q.question_id){
-    idBadge.textContent = '#'+q.question_id;
-    idBadge.style.display='inline-block';
-  } else if(q.id && !q.id.startsWith('q') && !q.id.startsWith('csv')){
-    idBadge.textContent = '#'+q.id;
-    idBadge.style.display='inline-block';
+  const qid = (q.question_id || '').toString().trim();
+  if(qid && qid.length > 0){
+    // Show the CSV question_id as-is (e.g. "a295", "Q001", "32")
+    idBadge.textContent = '#' + qid;
+    idBadge.style.display = 'inline-flex';
   } else {
-    idBadge.style.display='none';
+    // Hide badge for auto-generated IDs (csv..., q1, q2 etc.)
+    idBadge.style.display = 'none';
   }
 
   // Reset copy button
@@ -1692,6 +1692,9 @@ function processCSVFile(file){
 
 // Robust CSV parser — handles quoted fields with commas/newlines inside
 function parseCSV(text, sourceName){
+  // Strip BOM (Byte Order Mark) that Excel/Numbers adds to UTF-8 CSV files
+  text = text.replace(/^\uFEFF/, '');
+
   const rows=splitCSVRows(text);
   if(rows.length<2){ throw new Error('헤더 포함 최소 2줄 이상이어야 합니다'); }
 
