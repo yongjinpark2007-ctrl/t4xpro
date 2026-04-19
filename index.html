@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EA Exam Prep · 2025 Tax Law</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#1a3a6b;--navy-mid:#f4f7ff;--navy-light:#e8eef9;
+  --gold:#2563eb;--gold-light:#3b7dff;
+  --white:#ffffff;--text-muted:#4a5568;--text-mid:#2d3748;
+  --success-color:#16a34a;--danger-color:#dc2626;--flag-color:#ea580c;
+  --page-bg:#f0f4ff;--card-bg:#ffffff;--border-clr:#d1d9f0;
+  --text-main:#1a237e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg);color:var(--text-main);font-size:16px;}
+#app{display:flex;flex-direction:column;min-height:100vh;}
+
+/* HEADER */
+.header{background:#1a3a6b;border-bottom:2px solid #2563eb;padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;flex-shrink:0;box-shadow:0 2px 8px rgba(26,58,107,.2);}
+.header-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.header-logo{width:36px;height:36px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;}
+.header-title{font-size:17px;font-weight:700;color:#fff;}
+.header-sub{font-size:12px;color:#93c5fd;letter-spacing:.05em;}
+/* Desktop nav */
+.header-nav{display:flex;gap:4px;}
+.nav-btn{background:none;border:none;color:#93c5fd;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;transition:all .15s;}
+.nav-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+.nav-btn.active{background:rgba(37,99,235,.4);color:#fff;}
+/* Hamburger button — mobile only */
+.hamburger-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;flex-direction:column;gap:5px;align-items:center;justify-content:center;}
+.hamburger-btn span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .25s;}
+.hamburger-btn:hover{background:rgba(255,255,255,.1);}
+/* Mobile drawer */
+.mobile-nav-drawer{display:none;position:fixed;top:60px;left:0;right:0;background:#1a3a6b;border-bottom:2px solid #2563eb;z-index:99;padding:8px 12px 12px;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.mobile-nav-drawer.open{display:block;}
+.mobile-nav-item{display:block;width:100%;text-align:left;padding:13px 16px;background:none;border:none;color:#93c5fd;font-family:inherit;font-size:16px;font-weight:500;border-radius:10px;cursor:pointer;transition:all .15s;}
+.mobile-nav-item:hover,.mobile-nav-item.active{background:rgba(37,99,235,.35);color:#fff;}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--page-bg);}
+.screen{display:none;padding:1.5rem;max-width:900px;margin:0 auto;word-break:break-word;}
+.screen.active{display:block;}
+
+/* TYPOGRAPHY */
+.section-title{font-size:20px;font-weight:700;margin-bottom:1rem;color:var(--text-main);}
+.exp-label{font-size:13px;color:var(--text-muted);letter-spacing:.04em;margin-bottom:8px;font-weight:700;text-transform:uppercase;}
+
+/* CARDS */
+.stat-card{background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;box-shadow:0 1px 4px rgba(26,58,107,.06);}
+.stat-label{font-size:13px;color:var(--text-muted);letter-spacing:.04em;margin-bottom:8px;text-transform:uppercase;font-weight:600;}
+.stat-value{font-size:30px;font-weight:700;line-height:1;color:var(--text-main);}
+.stat-sub{font-size:12px;color:#2563eb;margin-top:6px;font-weight:600;}
+
+/* GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem;}
+
+/* UNIT CARDS */
+.unit-card{background:#fff;border:1.5px solid var(--border-clr);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(26,58,107,.05);}
+.unit-list{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;}
+.unit-icon{width:40px;height:40px;border-radius:10px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.unit-info{flex:1;}
+.unit-name{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text-main);}
+.unit-stats{font-size:13px;color:var(--text-muted);}
+.unit-progress-bar{height:5px;background:#e0e7ff;border-radius:3px;margin-bottom:6px;}
+.unit-progress-fill{height:100%;border-radius:3px;background:#2563eb;transition:width .4s;}
+.unit-count{font-size:14px;font-weight:700;color:#2563eb;}
+
+/* SETUP */
+.start-card{background:#fff;border:1.5px solid var(--border-clr);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 4px rgba(26,58,107,.06);}
+.mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:1rem 0;}
+.mode-btn{background:#f0f4ff;border:1.5px solid var(--border-clr);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center;transition:all .15s;color:var(--text-muted);font-family:inherit;}
+.mode-btn:hover{border-color:#2563eb;color:#2563eb;}
+.mode-btn.selected{background:#dbeafe;border-color:#2563eb;color:#1a3a6b;}
+.mode-num{font-size:24px;font-weight:700;display:block;color:var(--text-main);}
+.mode-label{font-size:12px;margin-top:2px;font-weight:500;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:1rem 0;}
+.filter-chip{background:#f0f4ff;border:1.5px solid var(--border-clr);border-radius:20px;padding:7px 14px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--text-muted);transition:all .15s;font-weight:500;}
+.filter-chip:hover{border-color:#2563eb;color:#2563eb;}
+.filter-chip.selected{background:#dbeafe;border-color:#2563eb;color:#1a3a6b;font-weight:600;}
+
+/* BUTTONS */
+.btn-primary{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:14px 24px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;width:100%;}
+.btn-primary:hover{background:#1d4ed8;}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border-clr);border-radius:10px;padding:12px 16px;font-family:inherit;font-size:14px;cursor:pointer;transition:all .15s;}
+.btn-ghost:hover{color:var(--text-main);border-color:#2563eb;}
+.btn-navy{background:#fff;color:var(--text-main);border:1.5px solid var(--border-clr);border-radius:10px;padding:12px 20px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-navy:hover{border-color:#2563eb;color:#2563eb;}
+
+/* QUIZ */
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.quiz-progress-bar{height:6px;background:#dbeafe;border-radius:3px;margin-bottom:1.5rem;}
+.quiz-progress-fill{height:100%;border-radius:3px;background:#2563eb;transition:width .3s;}
+.question-card{background:#fff;border:1.5px solid var(--border-clr);border-radius:16px;padding:1.5rem;margin-bottom:1rem;box-shadow:0 2px 6px rgba(26,58,107,.07);}
+/* ── Question meta row: all chips unified ── */
+.question-meta{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
+
+/* Shared token for every chip/button in the meta row */
+.q-chip{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  height:30px;padding:0 11px;
+  border-radius:8px;border:1.5px solid var(--border-clr);
+  font-family:inherit;font-size:13px;font-weight:600;
+  white-space:nowrap;line-height:1;cursor:default;
+  transition:all .15s;
+}
+
+/* Part badge — blue fill */
+.q-badge{
+  background:#dbeafe;color:#1a3a6b;
+  border-color:#93c5fd;
+  border-radius:8px;border-width:1.5px;border-style:solid;
+  display:inline-flex;align-items:center;height:30px;padding:0 11px;
+  font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;
+}
+
+/* Topic badge — neutral fill */
+.q-badge-gray{
+  background:#f0f4ff;color:var(--text-muted);
+  border-color:var(--border-clr);
+  border-radius:8px;border-width:1.5px;border-style:solid;
+  display:inline-flex;align-items:center;height:30px;padding:0 11px;
+  font-family:inherit;font-size:13px;font-weight:600;white-space:nowrap;
+}
+
+/* Question-ID badge — green tint */
+.q-id-badge{
+  background:#f0fdf4;color:#15803d;
+  border-color:#86efac;
+  border-radius:8px;border-width:1.5px;border-style:solid;
+  display:inline-flex;align-items:center;height:30px;padding:0 11px;
+  font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;letter-spacing:.02em;
+}
+
+/* Copy button */
+.q-copy-btn{
+  background:#fff;color:var(--text-muted);
+  border:1.5px solid var(--border-clr);border-radius:8px;
+  height:30px;padding:0 11px;
+  font-family:inherit;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:4px;
+  white-space:nowrap;cursor:pointer;transition:all .15s;
+}
+.q-copy-btn:hover{background:#eff6ff;border-color:#2563eb;color:#2563eb;}
+.q-copy-btn.copied{background:#f0fdf4;border-color:#86efac;color:#15803d;}
+
+/* Flag button */
+.q-flag-btn{
+  background:#fff;color:var(--text-muted);
+  border:1.5px solid var(--border-clr);border-radius:8px;
+  height:30px;padding:0 11px;
+  font-family:inherit;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:4px;
+  white-space:nowrap;cursor:pointer;transition:all .15s;
+}
+.q-flag-btn:hover,.q-flag-btn.flagged{
+  border-color:var(--flag-color);color:var(--flag-color);
+  background:rgba(234,88,12,.05);
+}
+.question-text{font-size:19px;line-height:1.75;color:var(--text-main);font-weight:500;}
+.options-list{display:flex;flex-direction:column;gap:10px;margin-top:1.25rem;}
+.option-btn{background:#f8faff;border:1.5px solid var(--border-clr);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:inherit;color:var(--text-main);}
+.option-btn:hover:not(:disabled):not(.sel){border-color:#2563eb;background:#eff6ff;}
+.option-btn.sel{border-color:#2563eb;background:#dbeafe;}
+.option-btn.sel .opt-letter{background:#2563eb;color:#fff;}
+.option-btn.correct-ans{border-color:#16a34a;background:rgba(22,163,74,.08);}
+.option-btn.correct-ans .opt-letter{background:#16a34a;color:#fff;}
+.option-btn.wrong-ans{border-color:#dc2626;background:rgba(220,38,38,.06);}
+.option-btn.wrong-ans .opt-letter{background:#dc2626;color:#fff;}
+.option-btn.reveal{border-color:rgba(22,163,74,.5);background:rgba(22,163,74,.05);}
+.option-btn.reveal .opt-letter{background:rgba(22,163,74,.2);color:#16a34a;}
+.opt-letter{width:32px;height:32px;border-radius:8px;background:#e0e7ff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#2563eb;transition:all .15s;}
+.opt-text{font-size:18px;line-height:1.65;padding-top:3px;color:var(--text-main);}
+
+/* SUBMIT BAR */
+.submit-bar{display:flex;gap:8px;margin-top:1rem;align-items:stretch;}
+.btn-submit{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:15px 28px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;flex:1;}
+.btn-submit:hover{background:#1d4ed8;}
+.btn-submit:disabled{opacity:.35;cursor:not-allowed;}
+
+/* EXPLANATION */
+.explanation-card{background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;margin-top:1rem;display:none;box-shadow:0 1px 4px rgba(26,58,107,.06);}
+.explanation-card.visible{display:block;}
+.result-banner{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;margin-bottom:1rem;font-size:16px;font-weight:600;}
+.result-banner.ok{background:rgba(22,163,74,.1);color:#15803d;border:1.5px solid rgba(22,163,74,.3);}
+.result-banner.fail{background:rgba(220,38,38,.08);color:#b91c1c;border:1.5px solid rgba(220,38,38,.25);}
+.exp-section{margin-bottom:1rem;}
+.exp-body{font-size:18px;line-height:1.85;color:var(--text-muted);word-break:break-word;overflow-wrap:break-word;}
+.exp-body strong{color:var(--text-main);font-weight:600;}
+
+/* UPDATE & TIP BOXES */
+.update-box{background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:14px 16px;margin:10px 0;}
+.update-label{font-size:11px;font-weight:700;color:#b45309;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase;}
+.update-body{font-size:18px;line-height:1.8;color:#92400e;word-break:break-word;overflow-wrap:break-word;}
+.tip-box{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;padding:14px 16px;margin:10px 0;}
+.tip-label{font-size:11px;font-weight:700;color:#1e40af;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase;}
+.tip-body{font-size:18px;line-height:1.8;color:#1e3a8a;word-break:break-word;overflow-wrap:break-word;}
+
+/* FOLLOW-UP */
+.ask-box{background:#f8faff;border:1.5px solid var(--border-clr);border-radius:12px;padding:12px 14px;display:flex;gap:8px;margin-top:1rem;}
+.ask-input{flex:1;background:none;border:none;outline:none;color:var(--text-main);font-family:inherit;font-size:15px;min-width:0;}
+.ask-input::placeholder{color:#a0aec0;}
+.ask-btn{background:#2563eb;border:none;border-radius:8px;padding:8px 14px;color:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.ask-btn:hover{background:#1d4ed8;}
+.ai-answer{background:#f0f9ff;border-left:3px solid #2563eb;border-radius:0 10px 10px 0;padding:14px 16px;margin-top:10px;font-size:18px;line-height:1.85;color:var(--text-muted);display:none;word-break:break-word;overflow-wrap:break-word;}
+.ai-answer.visible{display:block;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.loading{color:#2563eb;font-size:14px;animation:pulse 1s infinite;}
+
+/* RESULTS */
+.result-hero{text-align:center;padding:2rem 0;}
+.result-circle{width:130px;height:130px;border-radius:50%;border:4px solid #2563eb;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1rem;background:#fff;box-shadow:0 4px 16px rgba(37,99,235,.15);}
+.result-pct{font-size:38px;font-weight:700;color:#2563eb;line-height:1;}
+.result-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.5rem 0;}
+.rb-card{background:#fff;border:1.5px solid var(--border-clr);border-radius:12px;padding:14px;text-align:center;}
+.rb-num{font-size:26px;font-weight:700;}
+.rb-lab{font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:500;}
+.result-btns{display:flex;gap:8px;}
+
+/* BOOKMARKS */
+.bookmark-card{background:#fff;border:1.5px solid var(--border-clr);border-left:4px solid var(--flag-color);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .15s;}
+.bookmark-card:hover{background:#fff7ed;border-color:var(--flag-color);}
+.bm-q{font-size:15px;line-height:1.6;margin-bottom:8px;color:var(--text-main);}
+.bm-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.bm-tag{font-size:12px;color:var(--text-muted);background:#f0f4ff;padding:3px 8px;border-radius:6px;font-weight:500;}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed #93c5fd;border-radius:16px;padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:1.5rem;background:#f8faff;}
+.upload-zone:hover,.upload-zone.drag{border-color:#2563eb;background:#eff6ff;}
+.upload-item{background:#fff;border:1.5px solid var(--border-clr);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;transition:all .15s;}
+.upload-item:hover{border-color:#c7d2fe;}
+.upload-badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;background:rgba(22,163,74,.1);color:#15803d;white-space:nowrap;}
+.upload-item-actions{display:flex;gap:6px;flex-shrink:0;}
+.upload-action-btn{background:#fff;border:1.5px solid var(--border-clr);border-radius:8px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.upload-action-btn.replace{color:#2563eb;border-color:#bfdbfe;}
+.upload-action-btn.replace:hover{background:#eff6ff;border-color:#2563eb;}
+.upload-action-btn.delete{color:#dc2626;border-color:#fecaca;}
+.upload-action-btn.delete:hover{background:#fff5f5;border-color:#dc2626;}
+/* Confirm delete overlay */
+.upload-item.confirm-delete{border-color:#dc2626;background:#fff5f5;}
+.delete-confirm-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#dc2626;font-weight:600;flex-shrink:0;}
+.delete-confirm-row button{background:none;border:1.5px solid currentColor;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+.delete-confirm-row .confirm-yes{color:#dc2626;}
+.delete-confirm-row .confirm-yes:hover{background:#dc2626;color:#fff;}
+.delete-confirm-row .confirm-no{color:var(--text-muted);border-color:var(--border-clr);}
+.delete-confirm-row .confirm-no:hover{background:var(--border-clr);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border:1.5px solid var(--border-clr);border-radius:18px;padding:1.5rem;width:100%;max-width:520px;max-height:84vh;overflow-y:auto;box-shadow:0 8px 32px rgba(26,58,107,.15);}
+.modal-close{background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;float:right;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a3a6b;border:1px solid #2563eb;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:500;color:#fff;transform:translateY(80px);opacity:0;transition:all .3s;z-index:300;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* TIMER */
+.timer-badge{display:none;background:rgba(220,38,38,.1);color:#dc2626;border-radius:8px;padding:5px 12px;font-size:14px;font-weight:700;border:1px solid rgba(220,38,38,.2);}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem 1rem;}
+.empty-icon{font-size:44px;margin-bottom:1rem;opacity:.5;}
+.empty-title{font-size:18px;font-weight:600;margin-bottom:6px;color:var(--text-main);}
+.empty-sub{font-size:15px;color:var(--text-muted);}
+
+/* ACTIVITY */
+.activity-row{padding:10px 0;border-bottom:1px solid var(--border-clr);display:flex;gap:12px;align-items:center;font-size:14px;color:var(--text-main);}
+
+/* API KEY SETUP */
+.api-setup{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;}
+.api-input{width:100%;background:#fff;border:1.5px solid var(--border-clr);border-radius:10px;padding:12px 14px;color:var(--text-main);font-family:inherit;font-size:15px;outline:none;margin:8px 0;}
+.api-input:focus{border-color:#2563eb;}
+
+@media(max-width:640px){
+  .mode-grid{grid-template-columns:repeat(2,1fr);}
+  .result-breakdown{grid-template-columns:1fr 1fr;}
+  .screen{padding:1rem;}
+  /* 문제 텍스트 — 모바일 폰트 크게 */
+  .question-text{font-size:19px;line-height:1.75;}
+  /* 보기 텍스트 */
+  .opt-text{font-size:17px;line-height:1.65;}
+  /* 설명 섹션 — 노안 대응: 폰트 크게, 줄간격 타이트하게 */
+  .exp-body{font-size:20px;line-height:1.55;}
+  .update-body{font-size:20px;line-height:1.55;}
+  .tip-body{font-size:20px;line-height:1.55;}
+  .ai-answer{font-size:20px;line-height:1.55;}
+  .result-banner{font-size:17px;}
+  .exp-label{font-size:14px;letter-spacing:.03em;}
+  .update-label,.tip-label{font-size:13px;}
+  .ask-input,.ask-btn{font-size:17px;}
+  /* 설명카드 섹션 간격도 줄이기 */
+  .exp-section{margin-bottom:.7rem;}
+  .update-box,.tip-box{margin:8px 0;}
+  /* 일반 UI 텍스트 */
+  .unit-name{font-size:16px;}
+  .unit-stats{font-size:14px;}
+  .stat-label{font-size:14px;}
+  .stat-value{font-size:32px;}
+  .bm-q{font-size:16px;}
+  .bm-tag{font-size:13px;}
+  .section-title{font-size:21px;}
+  /* 설명카드 패딩 줄이기 */
+  .explanation-card{padding:1rem;}
+  .update-box,.tip-box{padding:10px 13px;}
+  .header-sub{display:none;}
+  .header-nav{display:none;}
+  .hamburger-btn{display:flex;}
+}
+</style>
+</head>
+<body>
+<style>
+/* ── LOGIN GATE ── */
+#login-gate{position:fixed;inset:0;z-index:9999;background:#f0f4ff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
+.lg-logo{width:72px;height:72px;background:#1a3a6b;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;margin-bottom:20px;}
+.lg-title{font-size:26px;font-weight:700;color:#1a237e;margin-bottom:6px;}
+.lg-sub{font-size:16px;color:#4a5568;margin-bottom:32px;text-align:center;}
+.lg-card{background:#fff;border:1.5px solid #d1d9f0;border-radius:18px;padding:2rem;width:100%;max-width:340px;box-shadow:0 4px 24px rgba(26,58,107,.1);}
+.lg-label{font-size:13px;font-weight:700;color:#4a5568;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;margin-top:14px;}
+.lg-input{width:100%;padding:13px 14px;font-size:16px;border:1.5px solid #d1d9f0;border-radius:10px;background:#f8faff;color:#1a237e;outline:none;font-family:inherit;}
+.lg-input:focus{border-color:#2563eb;background:#fff;}
+.lg-btn{margin-top:18px;width:100%;padding:15px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.lg-btn:hover{background:#1d4ed8;}
+.lg-btn:disabled{opacity:.5;cursor:not-allowed;}
+.lg-err{color:#dc2626;font-size:14px;margin-top:10px;font-weight:600;display:none;text-align:center;}
+.lg-status{color:#4a5568;font-size:13px;margin-top:10px;text-align:center;display:none;}
+</style>
+<div id="login-gate">
+  <div class="lg-logo">EA</div>
+  <div class="lg-title">EA Exam Prep</div>
+  <div class="lg-sub">t4xpro.com · 2025 Tax Law</div>
+  <div class="lg-card">
+    <div class="lg-label">이메일</div>
+    <input class="lg-input" type="email" id="lg-email" placeholder="이메일 주소" onkeydown="if(event.key==='Enter')document.getElementById('lg-pw').focus()"/>
+    <div class="lg-label">비밀번호</div>
+    <input class="lg-input" type="password" id="lg-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="lg-btn" id="lg-btn" onclick="doLogin()">로그인</button>
+    <div class="lg-err" id="lg-err">❌ 이메일 또는 비밀번호가 올바르지 않습니다</div>
+    <div class="lg-status" id="lg-status">🔄 로그인 중…</div>
+  </div>
+</div>
+
+<div id="app">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div class="header-logo">EA</div>
+    <div>
+      <div class="header-title">EA Exam Prep</div>
+      <div class="header-sub">Enrolled Agent · 2025 Tax Law</div>
+    </div>
+  </div>
+  <!-- Desktop nav -->
+  <div class="header-nav">
+    <button class="nav-btn active" onclick="showScreen('dashboard');closeDrawer()">Dashboard</button>
+    <button class="nav-btn" onclick="showScreen('quiz-setup');closeDrawer()">Study</button>
+    <button class="nav-btn" onclick="showScreen('bookmarks');closeDrawer()">Review</button>
+    <button class="nav-btn" onclick="showScreen('upload');closeDrawer()">Upload</button>
+    <button class="nav-btn" onclick="showScreen('settings');closeDrawer()">⚙</button>
+  </div>
+  <!-- Hamburger for mobile -->
+  <button class="hamburger-btn" id="hamburger-btn" onclick="toggleDrawer()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<!-- Mobile drawer -->
+<div class="mobile-nav-drawer" id="mobile-nav-drawer">
+  <button class="mobile-nav-item active" id="mob-dashboard" onclick="showScreen('dashboard');closeDrawer()">📊 Dashboard</button>
+  <button class="mobile-nav-item" id="mob-study" onclick="showScreen('quiz-setup');closeDrawer()">📚 Study</button>
+  <button class="mobile-nav-item" id="mob-review" onclick="showScreen('bookmarks');closeDrawer()">Review</button>
+  <button class="mobile-nav-item" id="mob-upload" onclick="showScreen('upload');closeDrawer()">📂 Upload</button>
+  <button class="mobile-nav-item" id="mob-settings" onclick="showScreen('settings');closeDrawer()">⚙ Settings</button>
+</div>
+
+<div class="content">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="screen-dashboard" class="screen active">
+  <div class="stats-grid" id="stats-grid"></div>
+  <div class="section-title">Part Progress</div>
+  <div class="unit-list" id="unit-list"></div>
+  <div class="section-title">Recent Sessions</div>
+  <div id="activity-log"></div>
+</div>
+
+<!-- ═══ QUIZ SETUP ═══ -->
+<div id="screen-quiz-setup" class="screen">
+  <div style="margin-bottom:1.5rem;">
+    <div class="section-title">Start a Study Session</div>
+    <div style="font-size:13px;color:var(--text-muted);">All AI explanations are based on 2025 U.S. tax law.</div>
+  </div>
+  <div class="start-card">
+    <div class="exp-label">Number of Questions</div>
+    <div class="mode-grid">
+      <button class="mode-btn selected" onclick="selectCount(5,this)"><span class="mode-num">5</span><span class="mode-label">Quick</span></button>
+      <button class="mode-btn" onclick="selectCount(10,this)"><span class="mode-num">10</span><span class="mode-label">Standard</span></button>
+      <button class="mode-btn" onclick="selectCount(15,this)"><span class="mode-num">15</span><span class="mode-label">Extended</span></button>
+      <button class="mode-btn" onclick="selectCount(20,this)"><span class="mode-num">20</span><span class="mode-label">Full</span></button>
+    </div>
+    <div class="exp-label" style="margin-top:1rem;">① EA Part</div>
+    <div class="filter-row" id="part-row">
+      <button class="filter-chip selected" onclick="selectPart('all',this)">All Parts</button>
+      <button class="filter-chip" onclick="selectPart('part1',this)">Part 1 – Individuals</button>
+      <button class="filter-chip" onclick="selectPart('part2',this)">Part 2 – Businesses</button>
+      <button class="filter-chip" onclick="selectPart('part3',this)">Part 3 – Representation</button>
+    </div>
+    <div class="exp-label" style="margin-top:1rem;">② 문제 범위</div>
+    <div class="filter-row" id="subset-row">
+      <button class="filter-chip selected" onclick="selectSubset('all',this)">🔀 Random</button>
+      <button class="filter-chip" onclick="selectSubset('unseen',this)">👁 Unseen Only</button>
+      <button class="filter-chip" onclick="selectSubset('flagged',this)">⚑ Flagged Only</button>
+    </div>
+    <div class="exp-label" style="margin-top:1rem;">Study Mode</div>
+    <div class="filter-row" id="mode-row">
+      <button class="filter-chip selected" onclick="selectMode('normal',this)">Normal</button>
+      <button class="filter-chip" onclick="selectMode('review',this)">Review Wrong Answers</button>
+      <button class="filter-chip" onclick="selectMode('timed',this)">Timed (90s/Q)</button>
+    </div>
+    <div style="margin-top:1.25rem;">
+      <button class="btn-primary" id="start-btn" onclick="startQuiz()">Start Session →</button>
+      <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;" id="avail-count"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <div>
+      <div style="font-size:11px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;" id="q-session-label">Session</div>
+      <div style="font-size:14px;font-weight:500;" id="q-progress-text">Question 1 of 10</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="timer-badge" id="timer-badge">90s</div>
+      <button class="btn-ghost" onclick="endSession()">End Session</button>
+    </div>
+  </div>
+  <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-bar"></div></div>
+
+  <div class="question-card">
+    <div class="question-meta">
+      <span class="q-badge" id="q-part">Part 1</span>
+      <span class="q-badge-gray" id="q-topic">Topic</span>
+      <span class="q-id-badge" id="q-id-badge" style="display:none;"></span>
+      <button class="q-copy-btn" id="q-copy-btn" onclick="copyQuestion()" title="Copy question & options to clipboard">📋 Copy</button>
+      <button class="q-flag-btn" id="q-flag-btn" onclick="toggleFlag()">⚑ Flag</button>
+    </div>
+    <div class="question-text" id="q-text">Loading…</div>
+    <div class="options-list" id="options-list"></div>
+  </div>
+
+  <!-- SUBMIT BAR -->
+  <div class="submit-bar">
+    <button class="btn-ghost" onclick="toggleFlag()" id="nav-flag">⚑ Flag</button>
+    <button class="btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>Submit Answer</button>
+    <button class="btn-ghost" id="btn-skip" onclick="skipQuestion()">Skip</button>
+  </div>
+
+  <!-- EXPLANATION (shown after submit) -->
+  <div class="explanation-card" id="explanation-card">
+    <div class="result-banner" id="result-banner"></div>
+
+    <div class="exp-section">
+      <div class="exp-label">✦ Explanation</div>
+      <div class="exp-body" id="exp-body"></div>
+    </div>
+    <div class="exp-section">
+      <div class="exp-label">✦ Why Other Options Are Incorrect</div>
+      <div class="exp-body" id="wrong-body"></div>
+    </div>
+
+    <div class="update-box">
+      <div class="update-label">📋 AI 기준 2025 세법 Update · 문제은행 연도와 다를 수 있음</div>
+      <div style="font-size:11px;color:#b45309;margin-bottom:8px;line-height:1.5;">⚠️ 문제은행의 문제가 구버전 세법 기준일 수 있습니다. 아래 내용은 <strong>AI 기준 2025년 세법</strong>으로 작성됩니다. 시험 준비 시 2025년 수치를 우선 적용하세요.</div>
+      <div class="update-body" id="update-body"></div>
+    </div>
+    <div class="tip-box">
+      <div class="tip-label">💡 EA Exam Tip · 2025 세법 기준 (2026 시험 대비)</div>
+      <div class="tip-body" id="tip-body"></div>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;margin-top:1rem;">
+      <div class="exp-label">Ask a Follow-up Question</div>
+      <div class="ask-box">
+        <input class="ask-input" id="ask-input" placeholder="e.g. What is the 2025 standard deduction for MFJ?" onkeydown="if(event.key==='Enter')sendFollowUp()"/>
+        <button class="ask-btn" onclick="sendFollowUp()">Ask ↗</button>
+      </div>
+      <div class="ai-answer" id="ai-answer"></div>
+    </div>
+
+    <div style="margin-top:1rem;">
+      <button class="btn-navy" style="width:100%;" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div id="screen-results" class="screen">
+  <div class="result-hero">
+    <div class="result-circle">
+      <div class="result-pct" id="r-pct">0%</div>
+      <div style="font-size:12px;color:var(--text-muted);">Score</div>
+    </div>
+    <div class="section-title" id="r-title" style="margin-bottom:4px;"></div>
+    <div style="font-size:13px;color:var(--text-muted);" id="r-sub"></div>
+  </div>
+  <div class="result-breakdown">
+    <div class="rb-card"><div class="rb-num" id="r-correct" style="color:var(--success-color);"></div><div class="rb-lab">Correct</div></div>
+    <div class="rb-card"><div class="rb-num" id="r-wrong" style="color:var(--danger-color);"></div><div class="rb-lab">Incorrect</div></div>
+    <div class="rb-card"><div class="rb-num" id="r-total" style="color:var(--gold);"></div><div class="rb-lab">Answered</div></div>
+    <div class="rb-card"><div class="rb-num" id="r-flagged" style="color:var(--flag-color);"></div><div class="rb-lab">Flagged</div></div>
+  </div>
+  <div class="result-btns">
+    <button class="btn-navy" style="flex:1;" onclick="showScreen('dashboard')">Dashboard</button>
+    <button class="btn-primary" style="flex:1;" onclick="showScreen('quiz-setup')">New Session →</button>
+  </div>
+</div>
+
+<!-- ═══ BOOKMARKS ═══ -->
+<div id="screen-bookmarks" class="screen">
+  <div style="margin-bottom:1.5rem;">
+    <div class="section-title">⚑ Flagged for Review</div>
+    <div style="font-size:13px;color:var(--text-muted);">Questions you marked as important or frequently missed</div>
+  </div>
+  <div id="bookmarks-list"></div>
+</div>
+
+<!-- ═══ UPLOAD ═══ -->
+<div id="screen-upload" class="screen">
+  <div style="margin-bottom:1.5rem;">
+    <div class="section-title">문제은행 업로드</div>
+    <div style="font-size:15px;color:var(--text-muted);">CSV 파일로 문제를 추가하세요. 아래 형식을 그대로 사용하시면 됩니다.</div>
+  </div>
+
+  <!-- CSV FORMAT GUIDE -->
+  <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;">
+    <div class="exp-label" style="color:#1e40af;margin-bottom:10px;">📋 CSV 파일 형식 (이 헤더를 그대로 사용하세요)</div>
+    <div style="font-size:13px;color:#1e3a8a;margin-bottom:10px;line-height:1.7;">첫 줄은 반드시 아래 헤더여야 합니다. 각 셀의 내용에 쉼표가 포함될 경우 큰따옴표로 감싸주세요.</div>
+    <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:12px;color:#1e3a8a;line-height:2;overflow-x:auto;white-space:pre;">question_id,text,options_a,options_b,options_c,options_d,correct,explanation,wrong_reasons,tax_update_2025,exam_tip,part,topic
+"Q001","Which filing status...","Single","MFJ","Head of Household","QSS","C","HOH applies when...","A: wrong because... B: wrong because...","2025 변경: 표준공제 $22,500으로 인상","EA Exam Tip...","Part 1","Filing Status"</div>
+    <div style="font-size:13px;color:#1e40af;margin-top:10px;"><strong>correct</strong>: A/B/C/D 또는 0/1/2/3 · <strong>question_id</strong>: 문제번호 (예: Q001) · <strong>part</strong>: "Part 1" / "Part 2" / "Part 3"</div>
+  </div>
+
+  <div class="upload-zone" id="upload-zone"
+    onclick="document.getElementById('file-input').click()"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="handleDrop(event)">
+    <div style="font-size:36px;margin-bottom:.75rem;">📂</div>
+    <div style="font-size:17px;font-weight:600;margin-bottom:6px;color:var(--text-main);">CSV 파일을 여기에 드롭하거나 클릭하여 선택</div>
+    <div style="font-size:14px;color:var(--text-muted);">.csv 파일만 지원 · 업로드 즉시 추가됩니다</div>
+  </div>
+  <input type="file" id="file-input" multiple accept=".csv" onchange="handleFileSelect(this.files)" style="display:none;"/>
+  <input type="file" id="replace-input" accept=".csv" onchange="handleReplaceFile(this.files)" style="display:none;"/>
+
+  <div class="exp-label" style="margin-bottom:10px;">업로드된 파일</div>
+  <div id="upload-list"></div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div id="screen-settings" class="screen">
+  <div class="section-title">Settings</div>
+
+  <!-- Supabase 연결 상태 -->
+  <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
+    <div class="exp-label" style="margin-bottom:8px;color:#15803d;">☁️ 클라우드 동기화</div>
+    <div style="font-size:14px;color:#166534;line-height:1.75;" id="sync-status-text">Supabase 연결 확인 중…</div>
+    <button class="btn-ghost" style="margin-top:12px;width:100%;color:#dc2626;border-color:rgba(220,38,38,.3);" onclick="doLogout()">🚪 로그아웃</button>
+  </div>
+
+  <div class="api-setup">
+    <div class="exp-label">🔑 Google Gemini API Key (AI 해설용)</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">AI 자동 해설에 사용됩니다. 한 번 저장하면 이 기기에서 자동으로 사용됩니다. <a href="https://aistudio.google.com" target="_blank" style="color:#2563eb;font-weight:600;">aistudio.google.com</a>에서 무료로 발급받을 수 있습니다.</div>
+    <input class="api-input" type="password" id="api-key-input" placeholder="Gemini API 키를 여기에 붙여넣기…"/>
+    <button class="btn-primary" onclick="saveApiKey()">API 키 저장</button>
+    <div style="font-size:13px;color:#16a34a;margin-top:10px;font-weight:600;" id="api-status"></div>
+  </div>
+  <div style="background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;margin-top:1rem;">
+    <div class="exp-label" style="margin-bottom:10px;">데이터 관리</div>
+    <button class="btn-ghost" style="margin-bottom:10px;width:100%;" onclick="exportData()">모든 데이터 내보내기 (JSON)</button>
+    <button class="btn-ghost" style="width:100%;color:#dc2626;border-color:rgba(220,38,38,.3);" onclick="if(confirm('모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.'))resetData()">모든 데이터 초기화</button>
+  </div>
+  <div style="background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:14px;padding:1.25rem;margin-top:1rem;">
+    <div class="exp-label" style="margin-bottom:8px;color:#0369a1;">💾 클라우드 저장 안내</div>
+    <div style="font-size:14px;color:#075985;line-height:1.75;">문제은행과 학습 기록은 Supabase 클라우드에 저장됩니다. 어느 기기에서든 로그인하면 동일한 문제와 진도를 볼 수 있습니다.</div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><button class="modal-close" onclick="closeModal()">×</button><div id="modal-content"></div></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// SUPABASE INIT
+// ══════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let SB_USER = null; // currently logged-in user
+
+// ── AUTH ────────────────────────────────────────────
+async function doLogin(){
+  const email = document.getElementById('lg-email').value.trim();
+  const pw    = document.getElementById('lg-pw').value;
+  if(!email || !pw){ showLgErr('이메일과 비밀번호를 입력해주세요'); return; }
+
+  const btn = document.getElementById('lg-btn');
+  const status = document.getElementById('lg-status');
+  btn.disabled = true;
+  status.style.display = 'block';
+  document.getElementById('lg-err').style.display = 'none';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if(error){
+    btn.disabled = false;
+    status.style.display = 'none';
+    showLgErr('❌ ' + (error.message === 'Invalid login credentials' ? '이메일 또는 비밀번호가 올바르지 않습니다' : error.message));
+    return;
+  }
+  SB_USER = data.user;
+  document.getElementById('login-gate').style.display = 'none';
+  await loadFromCloud();
+  updateSyncStatus();
+}
+
+function showLgErr(msg){
+  const e = document.getElementById('lg-err');
+  e.textContent = msg; e.style.display = 'block';
+}
+
+async function doLogout(){
+  if(!confirm('로그아웃 하시겠습니까?')) return;
+  await sb.auth.signOut();
+  SB_USER = null;
+  location.reload();
+}
+
+// Check if already logged in (session persists across refreshes)
+(async function checkSession(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){
+    SB_USER = session.user;
+    document.getElementById('login-gate').style.display = 'none';
+    await loadFromCloud();
+    updateSyncStatus();
+  }
+})();
+
+function updateSyncStatus(){
+  const el = document.getElementById('sync-status-text');
+  if(!el) return;
+  if(SB_USER){
+    el.textContent = `✅ 클라우드 연결됨 · ${SB_USER.email} · 모든 기기에서 자동 동기화`;
+  } else {
+    el.textContent = '⚠️ 로그인 필요';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// CLOUD LOAD / SAVE
+// ══════════════════════════════════════════════════════
+
+// Load questions + progress from Supabase
+async function loadFromCloud(){
+  if(!SB_USER) return;
+  showToast('☁️ 클라우드에서 불러오는 중…');
+  try{
+    // 1. Load questions
+    const { data: qRows, error: qErr } = await sb
+      .from('questions')
+      .select('*')
+      .order('created_at', { ascending: true });
+    if(qErr) throw qErr;
+
+    if(qRows && qRows.length > 0){
+      S.questions = qRows.map(r => ({
+        id: r.id,
+        question_id: r.question_id,
+        source: r.source || 'cloud',
+        text: r.text,
+        options: r.options,
+        correct: r.correct,
+        explanation: r.explanation || '',
+        wrongReasons: r.wrong_reasons || '',
+        taxUpdate2025: r.tax_update_2025 || '',
+        examTip: r.exam_tip || '',
+        part: r.part || 'Part 1',
+        topic: r.topic || 'General',
+      }));
+    } else {
+      // No questions in DB yet — use demo
+      if(S.questions.length === 0) S.questions = JSON.parse(JSON.stringify(DEMO));
+    }
+
+    // 2. Load progress
+    const { data: pRows, error: pErr } = await sb
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', SB_USER.id);
+    if(pErr) throw pErr;
+
+    S.answered = {};
+    S.flagged  = new Set();
+    (pRows || []).forEach(r => {
+      S.answered[r.question_id] = { times: r.times, correct: r.correct_count, wrong: r.wrong_count };
+      if(r.flagged) S.flagged.add(r.question_id);
+    });
+
+    // 3. Load sessions
+    const { data: sRows } = await sb
+      .from('sessions')
+      .select('*')
+      .eq('user_id', SB_USER.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    S.sessions = (sRows || []).map(r => ({
+      date: new Date(r.created_at).toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
+      count: r.count, correct: r.correct, pct: r.pct
+    }));
+
+    renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
+    showToast(`✅ ${S.questions.length}개 문제 로드 완료`);
+  } catch(e){
+    showToast('⚠️ 클라우드 로드 실패: ' + e.message);
+    // Fallback to demo
+    if(S.questions.length === 0) S.questions = JSON.parse(JSON.stringify(DEMO));
+    renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
+  }
+}
+
+// Save a single question's progress to Supabase
+async function saveProgressToCloud(questionId, isCorrect, isFlagged){
+  if(!SB_USER) return;
+  const existing = S.answered[questionId] || { times:0, correct:0, wrong:0 };
+  await sb.from('user_progress').upsert({
+    user_id:      SB_USER.id,
+    question_id:  questionId,
+    times:        existing.times,
+    correct_count: existing.correct,
+    wrong_count:  existing.wrong,
+    flagged:      S.flagged.has(questionId),
+    updated_at:   new Date().toISOString(),
+  }, { onConflict: 'user_id,question_id' });
+}
+
+// Save session result to Supabase
+async function saveSessionToCloud(count, correct, pct){
+  if(!SB_USER) return;
+  await sb.from('sessions').insert({
+    user_id: SB_USER.id,
+    count, correct, pct
+  });
+}
+
+// Upsert questions to Supabase (admin upload)
+async function uploadQuestionsToCloud(questions){
+  if(!SB_USER){ showToast('⚠️ 로그인 필요'); return 0; }
+  const rows = questions.map(q => ({
+    id:              q.id,
+    question_id:     q.question_id || null,
+    source:          q.source,
+    text:            q.text,
+    options:         q.options,
+    correct:         q.correct,
+    explanation:     q.explanation || null,
+    wrong_reasons:   q.wrongReasons || null,
+    tax_update_2025: q.taxUpdate2025 || null,
+    exam_tip:        q.examTip || null,
+    part:            q.part || 'Part 1',
+    topic:           q.topic || 'General',
+  }));
+
+  // Upsert in batches of 100
+  let uploaded = 0;
+  for(let i = 0; i < rows.length; i += 100){
+    const batch = rows.slice(i, i + 100);
+    const { error } = await sb.from('questions').upsert(batch, { onConflict: 'id' });
+    if(error){ showToast('❌ 업로드 오류: ' + error.message); break; }
+    uploaded += batch.length;
+  }
+  return uploaded;
+}
+
+// ══════════════════════════════════════════════════════
+// HAMBURGER / MOBILE NAV
+// ══════════════════════════════════════════════════════
+function toggleDrawer(){
+  const drawer = document.getElementById('mobile-nav-drawer');
+  const btn    = document.getElementById('hamburger-btn');
+  const open   = drawer.classList.toggle('open');
+  // Animate hamburger → X
+  const spans  = btn.querySelectorAll('span');
+  if(open){
+    spans[0].style.transform='translateY(7px) rotate(45deg)';
+    spans[1].style.opacity='0';
+    spans[2].style.transform='translateY(-7px) rotate(-45deg)';
+  } else {
+    spans[0].style.transform='';
+    spans[1].style.opacity='';
+    spans[2].style.transform='';
+  }
+}
+function closeDrawer(){
+  const drawer = document.getElementById('mobile-nav-drawer');
+  drawer.classList.remove('open');
+  const spans = document.getElementById('hamburger-btn').querySelectorAll('span');
+  spans[0].style.transform=''; spans[1].style.opacity=''; spans[2].style.transform='';
+}
+// Close drawer on outside tap
+document.addEventListener('click', e => {
+  const drawer = document.getElementById('mobile-nav-drawer');
+  const btn    = document.getElementById('hamburger-btn');
+  if(drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)){
+    closeDrawer();
+  }
+});
+
+// ══════════════════════════════════════════════════════
+// CONFIG — Gemini API
+// ══════════════════════════════════════════════════════
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+function getApiKey(){
+  return localStorage.getItem('ea_gemini_key') || '';
+}
+
+async function callGemini(systemPrompt, userPrompt){
+  const key = getApiKey();
+  if(!key) throw new Error('No API key set. Please add your Gemini API key in Settings.');
+  const res = await fetch(`${GEMINI_URL}?key=${key}`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      contents:[{role:'user', parts:[{text: systemPrompt + '\n\n' + userPrompt}]}],
+      generationConfig:{temperature:0.3, maxOutputTokens:1200}
+    })
+  });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err?.error?.message || `API error ${res.status}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+const S = {
+  questions:[], sessions:[], flagged:new Set(), answered:{},
+  quizQueue:[], quizIdx:0, submitted:false, selected:null,
+  count:5, filter:'all', part:'all', subset:'all', mode:'normal',
+  results:{correct:0,wrong:0,total:0},
+  timerInt:null, timerSec:90,
+};
+
+// ══════════════════════════════════════════════════════
+// DEMO QUESTIONS (built-in)
+// ══════════════════════════════════════════════════════
+const DEMO = [
+  {id:'q1',part:'Part 1',topic:'Filing Status',
+   text:'A taxpayer who is unmarried and pays more than half the cost of maintaining a home for a qualifying child may file under which status?',
+   options:['Single','Married Filing Separately','Head of Household','Qualifying Surviving Spouse'],correct:2,
+   explanation:'Head of Household (HOH) status is available to unmarried taxpayers who pay more than half the cost of keeping up a home for a qualifying person for more than half the year. HOH provides a higher standard deduction and lower tax rates than Single.',
+   wrongReasons:'Single: no qualifying dependent test met for HOH. MFS: reserved for married couples. QSS: requires the taxpayer to have been widowed in one of the two preceding tax years with a dependent child still living in the home.',
+   taxUpdate2025:'For 2025, the HOH standard deduction is $22,500 (up from $21,900 in 2024). The qualifying person must live with the taxpayer for more than half the year.',
+   examTip:'On the EA exam, distinguish HOH from QSS carefully. QSS applies only for the two tax years following the year of the spouse\'s death and requires a dependent child in the home. HOH does not require a prior marriage.',source:'demo'},
+  {id:'q2',part:'Part 1',topic:'Gross Income',
+   text:'Which of the following is generally EXCLUDED from gross income?',
+   options:['Tips received from customers','Alimony received under a pre-2019 divorce agreement','Life insurance proceeds received due to the death of the insured','Lottery winnings'],correct:2,
+   explanation:'Life insurance death benefits paid to a named beneficiary are excluded from gross income under IRC §101(a). This is a fundamental exclusion tested heavily on Part 1.',
+   wrongReasons:'Tips are taxable compensation. Pre-2019 alimony is includible in the recipient\'s income. Lottery winnings are ordinary income fully subject to tax.',
+   taxUpdate2025:'The §101(a) exclusion remains unchanged for 2025. Alimony rules: agreements executed after 12/31/2018 — not deductible by payor, not income to recipient.',
+   examTip:'Memorize the big exclusions: gifts/inheritances (§102), life insurance (§101), municipal bond interest (§103), employer-paid health insurance (§106), and workers\' comp (§104).',source:'demo'},
+  {id:'q3',part:'Part 1',topic:'Standard Deduction',
+   text:'In 2025, what is the standard deduction for a single taxpayer under age 65?',
+   options:['$13,850','$14,600','$15,000','$16,000'],correct:2,
+   explanation:'The 2025 standard deduction for a single filer under 65 is $15,000. Standard deductions are adjusted annually for inflation under IRC §63(c)(4).',
+   wrongReasons:'$13,850 was the 2023 amount. $14,600 was the 2024 amount. $16,000 is not the current figure.',
+   taxUpdate2025:'2025 Standard Deductions: Single/MFS = $15,000 | MFJ/QSS = $30,000 | HOH = $22,500. Additional amounts for age 65+/blind: $2,000 (single/HOH) or $1,600 (MFJ/MFS/QSS).',
+   examTip:'Memorize all four filing status standard deduction amounts and the additional amounts for elderly/blind. Know that a dependent\'s deduction is limited to the greater of $1,350 or earned income + $450 (2025).',source:'demo'},
+  {id:'q4',part:'Part 2',topic:'Business Entities',
+   text:'A single-member LLC that has NOT elected corporate taxation is treated as which type of entity for federal income tax purposes?',
+   options:['C Corporation','S Corporation','Partnership','Disregarded entity'],correct:3,
+   explanation:'By default, a single-member LLC is a disregarded entity — its income and deductions flow directly to the owner\'s individual return (Schedule C for business, Schedule E for rental).',
+   wrongReasons:'C Corp: requires Form 8832 election. S Corp: requires Form 2553. Partnership: requires at least two members by definition.',
+   taxUpdate2025:'For 2025, single-member LLCs remain disregarded by default. Self-employment tax still applies to the SMLLC owner on net earnings.',
+   examTip:'Know the check-the-box defaults: single-member LLC = disregarded; multi-member LLC = partnership; corporations cannot be disregarded. An LLC can elect C Corp (Form 8832) or S Corp (Form 2553).',source:'demo'},
+  {id:'q5',part:'Part 2',topic:'Depreciation',
+   text:'Under MACRS, office furniture and fixtures generally fall into which recovery period?',
+   options:['5-year','7-year','15-year','39-year'],correct:1,
+   explanation:'Office furniture and fixtures are 7-year property under MACRS (Rev. Proc. 87-56). The half-year convention applies unless the mid-quarter convention is triggered.',
+   wrongReasons:'5-year: computers, autos, light trucks. 15-year: land improvements, QIP. 39-year: nonresidential real property.',
+   taxUpdate2025:'For 2025, bonus depreciation is 40% (down from 60% in 2024). Section 179 expensing limit = $1,250,000 with phase-out beginning at $3,130,000.',
+   examTip:'Know the 5 most-tested MACRS classes: 5-yr (autos/computers), 7-yr (furniture/equipment), 15-yr (land improvements/QIP), 27.5-yr (residential rental), 39-yr (nonresidential). Bonus depreciation phase-down is a hot 2025 exam topic.',source:'demo'},
+  {id:'q6',part:'Part 3',topic:'Enrollment & Credentials',
+   text:'Which credential is NOT required to become an enrolled agent?',
+   options:['Passing all three parts of the Special Enrollment Exam','A law degree','Passing an IRS suitability check','Maintaining continuing education after enrollment'],correct:1,
+   explanation:'A law degree is not required to become an enrolled agent. EAs are licensed by passing the three-part SEE (or via qualifying IRS employment), a suitability check, and maintaining CE requirements.',
+   wrongReasons:'All three SEE parts must pass within a rolling 3-year window. The IRS suitability/background check is mandatory. 72 hours of CE per 3-year cycle is required.',
+   taxUpdate2025:'As of 2025, the three-year rolling window means a candidate who passes Part 1 on Jan 1, 2023, must pass Parts 2 and 3 by Dec 31, 2025.',
+   examTip:'Part 3 heavily tests Circular 230. Know: practitioners may NOT charge contingent fees for original returns; due diligence standards; written advice requirements; unlimited vs. limited practice rights.',source:'demo'},
+  {id:'q7',part:'Part 1',topic:'Tax Credits',
+   text:'For 2025, the Child Tax Credit (CTC) is up to how much per qualifying child?',
+   options:['$1,000','$1,600','$2,000','$3,600'],correct:2,
+   explanation:'The Child Tax Credit remains $2,000 per qualifying child under age 17 for 2025. The refundable portion (ACTC) is up to $1,700.',
+   wrongReasons:'$1,000 was the pre-TCJA 2017 amount. $1,600 is not the full CTC amount. $3,600 was the 2021 temporary expansion.',
+   taxUpdate2025:'For 2025: CTC = $2,000 per qualifying child. Refundable ACTC maximum = $1,700. Phase-out at $400,000 MFJ / $200,000 others. Child must be under 17 at year-end with a valid SSN.',
+   examTip:'Know the CTC phase-out thresholds, the SSN requirement (ITIN does NOT qualify), and the difference between CTC and the $500 Credit for Other Dependents. A 17-year-old does NOT qualify for CTC.',source:'demo'},
+  {id:'q8',part:'Part 2',topic:'Self-Employment Tax',
+   text:'A self-employed taxpayer may deduct what percentage of self-employment tax as an above-the-line adjustment to income?',
+   options:['50%','7.65%','100%','15.3%'],correct:0,
+   explanation:'Self-employed individuals deduct 50% of their SE tax as an above-the-line adjustment under IRC §164(f). This mirrors the employer\'s share of FICA which is deductible for W-2 employees.',
+   wrongReasons:'7.65%: the employee share of FICA. 100% would eliminate SE tax — not permitted. 15.3% is the total SE tax rate, not the deductible portion.',
+   taxUpdate2025:'For 2025, the SE tax rate remains 15.3% on net earnings up to $176,100 (SS wage base) and 2.9% above that. The 0.9% Additional Medicare Tax applies above $200,000 (single) / $250,000 (MFJ).',
+   examTip:'Remember two SE deductions: (1) 50% of SE tax — above-the-line on Schedule 1; (2) SE health insurance premiums — also above-the-line. Net earnings from SE = 92.35% × net profit.',source:'demo'},
+  {id:'q9',part:'Part 3',topic:'Circular 230',
+   text:'Under Circular 230, what is the maximum monetary penalty for a practitioner who engages in a pattern of willful violations?',
+   options:['$1,000 per violation','$5,000 per violation','$10,000 per violation','$25,000 per violation'],correct:2,
+   explanation:'Under Circular 230 §10.50(b), the IRS may impose a civil monetary penalty of up to $10,000 per violation for willful violations by practitioners.',
+   wrongReasons:'$1,000/$5,000: not the statutory maximums for willful violations. $25,000 applies specifically to tax shelter violations under §10.51.',
+   taxUpdate2025:'As of 2025, the §10.50 penalty structure remains: up to $10,000 per willful violation. The IRS Office of Professional Responsibility (OPR) enforces these standards.',
+   examTip:'High-priority Circular 230 topics: (1) Competence standard §10.35; (2) Contingent fee rules §10.27; (3) Return of client records §10.28; (4) Prompt error notification §10.21; (5) Written advice standards §10.37.',source:'demo'},
+  {id:'q10',part:'Part 1',topic:'Capital Gains',
+   text:'Long-term capital gains rates apply to capital assets held for more than:',
+   options:['6 months','9 months','1 year','2 years'],correct:2,
+   explanation:'Long-term capital gains treatment requires a holding period of more than one year (more than 12 months). Assets held for 12 months or less generate short-term gains taxed as ordinary income.',
+   wrongReasons:'6 months and 9 months produce short-term gains at ordinary income rates. 2 years is not required.',
+   taxUpdate2025:'For 2025, LTCG rates: 0% up to $48,350 (single) / $96,700 (MFJ); 15% up to $533,400 (single) / $600,050 (MFJ); 20% above. NIIT of 3.8% applies for high earners.',
+   examTip:'Know all three LTCG rates and thresholds. Also: §1231 gains get LTCG treatment; §1250 unrecaptured depreciation taxed at max 25%; collectibles at max 28%; §1202 QSBS — up to 100% exclusion for stock held >5 years.',source:'demo'},
+];
+
+// ══════════════════════════════════════════════════════
+// INIT & PERSIST (Cloud-first)
+// ══════════════════════════════════════════════════════
+function init(){
+  // UI 초기화만 — 데이터는 checkSession()이 loadFromCloud()로 처리
+  renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
+  const k = getApiKey();
+  if(k){
+    document.getElementById('api-key-input').value = '•'.repeat(Math.min(k.length, 32));
+    document.getElementById('api-status').textContent = '✓ API 키가 저장되어 있습니다 — 자동으로 사용 중';
+  }
+}
+
+function load(){ /* No-op: data loaded from cloud */ }
+
+function save(){
+  // localStorage는 캐시 용도로만 유지
+  try{ localStorage.setItem('ea_prep_v3',JSON.stringify({q:S.questions,s:S.sessions,f:[...S.flagged],a:S.answered})); }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════
+function saveApiKey(){
+  const input=document.getElementById('api-key-input');
+  const raw=input.value.trim();
+  // If it's all bullets (already saved), don't overwrite
+  if(!raw || /^•+$/.test(raw)){showToast('새 API 키를 입력해주세요');return;}
+  localStorage.setItem('ea_gemini_key',raw);
+  input.value='•'.repeat(Math.min(raw.length,32));
+  document.getElementById('api-status').textContent='✅ API 키 저장 완료 — 이 기기에서 자동 사용됩니다';
+  showToast('✅ API 키가 저장되었습니다');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({questions:S.questions,sessions:S.sessions,flagged:[...S.flagged],answered:S.answered},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ea-prep-data.json'; a.click();
+}
+function resetData(){
+  localStorage.removeItem('ea_prep_v3');
+  S.questions=JSON.parse(JSON.stringify(DEMO)); S.sessions=[]; S.flagged=new Set(); S.answered={};
+  renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
+  showToast('All data reset');
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  // Desktop nav active
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const map={dashboard:0,'quiz-setup':1,bookmarks:2,upload:3,settings:4};
+  if(map[name]!==undefined) document.querySelectorAll('.nav-btn')[map[name]].classList.add('active');
+  // Mobile nav active
+  const mobMap={dashboard:'mob-dashboard','quiz-setup':'mob-study',bookmarks:'mob-review',upload:'mob-upload',settings:'mob-settings'};
+  document.querySelectorAll('.mobile-nav-item').forEach(b=>b.classList.remove('active'));
+  if(mobMap[name]) { const el=document.getElementById(mobMap[name]); if(el) el.classList.add('active'); }
+  if(name==='dashboard') renderDashboard();
+  if(name==='bookmarks') renderBookmarks();
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+function renderDashboard(){
+  const total=S.questions.length, seen=Object.keys(S.answered).length, unseen=total-seen;
+  let tc=0,ta=0;
+  for(const k in S.answered){tc+=S.answered[k].correct||0; ta+=S.answered[k].times||0;}
+  const acc=ta>0?Math.round(tc/ta*100):0;
+
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-label">총 문제</div><div class="stat-value">${total}</div><div class="stat-sub">${unseen}개 미학습</div></div>
+    <div class="stat-card"><div class="stat-label">학습 완료</div><div class="stat-value">${seen}</div><div class="stat-sub">${S.sessions.length}회 세션</div></div>
+    <div class="stat-card"><div class="stat-label">정확도</div><div class="stat-value">${acc}%</div><div class="stat-sub">${tc}/${ta} 정답</div></div>
+    <div class="stat-card"><div class="stat-label">플래그</div><div class="stat-value">${S.flagged.size}</div><div class="stat-sub">복습 예정</div></div>`;
+
+  const parts=[['Part 1','👤','Part 1 – 개인세'],['Part 2','🏢','Part 2 – 사업세'],['Part 3','⚖️','Part 3 – 대리인']];
+  document.getElementById('unit-list').innerHTML=parts.map(([pk,icon,label])=>{
+    const qs=S.questions.filter(q=>q.part===pk);
+    const done=qs.filter(q=>S.answered[q.id]).length;
+    const pct=qs.length>0?Math.round(done/qs.length*100):0;
+    return`<div class="unit-card"><div class="unit-icon">${icon}</div><div class="unit-info"><div class="unit-name">${label}</div><div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div><div class="unit-stats">${done} / ${qs.length}개 학습</div></div><div class="unit-count">${pct}%</div></div>`;
+  }).join('');
+
+  const recent=S.sessions.slice(-5).reverse();
+  document.getElementById('activity-log').innerHTML=recent.length===0
+    ?'<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>'
+    :recent.map(s=>`<div class="activity-row"><span style="font-weight:600;">${s.date}</span><span style="color:var(--text-muted);">${s.count}문제</span><span style="color:#16a34a;font-weight:600;margin-left:auto;">${s.correct}정답 · ${s.pct}%</span></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// QUIZ SETUP
+// ══════════════════════════════════════════════════════
+function selectCount(n,btn){S.count=n;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
+function selectPart(p,btn){S.part=p;document.querySelectorAll('#part-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
+function selectSubset(s,btn){S.subset=s;document.querySelectorAll('#subset-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
+function selectMode(m,btn){S.mode=m;document.querySelectorAll('#mode-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
+
+function getPool(){
+  // Step 1: filter by Part
+  let p=S.questions;
+  if(S.part==='part1') p=p.filter(q=>q.part==='Part 1');
+  else if(S.part==='part2') p=p.filter(q=>q.part==='Part 2');
+  else if(S.part==='part3') p=p.filter(q=>q.part==='Part 3');
+
+  // Step 2: filter by Subset (independently)
+  if(S.subset==='unseen') p=p.filter(q=>!S.answered[q.id]);
+  else if(S.subset==='flagged') p=p.filter(q=>S.flagged.has(q.id));
+
+  // Step 3: Study mode override
+  if(S.mode==='review') p=p.filter(q=>S.answered[q.id]&&S.answered[q.id].wrong>0);
+  return p;
+}
+function updateAvailCount(){
+  const p=getPool(),avail=p.length,take=Math.min(S.count,avail);
+  const el=document.getElementById('avail-count');
+  el.textContent=avail===0?'No questions match this filter':`${avail} questions available · session will use ${take}`;
+  document.getElementById('start-btn').disabled=avail===0;
+}
+
+// ══════════════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════════════
+function startQuiz(){
+  let pool=getPool(); if(!pool.length) return;
+  pool.sort((a,b)=>{const ta=S.answered[a.id]?.times||0,tb=S.answered[b.id]?.times||0;return ta-tb||Math.random()-.5;});
+  S.quizQueue=pool.slice(0,S.count).map(q=>q.id);
+  S.quizIdx=0; S.submitted=false; S.selected=null;
+  S.results={correct:0,wrong:0,total:S.quizQueue.length};
+  showScreen('quiz'); loadQuestion();
+}
+
+function curQ(){const id=S.quizQueue[S.quizIdx];return id?S.questions.find(q=>q.id===id):null;}
+
+function loadQuestion(){
+  const q=curQ(); if(!q){showResults();return;}
+  const pct=Math.round(S.quizIdx/S.quizQueue.length*100);
+  document.getElementById('q-bar').style.width=pct+'%';
+  document.getElementById('q-progress-text').textContent=`Question ${S.quizIdx+1} of ${S.quizQueue.length}`;
+  document.getElementById('q-session-label').textContent=S.mode.toUpperCase()+' SESSION · 2025 TAX LAW';
+  document.getElementById('q-part').textContent=q.part;
+  document.getElementById('q-topic').textContent=q.topic||'General';
+  document.getElementById('q-text').textContent=q.text;
+
+  // Show question_id if available
+  const idBadge = document.getElementById('q-id-badge');
+  if(q.question_id){
+    idBadge.textContent = '#'+q.question_id;
+    idBadge.style.display='inline-block';
+  } else if(q.id && !q.id.startsWith('q') && !q.id.startsWith('csv')){
+    idBadge.textContent = '#'+q.id;
+    idBadge.style.display='inline-block';
+  } else {
+    idBadge.style.display='none';
+  }
+
+  // Reset copy button
+  const copyBtn = document.getElementById('q-copy-btn');
+  copyBtn.textContent='📋 Copy';
+  copyBtn.classList.remove('copied');
+
+  const fl=S.flagged.has(q.id);
+  document.getElementById('q-flag-btn').className='q-flag-btn'+(fl?' flagged':'');
+  document.getElementById('q-flag-btn').textContent=fl?'⚑ Flagged':'⚑ Flag';
+  document.getElementById('nav-flag').textContent=fl?'⚑ Unflag':'⚑ Flag';
+
+  // Render options
+  const ol=document.getElementById('options-list'); ol.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<div class="opt-letter">${String.fromCharCode(65+i)}</div><div class="opt-text">${opt}</div>`;
+    btn.onclick=()=>selectOption(i,btn);
+    ol.appendChild(btn);
+  });
+
+  // Reset UI
+  S.selected=null; S.submitted=false;
+  document.getElementById('btn-submit').disabled=true;
+  document.getElementById('btn-submit').textContent='Submit Answer';
+  document.getElementById('btn-skip').style.display='';
+  document.getElementById('explanation-card').classList.remove('visible');
+  document.getElementById('ai-answer').classList.remove('visible');
+  document.getElementById('ask-input').value='';
+
+  // Timer
+  clearInterval(S.timerInt);
+  const tb=document.getElementById('timer-badge');
+  if(S.mode==='timed'){
+    S.timerSec=90; tb.style.display='block'; tb.textContent='90s'; tb.style.background='rgba(163,45,45,.2)';
+    S.timerInt=setInterval(()=>{
+      S.timerSec--;
+      tb.textContent=S.timerSec+'s';
+      if(S.timerSec<=15) tb.style.background='rgba(163,45,45,.4)';
+      if(S.timerSec<=0){clearInterval(S.timerInt);if(!S.submitted) autoTimeout();}
+    },1000);
+  } else { tb.style.display='none'; }
+}
+
+function selectOption(i,btn){
+  if(S.submitted) return;
+  S.selected=i;
+  document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('btn-submit').disabled=false;
+}
+
+function autoTimeout(){
+  S.submitted=true; clearInterval(S.timerInt);
+  const q=curQ(); if(!q) return;
+  if(!S.answered[q.id]) S.answered[q.id]={times:0,correct:0,wrong:0};
+  S.answered[q.id].times++; S.answered[q.id].wrong++; S.results.wrong++;
+  save();
+  saveProgressToCloud(q.id, false); // ☁️ cloud
+  document.querySelectorAll('.option-btn').forEach((b,i)=>{b.disabled=true;if(i===q.correct) b.classList.add('reveal');});
+  showExplanation(q,false,true);
+}
+
+function submitAnswer(){
+  if(S.submitted||S.selected===null) return;
+  S.submitted=true; clearInterval(S.timerInt);
+  const q=curQ(); if(!q) return;
+  const chosen=S.selected, isOk=chosen===q.correct;
+
+  if(!S.answered[q.id]) S.answered[q.id]={times:0,correct:0,wrong:0};
+  S.answered[q.id].times++;
+  if(isOk){S.answered[q.id].correct++;S.results.correct++;}
+  else{S.answered[q.id].wrong++;S.results.wrong++;}
+  save();
+  saveProgressToCloud(q.id, isOk); // ☁️ cloud
+
+  document.querySelectorAll('.option-btn').forEach((b,i)=>{
+    b.disabled=true; b.classList.remove('sel');
+    if(i===q.correct) b.classList.add(isOk&&i===chosen?'correct-ans':'reveal');
+    else if(i===chosen&&!isOk) b.classList.add('wrong-ans');
+  });
+
+  if(S.answered[q.id].wrong>=2&&!S.flagged.has(q.id)){
+    S.flagged.add(q.id); save(); showToast('⚑ Auto-flagged — missed this question twice');
+  }
+
+  document.getElementById('btn-submit').disabled=true;
+  document.getElementById('btn-submit').textContent='Submitted ✓';
+  document.getElementById('btn-skip').style.display='none';
+  showExplanation(q,isOk,false);
+}
+
+function skipQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResults();else loadQuestion();}
+
+async function showExplanation(q,isOk,timeout){
+  const ec=document.getElementById('explanation-card'); ec.classList.add('visible');
+  const banner=document.getElementById('result-banner');
+  if(timeout){ banner.className='result-banner fail'; banner.textContent='⏱ Time\'s up! See the correct answer below'; }
+  else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'✓ Correct! Well done.':'✗ Incorrect — review the explanation below'; }
+
+  // Detect whether we have pre-loaded content
+  const hasExplanation = q.explanation && q.explanation.trim().length > 2;
+  const hasWrong       = q.wrongReasons && q.wrongReasons.trim().length > 2;
+  const hasUpdate      = q.taxUpdate2025 && q.taxUpdate2025.trim().length > 2;
+  const hasTip         = q.examTip && q.examTip.trim().length > 2;
+
+  if(hasExplanation){
+    // Show what we have immediately
+    document.getElementById('exp-body').innerHTML   = q.explanation;
+    document.getElementById('wrong-body').innerHTML = hasWrong
+      ? q.wrongReasons
+      : '<span class="loading">Loading…</span>';
+    document.getElementById('update-body').innerHTML = hasUpdate
+      ? q.taxUpdate2025
+      : '<span class="loading">Checking 2025 changes…</span>';
+    document.getElementById('tip-body').innerHTML   = hasTip
+      ? q.examTip
+      : '<span class="loading">Loading exam tip…</span>';
+
+    // Fetch any missing pieces
+    const jobs = [];
+    if(!hasWrong)  jobs.push(fetchWrongReasons(q));
+    if(!hasUpdate) jobs.push(fetchTaxUpdate(q));
+    if(!hasTip)    jobs.push(fetchExamTip(q));
+    if(jobs.length) await Promise.all(jobs);
+  } else {
+    // No pre-loaded content at all — fetch everything from AI
+    document.getElementById('exp-body').innerHTML   = '<span class="loading">AI generating explanation…</span>';
+    document.getElementById('wrong-body').innerHTML = '<span class="loading">Analyzing options…</span>';
+    document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
+    document.getElementById('tip-body').innerHTML   = '<span class="loading">Generating exam tip…</span>';
+    await fetchFullExplanation(q);
+  }
+}
+
+async function fetchTaxUpdate(q){
+  try{
+    const text=await callGemini(
+      'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown. IMPORTANT: All explanations must be based on 2025 U.S. tax law (tax year 2025 / IRC as amended through 2025). If the question bank source may reflect an older tax year, explicitly note any difference and always state the correct 2025 figure.',
+      `For this EA exam question, write a "2025 Tax Law Update" note (2-4 sentences):\n1) Start with: "⚠️ 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다."\n2) Then explain what CHANGED from 2023 or 2024 to 2025 relevant to this question — dollar amounts, thresholds, or rule changes.\n3) If nothing changed, confirm the rule is unchanged and state the current 2025 figure.\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]}\nExplanation: ${q.explanation}`
+    );
+    q.taxUpdate2025=text; save();
+    document.getElementById('update-body').innerHTML=text;
+  }catch(e){ document.getElementById('update-body').textContent='AI unavailable — check API key in Settings.'; }
+}
+
+async function fetchWrongReasons(q){
+  try{
+    const letters=['A','B','C','D'];
+    const wrongOpts = q.options
+      .map((o,i)=>i===q.correct?null:`${letters[i]}: ${o}`)
+      .filter(Boolean).join('\n');
+    const text=await callGemini(
+      'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown.',
+      `For this EA exam question, explain in 1 sentence per option WHY each incorrect answer is wrong. Format: "A: reason. B: reason." (skip the correct option).\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]} (${letters[q.correct]})\nIncorrect options:\n${wrongOpts}`
+    );
+    q.wrongReasons=text; save();
+    document.getElementById('wrong-body').innerHTML=text;
+  }catch(e){ document.getElementById('wrong-body').textContent='AI unavailable — check API key in Settings.'; }
+}
+
+async function fetchExamTip(q){
+  try{
+    const text=await callGemini(
+      'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown. All tips must reflect 2025 U.S. tax law. If the question bank may be from an older year, note the 2025-correct figures.',
+      `For this EA exam question on ${q.topic||q.part}, write an EA Exam Tip (2-3 sentences) covering: common mistakes, memory tricks, related 2025 concepts, or updated thresholds/figures students must know for the 2026 EA exam (based on 2025 tax law).\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]}`
+    );
+    q.examTip=text; save();
+    document.getElementById('tip-body').innerHTML=text;
+  }catch(e){ document.getElementById('tip-body').textContent='AI unavailable — check API key in Settings.'; }
+}
+
+async function fetchFullExplanation(q){
+  try{
+    const raw=await callGemini(
+      'You are an EA exam tutor. Return ONLY a valid JSON object — no markdown, no preamble. Keys: explanation (string), wrongReasons (string: explain in 1 sentence why each INCORRECT option is wrong, format "A: reason. B: reason." skipping the correct letter), taxUpdate2025 (string: ALWAYS start with "⚠️ 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다." then explain what CHANGED from 2023/2024 to 2025 — dollar amounts, thresholds, rule changes; if unchanged confirm the rule is unchanged with the 2025 figure), examTip (string: include 2025-correct figures and note this is for the 2026 EA exam based on 2025 tax law). All values must strictly use 2025 U.S. tax law.',
+      `EA exam question:\n${q.text}\nOptions: ${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join(' | ')}\nCorrect answer: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}`
+    );
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    q.explanation   = parsed.explanation   || q.explanation || '—';
+    q.wrongReasons  = parsed.wrongReasons  || '—';
+    q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+    q.examTip       = parsed.examTip       || '—';
+    save();
+    document.getElementById('exp-body').innerHTML   = q.explanation;
+    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
+    document.getElementById('update-body').innerHTML= q.taxUpdate2025;
+    document.getElementById('tip-body').innerHTML   = q.examTip;
+  }catch(e){
+    const msg='AI unavailable. Check your API key in ⚙ Settings.';
+    document.getElementById('exp-body').textContent   = q.explanation || msg;
+    document.getElementById('wrong-body').textContent = q.wrongReasons || '—';
+    document.getElementById('update-body').textContent= msg;
+    document.getElementById('tip-body').textContent   = msg;
+  }
+}
+
+function nextQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResults();else loadQuestion();}
+function endSession(){clearInterval(S.timerInt);showResults();}
+
+// ══════════════════════════════════════════════════════
+// COPY QUESTION
+// ══════════════════════════════════════════════════════
+function copyQuestion(){
+  const q=curQ(); if(!q) return;
+  const letters=['A','B','C','D'];
+  const lines=[q.text,''];
+  q.options.forEach((opt,i)=>{ lines.push(`${letters[i]}. ${opt}`); });
+  const text=lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('q-copy-btn');
+    btn.textContent='✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='📋 Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(()=>{
+    // Fallback for older browsers
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✓ 문제가 복사되었습니다');
+  });
+}
+
+function toggleFlag(){
+  const q=curQ(); if(!q) return;
+  if(S.flagged.has(q.id)) S.flagged.delete(q.id); else S.flagged.add(q.id);
+  save();
+  saveProgressToCloud(q.id, null); // ☁️ sync flag
+  const fl=S.flagged.has(q.id);
+  document.getElementById('q-flag-btn').className='q-flag-btn'+(fl?' flagged':'');
+  document.getElementById('q-flag-btn').textContent=fl?'⚑ Flagged':'⚑ Flag';
+  document.getElementById('nav-flag').textContent=fl?'⚑ Unflag':'⚑ Flag';
+  showToast(fl?'Question flagged for review':'Flag removed');
+}
+
+// ══════════════════════════════════════════════════════
+// FOLLOW-UP
+// ══════════════════════════════════════════════════════
+async function sendFollowUp(){
+  const q=curQ(), userQ=document.getElementById('ask-input').value.trim();
+  if(!userQ) return;
+  const box=document.getElementById('ai-answer');
+  box.innerHTML='<span class="loading">Thinking…</span>'; box.classList.add('visible');
+  try{
+    const text=await callGemini(
+      'You are an expert EA exam tutor. IMPORTANT: Always answer strictly using 2025 U.S. tax law (for the 2026 EA exam). If the question bank may reflect older tax law, explicitly note the 2025-correct rule or figure. Be specific with dollar amounts, thresholds, and rates. Keep answers under 200 words. End with a one-sentence exam tip if relevant. Start your response with "📌 2025 세법 기준:" if the answer involves a specific dollar figure or threshold.',
+      `Context: Student answered this EA exam question:\n"${q?.text}"\nCorrect answer: ${q?q.options[q.correct]:''}\n\nStudent follow-up: ${userQ}`
+    );
+    box.innerHTML=text.replace(/\n/g,'<br>');
+  }catch(e){ box.innerHTML='<em>'+e.message+'</em>'; }
+}
+
+// ══════════════════════════════════════════════════════
+// RESULTS
+// ══════════════════════════════════════════════════════
+function showResults(){
+  clearInterval(S.timerInt);
+  const {correct,wrong,total}=S.results, answered=correct+wrong;
+  const pct=answered>0?Math.round(correct/answered*100):0;
+  S.sessions.push({date:new Date().toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),count:answered,correct,pct});
+  save();
+  saveSessionToCloud(answered, correct, pct); // ☁️ cloud
+  document.getElementById('r-pct').textContent=pct+'%';
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-total').textContent=answered;
+  document.getElementById('r-flagged').textContent=S.flagged.size;
+  document.getElementById('r-title').textContent=pct>=80?'훌륭합니다! 🎉':pct>=60?'잘 하고 있어요 👍':'계속 학습하세요 📖';
+  document.getElementById('r-sub').textContent=`${answered}문제 중 ${correct}개 정답`;
+  showScreen('results');
+}
+
+// ══════════════════════════════════════════════════════
+// BOOKMARKS
+// ══════════════════════════════════════════════════════
+function renderBookmarks(){
+  const el=document.getElementById('bookmarks-list');
+  const fqs=S.questions.filter(q=>S.flagged.has(q.id));
+  if(!fqs.length){ el.innerHTML='<div class="empty"><div class="empty-icon">⚑</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 ⚑ 플래그를 달면 여기서 복습할 수 있습니다</div></div>'; return; }
+  el.innerHTML=fqs.map(q=>{
+    const a=S.answered[q.id]||{times:0,wrong:0};
+    return`<div class="bookmark-card" onclick="openModal('${q.id}')">
+      <div class="bm-q">${q.text.length>110?q.text.slice(0,110)+'…':q.text}</div>
+      <div class="bm-meta"><span class="bm-tag">${q.part}</span><span class="bm-tag">${q.topic||'General'}</span><span style="font-size:12px;color:#dc2626;font-weight:600;">✗ ${a.wrong}회 오답</span><span style="font-size:12px;color:var(--text-muted);margin-left:auto;">${a.times}회 학습</span></div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(id){
+  const q=S.questions.find(x=>x.id===id); if(!q) return;
+  const a=S.answered[id]||{times:0,correct:0,wrong:0};
+  document.getElementById('modal-content').innerHTML=`
+    <div style="margin-bottom:.75rem;"><span class="q-badge">${q.part}</span><span class="q-badge-gray" style="margin-left:6px;">${q.topic||'General'}</span></div>
+    <div style="font-size:16px;line-height:1.75;margin-bottom:1rem;color:var(--text-main);">${q.text}</div>
+    ${q.options.map((o,i)=>`<div style="padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:8px;border:1.5px solid ${i===q.correct?'#16a34a':'var(--border-clr)'};background:${i===q.correct?'rgba(22,163,74,.08)':'#f8faff'};color:${i===q.correct?'#15803d':'var(--text-muted)'};">${String.fromCharCode(65+i)}) ${o}</div>`).join('')}
+    ${q.explanation?`<div style="margin-top:1rem;"><div class="exp-label">해설</div><div style="font-size:15px;line-height:1.8;color:var(--text-muted);">${q.explanation}</div></div>`:''}
+    ${q.taxUpdate2025?`<div class="update-box" style="margin-top:.75rem;"><div class="update-label">📋 2025 세법 변경사항 (vs. 2023/2024)</div><div class="update-body">${q.taxUpdate2025}</div></div>`:''}
+    ${q.examTip?`<div class="tip-box" style="margin-top:.75rem;"><div class="tip-label">💡 EA Exam Tip</div><div class="tip-body">${q.examTip}</div></div>`:''}
+    <div style="display:flex;gap:12px;font-size:13px;color:var(--text-muted);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-clr);"><span>학습 횟수: ${a.times}×</span><span style="color:#16a34a;font-weight:600;">✓ ${a.correct}</span><span style="color:#dc2626;font-weight:600;">✗ ${a.wrong}</span></div>`;
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+// UPLOAD — CSV only (no JSON parsing errors)
+// ══════════════════════════════════════════════════════
+function renderUploadList(){
+  const src=[...new Set(S.questions.map(q=>q.source).filter(s=>s&&s!=='demo'))];
+  const el=document.getElementById('upload-list');
+  if(src.length===0){
+    el.innerHTML='<div style="font-size:15px;color:var(--text-muted);padding:10px 0;">데모 문제 10개가 기본으로 포함되어 있습니다. CSV 파일을 업로드하여 문제를 추가하세요.</div>';
+    return;
+  }
+  el.innerHTML=src.map(s=>{
+    const cnt=S.questions.filter(q=>q.source===s).length;
+    const safeId=encodeURIComponent(s);
+    return`<div class="upload-item" id="upload-item-${safeId}">
+      <div style="width:38px;height:38px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📄</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${cnt}개 문제</div>
+      </div>
+      <span class="upload-badge">${cnt}개</span>
+      <div class="upload-item-actions">
+        <button class="upload-action-btn replace" onclick="triggerReplace('${s}')" title="이 파일을 새 CSV로 교체">🔄 교체</button>
+        <button class="upload-action-btn delete" onclick="confirmDelete('${s}')" title="이 파일의 문제 삭제">🗑 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handleFileSelect(files){
+  [...files].forEach(f=>{
+    if(!f.name.endsWith('.csv')){
+      showToast('⚠️ CSV 파일만 지원됩니다: '+f.name);
+      return;
+    }
+    processCSVFile(f);
+  });
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  handleFileSelect(e.dataTransfer.files);
+}
+
+// ── DELETE ──────────────────────────────────────────
+let _deleteTarget = null; // source name pending confirmation
+
+function confirmDelete(sourceName){
+  // If another confirm is open, cancel it first
+  if(_deleteTarget && _deleteTarget !== sourceName) cancelDelete();
+
+  _deleteTarget = sourceName;
+  const safeId  = encodeURIComponent(sourceName);
+  const item    = document.getElementById('upload-item-'+safeId);
+  if(!item) return;
+
+  item.classList.add('confirm-delete');
+  // Replace action buttons with confirm row
+  const actions = item.querySelector('.upload-item-actions');
+  actions.innerHTML=`
+    <div class="delete-confirm-row">
+      <span>정말 삭제?</span>
+      <button class="confirm-yes" onclick="executeDelete('${sourceName}')">삭제</button>
+      <button class="confirm-no"  onclick="cancelDelete()">취소</button>
+    </div>`;
+}
+
+function cancelDelete(){
+  if(!_deleteTarget) return;
+  _deleteTarget = null;
+  renderUploadList(); // re-render to restore buttons
+}
+
+function executeDelete(sourceName){
+  const before = S.questions.length;
+  S.questions = S.questions.filter(q => q.source !== sourceName);
+  const ids = new Set(S.questions.map(q=>q.id));
+  for(const k in S.answered){ if(!ids.has(k)) delete S.answered[k]; }
+  S.flagged.forEach(id=>{ if(!ids.has(id)) S.flagged.delete(id); });
+  save();
+  const removed = before - S.questions.length;
+  _deleteTarget = null;
+  renderUploadList(); renderDashboard(); updateAvailCount();
+  showToast(`🗑 ${removed}개 문제 삭제됨 (${sourceName})`);
+
+  // ☁️ Supabase에서도 해당 source 문제 전체 삭제
+  if(SB_USER){
+    sb.from('questions').delete().eq('source', sourceName).then(({error})=>{
+      if(error) showToast('⚠️ 클라우드 삭제 오류: '+error.message);
+      else showToast(`☁️ 클라우드에서도 "${sourceName}" 삭제 완료`);
+    });
+  }
+}
+
+// ── REPLACE ─────────────────────────────────────────
+let _replaceTarget = null; // source name to replace
+
+function triggerReplace(sourceName){
+  _replaceTarget = sourceName;
+  const inp = document.getElementById('replace-input');
+  inp.value = ''; // reset so same file can be re-selected
+  inp.click();
+}
+
+function handleReplaceFile(files){
+  if(!files || !files.length || !_replaceTarget) return;
+  const file = files[0];
+  if(!file.name.endsWith('.csv')){
+    showToast('⚠️ CSV 파일만 지원됩니다');
+    _replaceTarget = null;
+    return;
+  }
+  const target = _replaceTarget;
+  _replaceTarget = null;
+  showToast('📂 교체 중: '+file.name);
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const newQs = parseCSV(ev.target.result, target);
+      if(!newQs.length){ showToast('❌ 문제를 찾을 수 없습니다. CSV 형식 확인하세요.'); return; }
+
+      // ── 로컬: 해당 source 완전 삭제 후 교체 ──
+      S.questions = S.questions.filter(q => q.source !== target);
+
+      // ── 중복 ID 처리: 다른 source에 같은 ID 있으면 새 것으로 덮어쓰기 ──
+      const newIds = new Set(newQs.map(q => q.id));
+      S.questions = S.questions.filter(q => !newIds.has(q.id));
+      newQs.forEach(q=>{ q.source = target; S.questions.push(q); });
+
+      // 없어진 ID 정리
+      const allIds = new Set(S.questions.map(q=>q.id));
+      for(const k in S.answered){ if(!allIds.has(k)) delete S.answered[k]; }
+      S.flagged.forEach(id=>{ if(!allIds.has(id)) S.flagged.delete(id); });
+
+      save(); renderUploadList(); renderDashboard(); updateAvailCount();
+      showToast(`✅ ${newQs.length}개 문제로 교체됨 (${target})`);
+
+      // ☁️ Supabase: source 삭제 후 새로 upsert
+      (async()=>{
+        if(SB_USER){
+          await sb.from('questions').delete().eq('source', target);
+          const n = await uploadQuestionsToCloud(newQs);
+          if(n > 0) showToast(`☁️ ${n}개 문제 클라우드 교체 완료`);
+        }
+      })();
+
+    }catch(err){
+      showToast('❌ 오류: '+err.message);
+    }
+  };
+  reader.onerror = () => showToast('❌ 파일 읽기 실패');
+  reader.readAsText(file, 'utf-8');
+}
+
+function processCSVFile(file){
+  showToast('📂 읽는 중: '+file.name);
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const qs=parseCSV(ev.target.result, file.name);
+      if(!qs.length){ showToast('❌ 문제를 찾을 수 없습니다. CSV 형식을 확인하세요.'); return; }
+
+      const sourceName = file.name;
+      const isReplace  = S.questions.some(q => q.source === sourceName);
+
+      if(isReplace){
+        // ── 동일 파일명 재업로드: 해당 source 완전 삭제 후 교체 ──
+        S.questions = S.questions.filter(q => q.source !== sourceName);
+        showToast(`🔄 기존 "${sourceName}" 교체 중…`);
+      }
+
+      // ── 중복 Question ID 처리: 기존 ID를 새 것으로 덮어쓰기 ──
+      const newIds = new Set(qs.map(q => q.id));
+      S.questions = S.questions.filter(q => !newIds.has(q.id)); // 다른 source의 중복 ID 제거
+      qs.forEach(q => S.questions.push(q));
+
+      // 없어진 ID의 진도/플래그 정리
+      const allIds = new Set(S.questions.map(q => q.id));
+      for(const k in S.answered){ if(!allIds.has(k)) delete S.answered[k]; }
+      S.flagged.forEach(id=>{ if(!allIds.has(id)) S.flagged.delete(id); });
+
+      save(); renderUploadList(); renderDashboard(); updateAvailCount();
+      showToast(isReplace
+        ? `✅ "${sourceName}" 교체 완료 (${qs.length}개)`
+        : `✅ ${qs.length}개 문제 추가됨 (총 ${S.questions.length}개)`);
+
+      // ☁️ Supabase: 동일 source의 기존 문제 삭제 후 새로 upsert
+      (async()=>{
+        if(SB_USER){
+          if(isReplace){
+            // 해당 source 문제를 클라우드에서도 삭제
+            await sb.from('questions').delete().eq('source', sourceName);
+          }
+          const n = await uploadQuestionsToCloud(qs);
+          if(n > 0) showToast(`☁️ ${n}개 문제 클라우드 저장 완료`);
+        }
+      })();
+
+    }catch(err){
+      showToast('❌ 오류: '+err.message);
+    }
+  };
+  reader.onerror=()=>showToast('❌ 파일 읽기 실패');
+  reader.readAsText(file,'utf-8');
+}
+
+// Robust CSV parser — handles quoted fields with commas/newlines inside
+function parseCSV(text, sourceName){
+  const rows=splitCSVRows(text);
+  if(rows.length<2){ throw new Error('헤더 포함 최소 2줄 이상이어야 합니다'); }
+
+  // Normalize header
+  const header=rows[0].map(h=>h.trim().toLowerCase());
+  const col=name=>header.indexOf(name);
+
+  // Support two CSV formats:
+  // Format A (new):  text, options_a, options_b, options_c, options_d, correct(0-3), explanation, part, topic
+  // Format B (ea_questions.csv): question, a, b, c, d, correct(A-D letter), explanation
+  const isFormatA = col('text')!==-1;
+  const isFormatB = col('question')!==-1;
+
+  if(!isFormatA && !isFormatB){
+    throw new Error('헤더에 "text" 또는 "question" 컬럼이 필요합니다');
+  }
+
+  const qs=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];
+    if(row.length<2 || !row[0].trim()) continue;
+
+    let text, optA, optB, optC, optD, correct, explanation, part, topic;
+
+    if(isFormatA){
+      text        = cell(row, col('text'));
+      optA        = cell(row, col('options_a'));
+      optB        = cell(row, col('options_b'));
+      optC        = cell(row, col('options_c'));
+      optD        = cell(row, col('options_d'));
+      const corRaw= cell(row, col('correct')).trim();
+      // Accept 0/1/2/3 or A/B/C/D
+      correct     = isNaN(corRaw) ? 'ABCD'.indexOf(corRaw.toUpperCase()) : parseInt(corRaw);
+      explanation = cell(row, col('explanation'));
+      part        = cell(row, col('part')) || 'Part 1';
+      topic       = cell(row, col('topic')) || 'General';
+    } else {
+      // Format B
+      text        = cell(row, col('question'));
+      optA        = cell(row, col('a'));
+      optB        = cell(row, col('b'));
+      optC        = cell(row, col('c'));
+      optD        = cell(row, col('d'));
+      const corRaw= cell(row, col('correct')).trim();
+      correct     = isNaN(corRaw) ? 'ABCD'.indexOf(corRaw.toUpperCase()) : parseInt(corRaw);
+      explanation = cell(row, col('explanation'));
+      part        = cell(row, col('part')) || 'Part 1';
+      topic       = cell(row, col('topic')) || 'General';
+    }
+
+    // Common extra columns (both formats)
+    const qid         = cell(row, col('question_id'));
+    const wrongReasons= cell(row, col('wrong_reasons'));
+    const taxUpdate   = cell(row, col('tax_update_2025'));
+    const examTip     = cell(row, col('exam_tip'));
+
+    if(!text || !optA) continue;
+    if(correct<0||correct>3) correct=0;
+
+    const options=[optA,optB,optC,optD].filter(Boolean);
+    if(options.length<2) continue;
+
+    qs.push({
+      id: qid || ('csv'+Date.now()+Math.random().toString(36).slice(2,7)),
+      question_id: qid,
+      source: sourceName,
+      text, options, correct, explanation,
+      part, topic,
+      wrongReasons: wrongReasons,
+      taxUpdate2025: taxUpdate,
+      examTip: examTip
+    });
+  }
+  return qs;
+}
+
+function cell(row, idx){
+  return (idx>=0 && idx<row.length) ? row[idx].trim() : '';
+}
+
+// Split CSV text into rows of cells, handling quoted fields correctly
+function splitCSVRows(text){
+  const rows=[];
+  let row=[], cur='', inQ=false;
+  // Normalize line endings
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){
+      if(inQ && text[i+1]==='"'){ cur+='"'; i++; } // escaped quote
+      else inQ=!inQ;
+    } else if(ch===',' && !inQ){
+      row.push(cur); cur='';
+    } else if(ch==='\n' && !inQ){
+      row.push(cur); cur='';
+      if(row.some(c=>c.trim())) rows.push(row);
+      row=[];
+    } else {
+      cur+=ch;
+    }
+  }
+  // Last cell/row
+  if(cur||row.length) { row.push(cur); if(row.some(c=>c.trim())) rows.push(row); }
+  return rows;
+}
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// START
+init();
+</script>
+</body>
+</html>
