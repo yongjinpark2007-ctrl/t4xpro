@@ -795,9 +795,18 @@ async function uploadQuestionsToCloud(questions){
   return uploaded;
 }
 
-// ══════════════════════════════════════════════════════
-// HAMBURGER / MOBILE NAV
-// ══════════════════════════════════════════════════════
+// Fix a single question's correct answer + explanation in Supabase
+async function fixQuestionInCloud(q){
+  if(!SB_USER) return;
+  const { error } = await sb.from('questions').update({
+    correct:         q.correct,
+    explanation:     q.explanation || null,
+    wrong_reasons:   q.wrongReasons || null,
+    tax_update_2025: q.taxUpdate2025 || null,
+    exam_tip:        q.examTip || null,
+  }).eq('id', q.id);
+  if(error) showToast('⚠️ 클라우드 수정 오류: ' + error.message);
+}
 function toggleDrawer(){
   const drawer = document.getElementById('mobile-nav-drawer');
   const btn    = document.getElementById('hamburger-btn');
@@ -847,7 +856,7 @@ async function callGemini(systemPrompt, userPrompt){
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
       contents:[{role:'user', parts:[{text: systemPrompt + '\n\n' + userPrompt}]}],
-      generationConfig:{temperature:0.3, maxOutputTokens:1200}
+      generationConfig:{temperature:0.3, maxOutputTokens:3000}
     })
   });
   if(!res.ok){
@@ -1201,39 +1210,21 @@ async function showExplanation(q,isOk,timeout){
   if(timeout){ banner.className='result-banner fail'; banner.textContent='⏱ Time\'s up! See the correct answer below'; }
   else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'✓ Correct! Well done.':'✗ Incorrect — review the explanation below'; }
 
-  // Detect whether we have pre-loaded content
+  // Always show CSV content immediately as a starting point
   const hasExplanation = q.explanation && q.explanation.trim().length > 2;
   const hasWrong       = q.wrongReasons && q.wrongReasons.trim().length > 2;
   const hasUpdate      = q.taxUpdate2025 && q.taxUpdate2025.trim().length > 2;
   const hasTip         = q.examTip && q.examTip.trim().length > 2;
 
-  if(hasExplanation){
-    // Show what we have immediately
-    document.getElementById('exp-body').innerHTML   = q.explanation;
-    document.getElementById('wrong-body').innerHTML = hasWrong
-      ? q.wrongReasons
-      : '<span class="loading">Loading…</span>';
-    document.getElementById('update-body').innerHTML = hasUpdate
-      ? q.taxUpdate2025
-      : '<span class="loading">Checking 2025 changes…</span>';
-    document.getElementById('tip-body').innerHTML   = hasTip
-      ? q.examTip
-      : '<span class="loading">Loading exam tip…</span>';
+  // Show CSV content immediately (fast)
+  document.getElementById('exp-body').innerHTML    = hasExplanation ? q.explanation : '<span class="loading">AI generating explanation…</span>';
+  document.getElementById('wrong-body').innerHTML  = hasWrong       ? q.wrongReasons : '<span class="loading">Analyzing options…</span>';
+  document.getElementById('update-body').innerHTML = hasUpdate      ? q.taxUpdate2025 : '<span class="loading">Checking 2025 changes…</span>';
+  document.getElementById('tip-body').innerHTML    = hasTip         ? q.examTip : '<span class="loading">Generating exam tip…</span>';
 
-    // Fetch any missing pieces
-    const jobs = [];
-    if(!hasWrong)  jobs.push(fetchWrongReasons(q));
-    if(!hasUpdate) jobs.push(fetchTaxUpdate(q));
-    if(!hasTip)    jobs.push(fetchExamTip(q));
-    if(jobs.length) await Promise.all(jobs);
-  } else {
-    // No pre-loaded content at all — fetch everything from AI
-    document.getElementById('exp-body').innerHTML   = '<span class="loading">AI generating explanation…</span>';
-    document.getElementById('wrong-body').innerHTML = '<span class="loading">Analyzing options…</span>';
-    document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
-    document.getElementById('tip-body').innerHTML   = '<span class="loading">Generating exam tip…</span>';
-    await fetchFullExplanation(q);
-  }
+  // ALWAYS run full AI verification — AI independently checks the correct answer
+  // and overwrites if the question bank answer or explanation is wrong
+  await fetchFullExplanation(q);
 }
 
 async function fetchTaxUpdate(q){
@@ -1276,19 +1267,105 @@ async function fetchExamTip(q){
 async function fetchFullExplanation(q){
   try{
     const raw=await callGemini(
-      'You are an EA exam tutor. Return ONLY a valid JSON object — no markdown, no preamble. Keys: explanation (string), wrongReasons (string: explain in 1 sentence why each INCORRECT option is wrong, format "A: reason. B: reason." skipping the correct letter), taxUpdate2025 (string: ALWAYS start with "⚠️ 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다." then explain what CHANGED from 2023/2024 to 2025 — dollar amounts, thresholds, rule changes; if unchanged confirm the rule is unchanged with the 2025 figure), examTip (string: include 2025-correct figures and note this is for the 2026 EA exam based on 2025 tax law). All values must strictly use 2025 U.S. tax law.',
-      `EA exam question:\n${q.text}\nOptions: ${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join(' | ')}\nCorrect answer: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}`
+      `You are an expert EA exam tutor and fact-checker. Your job has TWO steps:
+
+STEP 1 — VERIFY THE CORRECT ANSWER INDEPENDENTLY.
+Using your own knowledge of 2025 U.S. tax law, determine which option (A/B/C/D) is actually correct. Do NOT assume the provided "Marked correct" answer is right — it may be wrong in the question bank. If the marked answer is wrong, identify the true correct answer and explain why.
+
+STEP 2 — WRITE ALL EXPLANATIONS BASED ON THE TRUE CORRECT ANSWER.
+If the question bank's marked answer is wrong, explicitly say so at the start of the explanation field: "⚠️ 문제은행 오답 주의: 문제은행의 정답 표시가 잘못되었습니다. 실제 정답은 [X]입니다." then give the correct explanation.
+
+Return ONLY a valid JSON object — no markdown, no preamble. Keys:
+- explanation: Full explanation of WHY the correct answer is correct (based on 2025 tax law). If the question bank answer is wrong, start with the warning above.
+- wrongReasons: 1 sentence per INCORRECT option explaining why it is wrong. Format "A: reason. B: reason." — skip whichever letter is the TRUE correct answer.
+- taxUpdate2025: Start with "⚠️ 문제은행 기준 주의: AI 기준 2025년 세법으로 설명합니다." Then state relevant 2025 figures/thresholds. Note changes from 2024 if applicable.
+- examTip: 2-3 sentence practical tip for the 2026 EA exam based on this topic. Include current 2025 figures.
+- verifiedCorrect: the letter (A/B/C/D) of the TRUE correct answer per 2025 tax law.
+
+All values must strictly use 2025 U.S. tax law.`,
+      `EA exam question:\n${q.text}\n\nOptions:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\nQuestion bank marks this as correct: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nCSV explanation (may be wrong — verify independently): ${q.explanation||'none provided'}`
     );
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    q.explanation   = parsed.explanation   || q.explanation || '—';
-    q.wrongReasons  = parsed.wrongReasons  || '—';
-    q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-    q.examTip       = parsed.examTip       || '—';
-    save();
-    document.getElementById('exp-body').innerHTML   = q.explanation;
-    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
-    document.getElementById('update-body').innerHTML= q.taxUpdate2025;
-    document.getElementById('tip-body').innerHTML   = q.examTip;
+
+    // ── Determine if AI found a different correct answer ──
+    const aiCorrectLetter  = (parsed.verifiedCorrect||'').toUpperCase().trim();
+    const csvCorrectIdx    = q.correct;
+    const csvCorrectLetter = String.fromCharCode(65+csvCorrectIdx);
+    const aiCorrectIdx     = 'ABCD'.indexOf(aiCorrectLetter);
+    const answerCorrected  = aiCorrectLetter && aiCorrectLetter !== csvCorrectLetter && aiCorrectIdx >= 0;
+
+    if(answerCorrected){
+      // ── 1. Update q.correct in memory ──
+      const oldCorrect = q.correct;
+      q.correct = aiCorrectIdx;
+
+      // ── 2. Re-evaluate the user's submitted answer ──
+      const userChosen = S.selected;
+      const wasWrong   = userChosen !== oldCorrect;   // how it was scored
+      const nowRight   = userChosen === aiCorrectIdx; // correct per AI
+
+      if(wasWrong && nowRight){
+        // Flip the score: wrong → correct
+        const prog = S.answered[q.id];
+        if(prog){
+          prog.wrong   = Math.max(0, prog.wrong - 1);
+          prog.correct = (prog.correct || 0) + 1;
+        }
+        S.results.wrong   = Math.max(0, S.results.wrong - 1);
+        S.results.correct = (S.results.correct || 0) + 1;
+        save();
+        saveProgressToCloud(q.id, true);
+
+        // Re-colour the answer buttons
+        document.querySelectorAll('.option-btn').forEach((b,i)=>{
+          b.classList.remove('correct-ans','wrong-ans','reveal','sel');
+          if(i === aiCorrectIdx) b.classList.add('correct-ans');
+        });
+
+        // Update the result banner
+        const banner = document.getElementById('result-banner');
+        banner.className = 'result-banner ok';
+        banner.textContent = '✓ 정답 수정됨 — AI 검증으로 정답 처리되었습니다! 🎉';
+      } else {
+        // Re-colour: show the AI-verified correct answer
+        document.querySelectorAll('.option-btn').forEach((b,i)=>{
+          b.classList.remove('correct-ans','wrong-ans','reveal','sel');
+          if(i === aiCorrectIdx)  b.classList.add('correct-ans');
+          if(i === userChosen && !nowRight) b.classList.add('wrong-ans');
+        });
+      }
+
+      // ── 3. Show warning box above explanation ──
+      const warn = `<div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-weight:700;color:#92400e;font-size:15px;">
+        ⚠️ 문제은행 오답 수정됨<br>
+        <span style="font-weight:400;font-size:14px;">문제은행 정답 <b>${csvCorrectLetter}</b> → AI 검증 정답 <b>${aiCorrectLetter}</b> 로 자동 수정되었습니다. 로컬 및 클라우드에 반영됩니다.</span>
+      </div>`;
+      document.getElementById('exp-body').innerHTML = warn + (parsed.explanation || '—');
+
+      // ── 4. Save corrected question to localStorage + Supabase ──
+      q.explanation   = parsed.explanation   || q.explanation || '—';
+      q.wrongReasons  = parsed.wrongReasons  || '—';
+      q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+      q.examTip       = parsed.examTip       || '—';
+      save();
+      fixQuestionInCloud(q);
+      showToast(`✅ 정답 ${csvCorrectLetter}→${aiCorrectLetter} 자동 수정 및 저장 완료`);
+
+    } else {
+      // No correction needed — just update explanations
+      q.explanation   = parsed.explanation   || q.explanation || '—';
+      q.wrongReasons  = parsed.wrongReasons  || '—';
+      q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+      q.examTip       = parsed.examTip       || '—';
+      save();
+      fixQuestionInCloud(q); // still save updated explanations
+      document.getElementById('exp-body').innerHTML = q.explanation;
+    }
+
+    document.getElementById('wrong-body').innerHTML  = q.wrongReasons;
+    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
+    document.getElementById('tip-body').innerHTML    = q.examTip;
+
   }catch(e){
     const msg='AI unavailable. Check your API key in ⚙ Settings.';
     document.getElementById('exp-body').textContent   = q.explanation || msg;
@@ -1348,8 +1425,8 @@ async function sendFollowUp(){
   box.innerHTML='<span class="loading">Thinking…</span>'; box.classList.add('visible');
   try{
     const text=await callGemini(
-      'You are an expert EA exam tutor. IMPORTANT: Always answer strictly using 2025 U.S. tax law (for the 2026 EA exam). If the question bank may reflect older tax law, explicitly note the 2025-correct rule or figure. Be specific with dollar amounts, thresholds, and rates. Keep answers under 200 words. End with a one-sentence exam tip if relevant. Start your response with "📌 2025 세법 기준:" if the answer involves a specific dollar figure or threshold.',
-      `Context: Student answered this EA exam question:\n"${q?.text}"\nCorrect answer: ${q?q.options[q.correct]:''}\n\nStudent follow-up: ${userQ}`
+      'You are an expert EA exam tutor. IMPORTANT: (1) Always answer strictly using 2025 U.S. tax law for the 2026 EA exam. (2) The question bank answer may be wrong — use your own knowledge to give the correct answer. (3) Be specific with dollar amounts, thresholds, and rates. (4) Keep answers under 300 words but NEVER cut off mid-sentence — always complete your answer. (5) Start with "📌 2025 세법 기준:" if the answer involves a specific dollar figure or threshold.',
+      `EA exam question:\n"${q?.text}"\n\nOptions:\n${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\nQuestion bank marks correct: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}\n\nStudent follow-up question: ${userQ}`
     );
     box.innerHTML=text.replace(/\n/g,'<br>');
   }catch(e){ box.innerHTML='<em>'+e.message+'</em>'; }
