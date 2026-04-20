@@ -1285,7 +1285,7 @@ async function fetchFullExplanation(q){
       '당신은 EA(Enrolled Agent) 시험 전문 튜터이자 세법 팩트체커입니다. 두 단계로 작업하세요:\n\n1단계 - 정답을 독립적으로 검증하세요.\n2025년 미국 세법 지식을 바탕으로 어떤 보기(A/B/C/D)가 실제로 정답인지 직접 판단하세요. 문제은행의 "정답 표시"가 맞다고 가정하지 마세요 - 틀릴 수 있습니다. 표시된 정답이 틀렸다면 실제 정답을 찾아 이유를 설명하세요.\n\n2단계 - 실제 정답을 기준으로 모든 설명을 작성하세요.\n문제은행 정답이 틀렸다면 explanation 필드 첫 줄에 반드시 다음을 포함하세요: "[!] 문제은행 오답 주의: 문제은행의 정답 표시가 잘못되었습니다. 실제 정답은 [X]입니다."\n\n반드시 유효한 JSON 객체만 반환하세요 - 마크다운, 서론 없이. 키:\n- explanation: 정답이 왜 맞는지 한국어로 상세히 설명. 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기. 2025년 세법 기준.\n- wrongReasons: 각 오답 보기가 왜 틀렸는지 보기당 1문장씩 한국어로. 형식: "A: 이유. B: 이유." - 실제 정답 보기는 생략. 용어는 영어 병기.\n- taxUpdate2025: "[!] 문제은행 기준 주의: AI 기준 2025년 세법으로 설명합니다."로 시작. 이 문제와 관련된 2025년 기준 수치/임계값/규정 변경사항을 한국어로 설명. 2024년 대비 변경사항 포함.\n- examTip: 2026년 EA 시험 대비 실전 팁을 한국어로 2~3문장. 2025년 기준 수치 포함. 자주 하는 실수와 암기 요령 포함. 용어는 영어 병기.\n- verifiedCorrect: 2025년 세법 기준 실제 정답 보기 (A/B/C/D 중 하나의 알파벳만).\n\n모든 내용은 반드시 2025년 미국 세법 기준으로 작성하세요.',
       'EA exam question:\n' + (q.text) + '\n\nOptions:\n' + (q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')) + '\n\nQuestion bank marks this as correct: ' + (String.fromCharCode(65+q.correct)) + ') ' + (q.options[q.correct]) + '\n\nCSV explanation (may be wrong - verify independently): ' + (q.explanation||'none provided') + ''
     );
-    const parsed=JSON.parse(raw.replace(/'''json|'''/g,'').trim());
+    const parsed=JSON.parse(raw.replace(/```json/g,'').replace(/```/g,'').trim());
 
     // == Determine if AI found a different correct answer ==
     const aiCorrectLetter  = (parsed.verifiedCorrect||'').toUpperCase().trim();
