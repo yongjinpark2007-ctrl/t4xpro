@@ -841,11 +841,11 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════════════════════
 // CONFIG — Gemini API
 // ══════════════════════════════════════════════════════
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 function getApiKey(){
-  return localStorage.getItem('ea_gemini_key') || '';
+  return localStorage.getItem('ea_gemini_key') || 'AIzaSyDh7HM0yGzVYRfM-9r5GkIkKyr-0yQ-xVU';
 }
 
 async function callGemini(systemPrompt, userPrompt){
@@ -1265,6 +1265,7 @@ async function fetchExamTip(q){
 }
 
 async function fetchFullExplanation(q){
+  if(q.aiEnhanced) return;
   try{
     const raw=await callGemini(
       `당신은 EA(Enrolled Agent) 시험 전문 튜터이자 세법 팩트체커입니다. 두 단계로 작업하세요:
@@ -1347,6 +1348,7 @@ async function fetchFullExplanation(q){
       q.wrongReasons  = parsed.wrongReasons  || '—';
       q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
       q.examTip       = parsed.examTip       || '—';
+      q.aiEnhanced    = true;
       save();
       fixQuestionInCloud(q);
       showToast(`✅ 정답 ${csvCorrectLetter}→${aiCorrectLetter} 자동 수정 및 저장 완료`);
@@ -1357,6 +1359,7 @@ async function fetchFullExplanation(q){
       q.wrongReasons  = parsed.wrongReasons  || '—';
       q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
       q.examTip       = parsed.examTip       || '—';
+      q.aiEnhanced    = true;
       save();
       fixQuestionInCloud(q); // still save updated explanations
       document.getElementById('exp-body').innerHTML = q.explanation;
