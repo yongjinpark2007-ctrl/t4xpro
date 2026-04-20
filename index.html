@@ -6,7 +6,7 @@
 <title>EA Exam Prep · 2025 Tax Law</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.26.0/dist/umd/supabase.min.js"></script>
+<!-- Supabase CDN removed - using direct REST API instead -->
 <style>
 :root{
   --navy:#1a3a6b;--navy-mid:#f4f7ff;--navy-light:#e8eef9;
@@ -597,6 +597,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 // ============================================================
 var PASSCODE = '920537';
 
+function startApp(){
+  init();
+  loadFromCloud();
+}
+
+
 function checkPC(){
   var val = document.getElementById('pc-input').value.trim();
   if(val === PASSCODE){
@@ -613,41 +619,91 @@ function checkPC(){
 // ============================================================
 // SUPABASE (loaded via CDN in head)
 // ============================================================
-var SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
-var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
+// ============================================================
+// SUPABASE REST API - direct fetch, no library needed
+// ============================================================
+var SB_URL  = 'https://azninzbyhassthztvjuv.supabase.co/rest/v1';
+var SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
+var SB_HEADERS_GET = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY
+};
+var SB_HEADERS_POST = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal'
+};
 var FIXED_USER_ID = 'ea-user-yongjin';
-var sb = null;
 
-function initDB(){
-  try{
-    if(window.supabase && window.supabase.createClient){
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false
-        },
-        realtime: { enabled: false },
-        global: {
-          headers: { 'x-client-info': 'ea-exam-prep' }
-        }
-      });
-    }
-  } catch(e){ console.log('DB init error:', e.message); }
+function sbGet(table, params) {
+  var url = SB_URL + '/' + table;
+  if(params) url += '?' + params;
+  return fetch(url, { method: 'GET', headers: SB_HEADERS_GET })
+    .then(function(r){ return r.json(); });
 }
 
-async function loadFromCloud(){
-  if(!sb){ useDemoData(); return; }
-  showToast('Loading...');
-  try{
-    // Load questions
-    var qData = [];
-    try{
-      var qRes = await sb.from('questions').select('*').order('created_at', {ascending:true});
-      if(!qRes.error && qRes.data) qData = qRes.data;
-    }catch(e){ console.log('Q load error:', e.message); }
+function sbPost(table, data) {
+  return fetch(SB_URL + '/' + table, {
+    method: 'POST',
+    headers: SB_HEADERS_POST,
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.ok ? {ok:true} : r.json().then(function(e){ return {ok:false, error:e}; }); });
+}
 
-    if(qData.length > 0){
+function sbPatch(table, params, data) {
+  return fetch(SB_URL + '/' + table + '?' + params, {
+    method: 'PATCH',
+    headers: SB_HEADERS_POST,
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.ok ? {ok:true} : r.json().then(function(e){ return {ok:false, error:e}; }); });
+}
+
+function sbUpsert(table, data, onConflict) {
+  var h = Object.assign({}, SB_HEADERS_POST, {'Prefer': 'resolution=merge-duplicates,return=minimal'});
+  var url = SB_URL + '/' + table;
+  if(onConflict) url += '?on_conflict=' + onConflict;
+  return fetch(url, {
+    method: 'POST',
+    headers: h,
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.ok ? {ok:true} : r.json().then(function(e){ return {ok:false, error:e}; }); });
+}
+
+function sbDelete(table, params) {
+  return fetch(SB_URL + '/' + table + '?' + params, {
+    method: 'DELETE',
+    headers: SB_HEADERS_GET
+  }).then(function(r){ return {ok: r.ok}; });
+}
+
+function initDB(){ /* no-op: using direct REST */ }
+
+async function loadFromCloud(){
+  showToast('Loading...');
+  // First: try localStorage cache
+  try{
+    var cached = localStorage.getItem('ea_questions_cache');
+    if(cached){
+      var cq = JSON.parse(cached);
+      if(cq && cq.length > 0){ S.questions = cq; }
+    }
+    var cachedP = localStorage.getItem('ea_progress_cache');
+    if(cachedP){
+      var cp = JSON.parse(cachedP);
+      S.answered = cp.answered || {};
+      S.flagged = new Set(cp.flagged || []);
+      S.sessions = cp.sessions || [];
+    }
+  }catch(e){}
+  if(S.questions.length > 0){
+    renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
+  }
+  // Then: try Supabase
+  try{
+    var qData = await sbGet('questions', 'select=*');
+    console.log('Supabase result:', Array.isArray(qData) ? qData.length + ' questions' : JSON.stringify(qData));
+    if(Array.isArray(qData) && qData.length > 0){
       S.questions = qData.map(function(r){
         return {
           id:r.id, question_id:r.question_id, source:r.source||'cloud',
@@ -657,69 +713,59 @@ async function loadFromCloud(){
           part:r.part||'Part 1', topic:r.topic||'General'
         };
       });
-    } else {
+      localStorage.setItem('ea_questions_cache', JSON.stringify(S.questions));
+    } else if(S.questions.length === 0) {
       useDemoData();
     }
-
-    // Load progress
-    try{
-      var pRes = await sb.from('user_progress').select('*').eq('user_id', FIXED_USER_ID);
-      S.answered = {}; S.flagged = new Set();
-      if(!pRes.error && pRes.data){
-        pRes.data.forEach(function(r){
-          S.answered[r.question_id] = {times:r.times, correct:r.correct_count, wrong:r.wrong_count};
-          if(r.flagged) S.flagged.add(r.question_id);
-        });
-      }
-    }catch(e){ console.log('Progress load error:', e.message); }
-
-    // Load sessions
-    try{
-      var sRes = await sb.from('sessions').select('*').eq('user_id',FIXED_USER_ID).order('created_at',{ascending:false}).limit(20);
-      if(!sRes.error && sRes.data){
-        S.sessions = sRes.data.map(function(r){
-          return {
-            date:new Date(r.created_at).toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
-            count:r.count, correct:r.correct, pct:r.pct
-          };
-        });
-      }
-    }catch(e){ console.log('Session load error:', e.message); }
-
+    var pData = await sbGet('user_progress', 'select=*&user_id=eq.' + FIXED_USER_ID);
+    S.answered = {}; S.flagged = new Set();
+    if(Array.isArray(pData)){
+      pData.forEach(function(r){
+        S.answered[r.question_id] = {times:r.times, correct:r.correct_count, wrong:r.wrong_count};
+        if(r.flagged) S.flagged.add(r.question_id);
+      });
+    }
+    var sData = await sbGet('sessions', 'select=*&user_id=eq.' + FIXED_USER_ID + '&order=created_at.desc&limit=20');
+    if(Array.isArray(sData)){
+      S.sessions = sData.map(function(r){
+        return {
+          date: new Date(r.created_at).toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
+          count:r.count, correct:r.correct, pct:r.pct
+        };
+      });
+    }
     renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-    showToast('Complete: '+S.questions.length+' questions');
+    showToast('Complete: ' + S.questions.length + ' questions');
   }catch(e){
     console.log('Cloud error:', e.message);
     useDemoData();
   }
 }
 
-function useDemoData(){
-  if(S.questions.length===0) S.questions = JSON.parse(JSON.stringify(DEMO));
-  renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-}
-
 async function saveProgressToCloud(questionId, isCorrect){
-  if(!sb) return;
-  var ex = S.answered[questionId]||{times:0,correct:0,wrong:0};
+  // Always save to localStorage
+  try{ localStorage.setItem('ea_progress_cache', JSON.stringify({answered:S.answered, flagged:[...S.flagged], sessions:S.sessions})); }catch(e){}
   try{
-    await sb.from('user_progress').upsert({
-      user_id:FIXED_USER_ID, question_id:questionId,
-      times:ex.times, correct_count:ex.correct, wrong_count:ex.wrong,
-      flagged:S.flagged.has(questionId), updated_at:new Date().toISOString()
-    },{onConflict:'user_id,question_id'});
-  }catch(e){ console.log('Save error:', e.message); }
+    var ex = S.answered[questionId] || {times:0, correct:0, wrong:0};
+    await sbUpsert('user_progress', {
+      user_id: FIXED_USER_ID,
+      question_id: questionId,
+      times: ex.times,
+      correct_count: ex.correct,
+      wrong_count: ex.wrong,
+      flagged: S.flagged.has(questionId),
+      updated_at: new Date().toISOString()
+    }, 'user_id,question_id');
+  }catch(e){ console.log('Save progress error:', e.message); }
 }
 
 async function saveSessionToCloud(count, correct, pct){
-  if(!sb) return;
   try{
-    await sb.from('sessions').insert({user_id:FIXED_USER_ID,count:count,correct:correct,pct:pct});
+    await sbPost('sessions', {user_id:FIXED_USER_ID, count:count, correct:correct, pct:pct});
   }catch(e){ console.log('Session save error:', e.message); }
 }
 
 async function uploadQuestionsToCloud(questions){
-  if(!sb){ showToast('Cloud not available'); return 0; }
   var rows = questions.map(function(q){
     return {
       id:q.id, question_id:q.question_id||null, source:q.source,
@@ -732,32 +778,30 @@ async function uploadQuestionsToCloud(questions){
   var uploaded = 0;
   for(var i=0; i<rows.length; i+=100){
     var batch = rows.slice(i,i+100);
-    var res = await sb.from('questions').upsert(batch,{onConflict:'id'});
-    if(res.error){ showToast('Upload error: '+res.error.message); break; }
+    var res = await sbUpsert('questions', batch, 'id');
+    if(!res.ok){ showToast('Upload error'); break; }
     uploaded += batch.length;
   }
   return uploaded;
 }
 
 async function fixQuestionInCloud(q){
-  if(!sb) return;
   try{
-    await sb.from('questions').update({
-      correct:q.correct, explanation:q.explanation||null,
-      wrong_reasons:q.wrongReasons||null,
-      tax_update_2025:q.taxUpdate2025||null, exam_tip:q.examTip||null
-    }).eq('id',q.id);
+    await sbPatch('questions', 'id=eq.' + q.id, {
+      correct: q.correct,
+      explanation: q.explanation||null,
+      wrong_reasons: q.wrongReasons||null,
+      tax_update_2025: q.taxUpdate2025||null,
+      exam_tip: q.examTip||null
+    });
   }catch(e){ console.log('Fix error:', e.message); }
 }
 
-
-// ============================================================
-// APP START
-// ============================================================
-function startApp(){
-  initDB();
-  init();
-  loadFromCloud();
+// Cloud delete for upload management
+async function deleteFromCloud(sourceName){
+  try{
+    await sbDelete('questions', 'source=eq.' + encodeURIComponent(sourceName));
+  }catch(e){ console.log('Delete error:', e.message); }
 }
 
 // CONFIG - Gemini API
@@ -777,17 +821,26 @@ async function callGemini(systemPrompt, userPrompt){
     contents:[{role:'user', parts:[{text: systemPrompt + '\n\n' + userPrompt}]}],
     generationConfig:{temperature:0.3, maxOutputTokens:3000}
   });
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: body
-  });
-  if(!res.ok){
-    const err = await res.json().catch(function(){ return {}; });
-    throw new Error((err && err.error && err.error.message) ? err.error.message : ('API error ' + res.status));
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: body
+    });
+    if(!res.ok){
+      const err = await res.json().catch(function(){ return {}; });
+      const msg = (err && err.error && err.error.message) ? err.error.message : ('API error ' + res.status);
+      console.log('Gemini API error:', res.status, msg);
+      throw new Error(msg);
+    }
+    const data = await res.json();
+    const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
+    if(!text) throw new Error('Empty response from Gemini');
+    return text;
+  } catch(e) {
+    console.log('callGemini failed:', e.message);
+    throw e;
   }
-  const data = await res.json();
-  return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) ? data.candidates[0].content.parts[0].text : '';
 }
 
 // ======================================================
@@ -1000,7 +1053,7 @@ function renderDashboard(){
 
   document.getElementById('stats-grid').innerHTML='\n    <div class="stat-card"><div class="stat-label">총 문제</div><div class="stat-value">' + (total) + '</div><div class="stat-sub">' + (unseen) + '개 미학습</div></div>\n    <div class="stat-card"><div class="stat-label">학습 완료</div><div class="stat-value">' + (seen) + '</div><div class="stat-sub">' + (S.sessions.length) + '회 세션</div></div>\n    <div class="stat-card"><div class="stat-label">정확도</div><div class="stat-value">' + (acc) + '%</div><div class="stat-sub">' + (tc) + '/' + (ta) + ' 정답</div></div>\n    <div class="stat-card"><div class="stat-label">플래그</div><div class="stat-value">' + (S.flagged.size) + '</div><div class="stat-sub">복습 예정</div></div>';
 
-  const parts=[['Part 1','[U]','Part 1 - 개인세'],['Part 2','[Bld]','Part 2 - 사업세'],['Part 3','[=]','Part 3 - 대리인']];
+  const parts=[['Part 1','1','Part 1 - Individuals'],['Part 2','2','Part 2 - Businesses'],['Part 3','3','Part 3 - Representation']];
   document.getElementById('unit-list').innerHTML=parts.map(([pk,icon,label])=>{
     const qs=S.questions.filter(q=>q.part===pk);
     const done=qs.filter(q=>S.answered[q.id]).length;
@@ -1010,7 +1063,7 @@ function renderDashboard(){
 
   const recent=S.sessions.slice(-5).reverse();
   document.getElementById('activity-log').innerHTML=recent.length===0
-    ?'<div class="empty"><div class="empty-icon">[Book]</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>'
+    ?'<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>'
     :recent.map(s=>'<div class="activity-row"><span style="font-weight:600;">' + (s.date) + '</span><span style="color:var(--text-muted);">' + (s.count) + '문제</span><span style="color:#16a34a;font-weight:600;margin-left:auto;">' + (s.correct) + '정답 . ' + (s.pct) + '%</span></div>').join('');
 }
 
@@ -1179,20 +1232,13 @@ async function showExplanation(q,isOk,timeout){
   if(timeout){ banner.className='result-banner fail'; banner.textContent='[T] Time\'s up! See the correct answer below'; }
   else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'OK Correct! Well done.':'X Incorrect - review the explanation below'; }
 
-  // Always show CSV content immediately as a starting point
-  const hasExplanation = q.explanation && q.explanation.trim().length > 2;
-  const hasWrong       = q.wrongReasons && q.wrongReasons.trim().length > 2;
-  const hasUpdate      = q.taxUpdate2025 && q.taxUpdate2025.trim().length > 2;
-  const hasTip         = q.examTip && q.examTip.trim().length > 2;
+  // Show existing CSV content immediately while AI loads
+  document.getElementById('exp-body').innerHTML    = q.explanation   || '<span class="loading">AI generating explanation...</span>';
+  document.getElementById('wrong-body').innerHTML  = q.wrongReasons  || '<span class="loading">Analyzing options...</span>';
+  document.getElementById('update-body').innerHTML = q.taxUpdate2025 || '<span class="loading">Checking 2025 changes...</span>';
+  document.getElementById('tip-body').innerHTML    = q.examTip       || '<span class="loading">Generating exam tip...</span>';
 
-  // Show CSV content immediately (fast)
-  document.getElementById('exp-body').innerHTML    = hasExplanation ? q.explanation : '<span class="loading">AI generating explanation...</span>';
-  document.getElementById('wrong-body').innerHTML  = hasWrong       ? q.wrongReasons : '<span class="loading">Analyzing options...</span>';
-  document.getElementById('update-body').innerHTML = hasUpdate      ? q.taxUpdate2025 : '<span class="loading">Checking 2025 changes...</span>';
-  document.getElementById('tip-body').innerHTML    = hasTip         ? q.examTip : '<span class="loading">Generating exam tip...</span>';
-
-  // ALWAYS run full AI verification - AI independently checks the correct answer
-  // and overwrites if the question bank answer or explanation is wrong
+  // Always run AI verification (checks correctness + generates explanations)
   await fetchFullExplanation(q);
 }
 
@@ -1318,11 +1364,11 @@ async function fetchFullExplanation(q){
     document.getElementById('tip-body').innerHTML    = q.examTip;
 
   }catch(e){
-    const msg='AI unavailable. Check your API key in [S] Settings.';
-    document.getElementById('exp-body').textContent   = q.explanation || msg;
-    document.getElementById('wrong-body').textContent = q.wrongReasons || '-';
-    document.getElementById('update-body').textContent= msg;
-    document.getElementById('tip-body').textContent   = msg;
+    console.log('fetchFullExplanation error:', e.message);
+    const msg = 'AI unavailable: ' + e.message;
+    document.getElementById('exp-body').innerHTML    = (q.explanation || '') + '<div style="color:#dc2626;font-size:13px;margin-top:8px;">' + msg + '</div>';
+    document.getElementById('update-body').textContent = msg;
+    document.getElementById('tip-body').textContent    = msg;
   }
 }
 
@@ -1398,7 +1444,7 @@ function showResults(){
   document.getElementById('r-wrong').textContent=wrong;
   document.getElementById('r-total').textContent=answered;
   document.getElementById('r-flagged').textContent=S.flagged.size;
-  document.getElementById('r-title').textContent=pct>=80?'훌륭합니다! [!]':pct>=60?'잘 하고 있어요 [+]':'계속 학습하세요 [Book]';
+  document.getElementById('r-title').textContent=pct>=80?'훌륭합니다! [!]':pct>=60?'잘 하고 있어요 [+]':'계속 학습하세요 📖';
   document.getElementById('r-sub').textContent=(answered) + '문제 중 ' + (correct) + '개 정답';
   showScreen('results');
 }
@@ -1409,7 +1455,7 @@ function showResults(){
 function renderBookmarks(){
   const el=document.getElementById('bookmarks-list');
   const fqs=S.questions.filter(q=>S.flagged.has(q.id));
-  if(!fqs.length){ el.innerHTML='<div class="empty"><div class="empty-icon">[F]</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 [F] 플래그를 달면 여기서 복습할 수 있습니다</div></div>'; return; }
+  if(!fqs.length){ el.innerHTML='<div class="empty"><div class="empty-icon">[F]</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 Flag를 달면 여기서 복습할 수 있습니다</div></div>'; return; }
   el.innerHTML=fqs.map(q=>{
     const a=S.answered[q.id]||{times:0,wrong:0};
     return'<div class="bookmark-card" onclick="openModal(\'' + (q.id) + '\')">\n      <div class="bm-q">' + (q.text.length>110?q.text.slice(0,110)+'...':q.text) + '</div>\n      <div class="bm-meta"><span class="bm-tag">' + (q.part) + '</span><span class="bm-tag">' + (q.topic||'General') + '</span><span style="font-size:12px;color:#dc2626;font-weight:600;">X ' + (a.wrong) + '회 오답</span><span style="font-size:12px;color:var(--text-muted);margin-left:auto;">' + (a.times) + '회 학습</span></div>\n    </div>';
@@ -1495,7 +1541,7 @@ function executeDelete(sourceName){
 
   // [Cloud] Supabase에서도 해당 source 문제 전체 삭제
   if(FIXED_USER_ID){
-    sb.from('questions').delete().eq('source', sourceName).then(({error})=>{
+    deleteFromCloud(sourceName).then(({error})=>{
       if(error) showToast('[!] 클라우드 삭제 오류: '+error.message);
       else showToast('[Cloud] 클라우드에서도 "' + (sourceName) + '" 삭제 완료');
     });
@@ -1549,7 +1595,7 @@ function handleReplaceFile(files){
       // [Cloud] Supabase: source 삭제 후 새로 upsert
       (async()=>{
         if(FIXED_USER_ID){
-          await sb.from('questions').delete().eq('source', target);
+          await deleteFromCloud(target);
           const n = await uploadQuestionsToCloud(newQs);
           if(n > 0) showToast('[Cloud] ' + (n) + '개 문제 클라우드 교체 완료');
         }
@@ -1600,7 +1646,7 @@ function processCSVFile(file){
         if(FIXED_USER_ID){
           if(isReplace){
             // 해당 source 문제를 클라우드에서도 삭제
-            await sb.from('questions').delete().eq('source', sourceName);
+            await deleteFromCloud(sourceName);
           }
           const n = await uploadQuestionsToCloud(qs);
           if(n > 0) showToast('[Cloud] ' + (n) + '개 문제 클라우드 저장 완료');
@@ -1735,7 +1781,7 @@ function showToast(msg){
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// START - window.onload ensures all scripts (CDN) are fully loaded
-window.onload = startApp;
+// START - only init DB on load, data loads after passcode
+window.onload = function(){ initDB(); };
 
 </script>
