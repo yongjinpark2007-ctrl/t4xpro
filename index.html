@@ -6,7 +6,7 @@
 <title>EA Exam Prep · 2025 Tax Law</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.26.0/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --navy:#1a3a6b;--navy-mid:#f4f7ff;--navy-light:#e8eef9;
@@ -316,36 +316,23 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 </head>
 <body>
 <style>
-/* ── LOGIN GATE ── */
-#login-gate{position:fixed;inset:0;z-index:9999;background:#f0f4ff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
-.lg-logo{width:72px;height:72px;background:#1a3a6b;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;margin-bottom:20px;}
-.lg-title{font-size:26px;font-weight:700;color:#1a237e;margin-bottom:6px;}
-.lg-sub{font-size:16px;color:#4a5568;margin-bottom:32px;text-align:center;}
-.lg-card{background:#fff;border:1.5px solid #d1d9f0;border-radius:18px;padding:2rem;width:100%;max-width:340px;box-shadow:0 4px 24px rgba(26,58,107,.1);}
-.lg-label{font-size:13px;font-weight:700;color:#4a5568;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;margin-top:14px;}
-.lg-input{width:100%;padding:13px 14px;font-size:16px;border:1.5px solid #d1d9f0;border-radius:10px;background:#f8faff;color:#1a237e;outline:none;font-family:inherit;}
-.lg-input:focus{border-color:#2563eb;background:#fff;}
-.lg-btn{margin-top:18px;width:100%;padding:15px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
-.lg-btn:hover{background:#1d4ed8;}
-.lg-btn:disabled{opacity:.5;cursor:not-allowed;}
-.lg-err{color:#dc2626;font-size:14px;margin-top:10px;font-weight:600;display:none;text-align:center;}
-.lg-status{color:#4a5568;font-size:13px;margin-top:10px;text-align:center;display:none;}
+#pc-gate{position:fixed;inset:0;z-index:9999;background:#f0f4ff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
+.pc-logo{width:72px;height:72px;background:#1a3a6b;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;margin-bottom:20px;}
+.pc-title{font-size:26px;font-weight:700;color:#1a237e;margin-bottom:6px;}
+.pc-sub{font-size:16px;color:#4a5568;margin-bottom:32px;}
+.pc-input{width:100%;max-width:280px;padding:16px;font-size:24px;letter-spacing:12px;text-align:center;border:2px solid #bfdbfe;border-radius:14px;background:#fff;color:#1a237e;outline:none;font-family:inherit;}
+.pc-input:focus{border-color:#2563eb;}
+.pc-btn{margin-top:14px;width:100%;max-width:280px;padding:16px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;}
+.pc-err{color:#dc2626;font-size:15px;margin-top:12px;font-weight:600;display:none;}
 </style>
-<div id="login-gate">
-  <div class="lg-logo">EA</div>
-  <div class="lg-title">EA Exam Prep</div>
-  <div class="lg-sub">t4xpro.com · 2025 Tax Law</div>
-  <div class="lg-card">
-    <div class="lg-label">이메일</div>
-    <input class="lg-input" type="email" id="lg-email" placeholder="이메일 주소" onkeydown="if(event.key==='Enter')document.getElementById('lg-pw').focus()"/>
-    <div class="lg-label">비밀번호</div>
-    <input class="lg-input" type="password" id="lg-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')doLogin()"/>
-    <button class="lg-btn" id="lg-btn" onclick="doLogin()">로그인</button>
-    <div class="lg-err" id="lg-err">❌ 이메일 또는 비밀번호가 올바르지 않습니다</div>
-    <div class="lg-status" id="lg-status">🔄 로그인 중…</div>
-  </div>
+<div id="pc-gate">
+  <div class="pc-logo">EA</div>
+  <div class="pc-title">EA Exam Prep</div>
+  <div class="pc-sub">t4xpro.com - 2025 Tax Law</div>
+  <input class="pc-input" type="password" id="pc-input" placeholder="------" maxlength="10" onkeydown="if(event.key==='Enter')checkPC()"/>
+  <button class="pc-btn" onclick="checkPC()">Enter</button>
+  <p class="pc-err" id="pc-err">Wrong passcode</p>
 </div>
-
 <div id="app">
 
 <!-- HEADER -->
@@ -578,9 +565,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 
   <div class="api-setup">
     <div class="exp-label">🔑 Google Gemini API Key (AI 해설용)</div>
-    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">AI 자동 해설에 사용됩니다. 한 번 저장하면 이 기기에서 자동으로 사용됩니다. <a href="https://aistudio.google.com" target="_blank" style="color:#2563eb;font-weight:600;">aistudio.google.com</a>에서 무료로 발급받을 수 있습니다.</div>
-    <input class="api-input" type="password" id="api-key-input" placeholder="Gemini API 키를 여기에 붙여넣기…"/>
-    <button class="btn-primary" onclick="saveApiKey()">API 키 저장</button>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">내장된 기본 API 키로 모든 기기에서 자동 작동합니다. 키를 교체하고 싶을 때만 아래에 입력하세요. <a href="https://aistudio.google.com" target="_blank" style="color:#2563eb;font-weight:600;">aistudio.google.com</a>에서 발급 가능합니다.</div>
+    <input class="api-input" type="password" id="api-key-input" placeholder="새 API 키로 교체하려면 여기에 입력…"/>
+    <button class="btn-primary" onclick="saveApiKey()" style="margin-bottom:8px;">🔄 API 키 교체</button>
+    <button class="btn-ghost" style="width:100%;" onclick="resetApiKeyToDefault()">↩ 내장 기본 키로 되돌리기</button>
     <div style="font-size:13px;color:#16a34a;margin-top:10px;font-weight:600;" id="api-status"></div>
   </div>
   <div style="background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;margin-top:1rem;">
@@ -603,273 +591,208 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// SUPABASE INIT
-// ══════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-let SB_USER = null; // currently logged-in user
+// ============================================================
+// PASSCODE
+// ============================================================
+var PASSCODE = '920537';
 
-// ── AUTH ────────────────────────────────────────────
-async function doLogin(){
-  const email = document.getElementById('lg-email').value.trim();
-  const pw    = document.getElementById('lg-pw').value;
-  if(!email || !pw){ showLgErr('이메일과 비밀번호를 입력해주세요'); return; }
-
-  const btn = document.getElementById('lg-btn');
-  const status = document.getElementById('lg-status');
-  btn.disabled = true;
-  status.style.display = 'block';
-  document.getElementById('lg-err').style.display = 'none';
-
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
-  if(error){
-    btn.disabled = false;
-    status.style.display = 'none';
-    showLgErr('❌ ' + (error.message === 'Invalid login credentials' ? '이메일 또는 비밀번호가 올바르지 않습니다' : error.message));
-    return;
-  }
-  SB_USER = data.user;
-  document.getElementById('login-gate').style.display = 'none';
-  await loadFromCloud();
-  updateSyncStatus();
-}
-
-function showLgErr(msg){
-  const e = document.getElementById('lg-err');
-  e.textContent = msg; e.style.display = 'block';
-}
-
-async function doLogout(){
-  if(!confirm('로그아웃 하시겠습니까?')) return;
-  await sb.auth.signOut();
-  SB_USER = null;
-  location.reload();
-}
-
-// Check if already logged in (session persists across refreshes)
-(async function checkSession(){
-  const { data: { session } } = await sb.auth.getSession();
-  if(session){
-    SB_USER = session.user;
-    document.getElementById('login-gate').style.display = 'none';
-    await loadFromCloud();
-    updateSyncStatus();
-  }
-})();
-
-function updateSyncStatus(){
-  const el = document.getElementById('sync-status-text');
-  if(!el) return;
-  if(SB_USER){
-    el.textContent = `✅ 클라우드 연결됨 · ${SB_USER.email} · 모든 기기에서 자동 동기화`;
+function checkPC(){
+  var val = document.getElementById('pc-input').value.trim();
+  if(val === PASSCODE){
+    document.getElementById('pc-gate').style.display = 'none';
+    startApp();
   } else {
-    el.textContent = '⚠️ 로그인 필요';
+    var err = document.getElementById('pc-err');
+    err.style.display = 'block';
+    document.getElementById('pc-input').value = '';
+    setTimeout(function(){ err.style.display='none'; }, 2000);
   }
 }
 
-// ══════════════════════════════════════════════════════
-// CLOUD LOAD / SAVE
-// ══════════════════════════════════════════════════════
+// ============================================================
+// SUPABASE (loaded via CDN in head)
+// ============================================================
+var SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
+var FIXED_USER_ID = 'ea-user-yongjin';
+var sb = null;
 
-// Load questions + progress from Supabase
-async function loadFromCloud(){
-  if(!SB_USER) return;
-  showToast('☁️ 클라우드에서 불러오는 중…');
+function initDB(){
   try{
-    // 1. Load questions
-    const { data: qRows, error: qErr } = await sb
-      .from('questions')
-      .select('*')
-      .order('created_at', { ascending: true });
-    if(qErr) throw qErr;
+    if(window.supabase && window.supabase.createClient){
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false
+        },
+        realtime: { enabled: false },
+        global: {
+          headers: { 'x-client-info': 'ea-exam-prep' }
+        }
+      });
+    }
+  } catch(e){ console.log('DB init error:', e.message); }
+}
 
-    if(qRows && qRows.length > 0){
-      S.questions = qRows.map(r => ({
-        id: r.id,
-        question_id: r.question_id,
-        source: r.source || 'cloud',
-        text: r.text,
-        options: r.options,
-        correct: r.correct,
-        explanation: r.explanation || '',
-        wrongReasons: r.wrong_reasons || '',
-        taxUpdate2025: r.tax_update_2025 || '',
-        examTip: r.exam_tip || '',
-        part: r.part || 'Part 1',
-        topic: r.topic || 'General',
-      }));
+async function loadFromCloud(){
+  if(!sb){ useDemoData(); return; }
+  showToast('Loading...');
+  try{
+    // Load questions
+    var qData = [];
+    try{
+      var qRes = await sb.from('questions').select('*').order('created_at', {ascending:true});
+      if(!qRes.error && qRes.data) qData = qRes.data;
+    }catch(e){ console.log('Q load error:', e.message); }
+
+    if(qData.length > 0){
+      S.questions = qData.map(function(r){
+        return {
+          id:r.id, question_id:r.question_id, source:r.source||'cloud',
+          text:r.text, options:r.options, correct:r.correct,
+          explanation:r.explanation||'', wrongReasons:r.wrong_reasons||'',
+          taxUpdate2025:r.tax_update_2025||'', examTip:r.exam_tip||'',
+          part:r.part||'Part 1', topic:r.topic||'General'
+        };
+      });
     } else {
-      // No questions in DB yet — use demo
-      if(S.questions.length === 0) S.questions = JSON.parse(JSON.stringify(DEMO));
+      useDemoData();
     }
 
-    // 2. Load progress
-    const { data: pRows, error: pErr } = await sb
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', SB_USER.id);
-    if(pErr) throw pErr;
+    // Load progress
+    try{
+      var pRes = await sb.from('user_progress').select('*').eq('user_id', FIXED_USER_ID);
+      S.answered = {}; S.flagged = new Set();
+      if(!pRes.error && pRes.data){
+        pRes.data.forEach(function(r){
+          S.answered[r.question_id] = {times:r.times, correct:r.correct_count, wrong:r.wrong_count};
+          if(r.flagged) S.flagged.add(r.question_id);
+        });
+      }
+    }catch(e){ console.log('Progress load error:', e.message); }
 
-    S.answered = {};
-    S.flagged  = new Set();
-    (pRows || []).forEach(r => {
-      S.answered[r.question_id] = { times: r.times, correct: r.correct_count, wrong: r.wrong_count };
-      if(r.flagged) S.flagged.add(r.question_id);
-    });
-
-    // 3. Load sessions
-    const { data: sRows } = await sb
-      .from('sessions')
-      .select('*')
-      .eq('user_id', SB_USER.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
-    S.sessions = (sRows || []).map(r => ({
-      date: new Date(r.created_at).toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
-      count: r.count, correct: r.correct, pct: r.pct
-    }));
+    // Load sessions
+    try{
+      var sRes = await sb.from('sessions').select('*').eq('user_id',FIXED_USER_ID).order('created_at',{ascending:false}).limit(20);
+      if(!sRes.error && sRes.data){
+        S.sessions = sRes.data.map(function(r){
+          return {
+            date:new Date(r.created_at).toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
+            count:r.count, correct:r.correct, pct:r.pct
+          };
+        });
+      }
+    }catch(e){ console.log('Session load error:', e.message); }
 
     renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-    showToast(`✅ ${S.questions.length}개 문제 로드 완료`);
-  } catch(e){
-    showToast('⚠️ 클라우드 로드 실패: ' + e.message);
-    // Fallback to demo
-    if(S.questions.length === 0) S.questions = JSON.parse(JSON.stringify(DEMO));
-    renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
+    showToast('Complete: '+S.questions.length+' questions');
+  }catch(e){
+    console.log('Cloud error:', e.message);
+    useDemoData();
   }
 }
 
-// Save a single question's progress to Supabase
-async function saveProgressToCloud(questionId, isCorrect, isFlagged){
-  if(!SB_USER) return;
-  const existing = S.answered[questionId] || { times:0, correct:0, wrong:0 };
-  await sb.from('user_progress').upsert({
-    user_id:      SB_USER.id,
-    question_id:  questionId,
-    times:        existing.times,
-    correct_count: existing.correct,
-    wrong_count:  existing.wrong,
-    flagged:      S.flagged.has(questionId),
-    updated_at:   new Date().toISOString(),
-  }, { onConflict: 'user_id,question_id' });
+function useDemoData(){
+  if(S.questions.length===0) S.questions = JSON.parse(JSON.stringify(DEMO));
+  renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
 }
 
-// Save session result to Supabase
+async function saveProgressToCloud(questionId, isCorrect){
+  if(!sb) return;
+  var ex = S.answered[questionId]||{times:0,correct:0,wrong:0};
+  try{
+    await sb.from('user_progress').upsert({
+      user_id:FIXED_USER_ID, question_id:questionId,
+      times:ex.times, correct_count:ex.correct, wrong_count:ex.wrong,
+      flagged:S.flagged.has(questionId), updated_at:new Date().toISOString()
+    },{onConflict:'user_id,question_id'});
+  }catch(e){ console.log('Save error:', e.message); }
+}
+
 async function saveSessionToCloud(count, correct, pct){
-  if(!SB_USER) return;
-  await sb.from('sessions').insert({
-    user_id: SB_USER.id,
-    count, correct, pct
-  });
+  if(!sb) return;
+  try{
+    await sb.from('sessions').insert({user_id:FIXED_USER_ID,count:count,correct:correct,pct:pct});
+  }catch(e){ console.log('Session save error:', e.message); }
 }
 
-// Upsert questions to Supabase (admin upload)
 async function uploadQuestionsToCloud(questions){
-  if(!SB_USER){ showToast('⚠️ 로그인 필요'); return 0; }
-  const rows = questions.map(q => ({
-    id:              q.id,
-    question_id:     q.question_id || null,
-    source:          q.source,
-    text:            q.text,
-    options:         q.options,
-    correct:         q.correct,
-    explanation:     q.explanation || null,
-    wrong_reasons:   q.wrongReasons || null,
-    tax_update_2025: q.taxUpdate2025 || null,
-    exam_tip:        q.examTip || null,
-    part:            q.part || 'Part 1',
-    topic:           q.topic || 'General',
-  }));
-
-  // Upsert in batches of 100
-  let uploaded = 0;
-  for(let i = 0; i < rows.length; i += 100){
-    const batch = rows.slice(i, i + 100);
-    const { error } = await sb.from('questions').upsert(batch, { onConflict: 'id' });
-    if(error){ showToast('❌ 업로드 오류: ' + error.message); break; }
+  if(!sb){ showToast('Cloud not available'); return 0; }
+  var rows = questions.map(function(q){
+    return {
+      id:q.id, question_id:q.question_id||null, source:q.source,
+      text:q.text, options:q.options, correct:q.correct,
+      explanation:q.explanation||null, wrong_reasons:q.wrongReasons||null,
+      tax_update_2025:q.taxUpdate2025||null, exam_tip:q.examTip||null,
+      part:q.part||'Part 1', topic:q.topic||'General'
+    };
+  });
+  var uploaded = 0;
+  for(var i=0; i<rows.length; i+=100){
+    var batch = rows.slice(i,i+100);
+    var res = await sb.from('questions').upsert(batch,{onConflict:'id'});
+    if(res.error){ showToast('Upload error: '+res.error.message); break; }
     uploaded += batch.length;
   }
   return uploaded;
 }
 
-// Fix a single question's correct answer + explanation in Supabase
 async function fixQuestionInCloud(q){
-  if(!SB_USER) return;
-  const { error } = await sb.from('questions').update({
-    correct:         q.correct,
-    explanation:     q.explanation || null,
-    wrong_reasons:   q.wrongReasons || null,
-    tax_update_2025: q.taxUpdate2025 || null,
-    exam_tip:        q.examTip || null,
-  }).eq('id', q.id);
-  if(error) showToast('⚠️ 클라우드 수정 오류: ' + error.message);
+  if(!sb) return;
+  try{
+    await sb.from('questions').update({
+      correct:q.correct, explanation:q.explanation||null,
+      wrong_reasons:q.wrongReasons||null,
+      tax_update_2025:q.taxUpdate2025||null, exam_tip:q.examTip||null
+    }).eq('id',q.id);
+  }catch(e){ console.log('Fix error:', e.message); }
 }
-function toggleDrawer(){
-  const drawer = document.getElementById('mobile-nav-drawer');
-  const btn    = document.getElementById('hamburger-btn');
-  const open   = drawer.classList.toggle('open');
-  // Animate hamburger → X
-  const spans  = btn.querySelectorAll('span');
-  if(open){
-    spans[0].style.transform='translateY(7px) rotate(45deg)';
-    spans[1].style.opacity='0';
-    spans[2].style.transform='translateY(-7px) rotate(-45deg)';
-  } else {
-    spans[0].style.transform='';
-    spans[1].style.opacity='';
-    spans[2].style.transform='';
-  }
-}
-function closeDrawer(){
-  const drawer = document.getElementById('mobile-nav-drawer');
-  drawer.classList.remove('open');
-  const spans = document.getElementById('hamburger-btn').querySelectorAll('span');
-  spans[0].style.transform=''; spans[1].style.opacity=''; spans[2].style.transform='';
-}
-// Close drawer on outside tap
-document.addEventListener('click', e => {
-  const drawer = document.getElementById('mobile-nav-drawer');
-  const btn    = document.getElementById('hamburger-btn');
-  if(drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)){
-    closeDrawer();
-  }
-});
 
-// ══════════════════════════════════════════════════════
-// CONFIG — Gemini API
-// ══════════════════════════════════════════════════════
-const GEMINI_MODEL = 'gemini-2.5-flash';
-const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+// ============================================================
+// APP START
+// ============================================================
+function startApp(){
+  initDB();
+  init();
+  loadFromCloud();
+}
+
+// CONFIG - Gemini API
+// ======================================================
+const GEMINI_MODEL   = 'gemini-2.5-flash';
+const GEMINI_URL     = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent';
+const GEMINI_KEY_DEFAULT = 'AIzaSyDh7HM0yGzVYRfM-9r5GkIkKyr-0yQ-xVU';
 
 function getApiKey(){
-  return localStorage.getItem('ea_gemini_key') || '';
+  return localStorage.getItem('ea_gemini_key') || GEMINI_KEY_DEFAULT;
 }
 
 async function callGemini(systemPrompt, userPrompt){
   const key = getApiKey();
-  if(!key) throw new Error('No API key set. Please add your Gemini API key in Settings.');
-  const res = await fetch(`${GEMINI_URL}?key=${key}`, {
+  const url = GEMINI_URL + '?key=' + key;
+  const body = JSON.stringify({
+    contents:[{role:'user', parts:[{text: systemPrompt + '\n\n' + userPrompt}]}],
+    generationConfig:{temperature:0.3, maxOutputTokens:3000}
+  });
+  const res = await fetch(url, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      contents:[{role:'user', parts:[{text: systemPrompt + '\n\n' + userPrompt}]}],
-      generationConfig:{temperature:0.3, maxOutputTokens:3000}
-    })
+    body: body
   });
   if(!res.ok){
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err?.error?.message || `API error ${res.status}`);
+    const err = await res.json().catch(function(){ return {}; });
+    throw new Error((err && err.error && err.error.message) ? err.error.message : ('API error ' + res.status));
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) ? data.candidates[0].content.parts[0].text : '';
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // STATE
-// ══════════════════════════════════════════════════════
+// ======================================================
 const S = {
   questions:[], sessions:[], flagged:new Set(), answered:{},
   quizQueue:[], quizIdx:0, submitted:false, selected:null,
@@ -878,9 +801,9 @@ const S = {
   timerInt:null, timerSec:90,
 };
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // DEMO QUESTIONS (built-in)
-// ══════════════════════════════════════════════════════
+// ======================================================
 const DEMO = [
   {id:'q1',part:'Part 1',topic:'Filing Status',
    text:'A taxpayer who is unmarried and pays more than half the cost of maintaining a home for a qualifying child may file under which status?',
@@ -892,21 +815,21 @@ const DEMO = [
   {id:'q2',part:'Part 1',topic:'Gross Income',
    text:'Which of the following is generally EXCLUDED from gross income?',
    options:['Tips received from customers','Alimony received under a pre-2019 divorce agreement','Life insurance proceeds received due to the death of the insured','Lottery winnings'],correct:2,
-   explanation:'Life insurance death benefits paid to a named beneficiary are excluded from gross income under IRC §101(a). This is a fundamental exclusion tested heavily on Part 1.',
+   explanation:'Life insurance death benefits paid to a named beneficiary are excluded from gross income under IRC S.101(a). This is a fundamental exclusion tested heavily on Part 1.',
    wrongReasons:'Tips are taxable compensation. Pre-2019 alimony is includible in the recipient\'s income. Lottery winnings are ordinary income fully subject to tax.',
-   taxUpdate2025:'The §101(a) exclusion remains unchanged for 2025. Alimony rules: agreements executed after 12/31/2018 — not deductible by payor, not income to recipient.',
-   examTip:'Memorize the big exclusions: gifts/inheritances (§102), life insurance (§101), municipal bond interest (§103), employer-paid health insurance (§106), and workers\' comp (§104).',source:'demo'},
+   taxUpdate2025:'The S.101(a) exclusion remains unchanged for 2025. Alimony rules: agreements executed after 12/31/2018 - not deductible by payor, not income to recipient.',
+   examTip:'Memorize the big exclusions: gifts/inheritances (S.102), life insurance (S.101), municipal bond interest (S.103), employer-paid health insurance (S.106), and workers\' comp (S.104).',source:'demo'},
   {id:'q3',part:'Part 1',topic:'Standard Deduction',
    text:'In 2025, what is the standard deduction for a single taxpayer under age 65?',
    options:['$13,850','$14,600','$15,000','$16,000'],correct:2,
-   explanation:'The 2025 standard deduction for a single filer under 65 is $15,000. Standard deductions are adjusted annually for inflation under IRC §63(c)(4).',
+   explanation:'The 2025 standard deduction for a single filer under 65 is $15,000. Standard deductions are adjusted annually for inflation under IRC S.63(c)(4).',
    wrongReasons:'$13,850 was the 2023 amount. $14,600 was the 2024 amount. $16,000 is not the current figure.',
    taxUpdate2025:'2025 Standard Deductions: Single/MFS = $15,000 | MFJ/QSS = $30,000 | HOH = $22,500. Additional amounts for age 65+/blind: $2,000 (single/HOH) or $1,600 (MFJ/MFS/QSS).',
    examTip:'Memorize all four filing status standard deduction amounts and the additional amounts for elderly/blind. Know that a dependent\'s deduction is limited to the greater of $1,350 or earned income + $450 (2025).',source:'demo'},
   {id:'q4',part:'Part 2',topic:'Business Entities',
    text:'A single-member LLC that has NOT elected corporate taxation is treated as which type of entity for federal income tax purposes?',
    options:['C Corporation','S Corporation','Partnership','Disregarded entity'],correct:3,
-   explanation:'By default, a single-member LLC is a disregarded entity — its income and deductions flow directly to the owner\'s individual return (Schedule C for business, Schedule E for rental).',
+   explanation:'By default, a single-member LLC is a disregarded entity - its income and deductions flow directly to the owner\'s individual return (Schedule C for business, Schedule E for rental).',
    wrongReasons:'C Corp: requires Form 8832 election. S Corp: requires Form 2553. Partnership: requires at least two members by definition.',
    taxUpdate2025:'For 2025, single-member LLCs remain disregarded by default. Self-employment tax still applies to the SMLLC owner on net earnings.',
    examTip:'Know the check-the-box defaults: single-member LLC = disregarded; multi-member LLC = partnership; corporations cannot be disregarded. An LLC can elect C Corp (Form 8832) or S Corp (Form 2553).',source:'demo'},
@@ -934,36 +857,41 @@ const DEMO = [
   {id:'q8',part:'Part 2',topic:'Self-Employment Tax',
    text:'A self-employed taxpayer may deduct what percentage of self-employment tax as an above-the-line adjustment to income?',
    options:['50%','7.65%','100%','15.3%'],correct:0,
-   explanation:'Self-employed individuals deduct 50% of their SE tax as an above-the-line adjustment under IRC §164(f). This mirrors the employer\'s share of FICA which is deductible for W-2 employees.',
-   wrongReasons:'7.65%: the employee share of FICA. 100% would eliminate SE tax — not permitted. 15.3% is the total SE tax rate, not the deductible portion.',
+   explanation:'Self-employed individuals deduct 50% of their SE tax as an above-the-line adjustment under IRC S.164(f). This mirrors the employer\'s share of FICA which is deductible for W-2 employees.',
+   wrongReasons:'7.65%: the employee share of FICA. 100% would eliminate SE tax - not permitted. 15.3% is the total SE tax rate, not the deductible portion.',
    taxUpdate2025:'For 2025, the SE tax rate remains 15.3% on net earnings up to $176,100 (SS wage base) and 2.9% above that. The 0.9% Additional Medicare Tax applies above $200,000 (single) / $250,000 (MFJ).',
-   examTip:'Remember two SE deductions: (1) 50% of SE tax — above-the-line on Schedule 1; (2) SE health insurance premiums — also above-the-line. Net earnings from SE = 92.35% × net profit.',source:'demo'},
+   examTip:'Remember two SE deductions: (1) 50% of SE tax - above-the-line on Schedule 1; (2) SE health insurance premiums - also above-the-line. Net earnings from SE = 92.35% x net profit.',source:'demo'},
   {id:'q9',part:'Part 3',topic:'Circular 230',
    text:'Under Circular 230, what is the maximum monetary penalty for a practitioner who engages in a pattern of willful violations?',
    options:['$1,000 per violation','$5,000 per violation','$10,000 per violation','$25,000 per violation'],correct:2,
-   explanation:'Under Circular 230 §10.50(b), the IRS may impose a civil monetary penalty of up to $10,000 per violation for willful violations by practitioners.',
-   wrongReasons:'$1,000/$5,000: not the statutory maximums for willful violations. $25,000 applies specifically to tax shelter violations under §10.51.',
-   taxUpdate2025:'As of 2025, the §10.50 penalty structure remains: up to $10,000 per willful violation. The IRS Office of Professional Responsibility (OPR) enforces these standards.',
-   examTip:'High-priority Circular 230 topics: (1) Competence standard §10.35; (2) Contingent fee rules §10.27; (3) Return of client records §10.28; (4) Prompt error notification §10.21; (5) Written advice standards §10.37.',source:'demo'},
+   explanation:'Under Circular 230 S.10.50(b), the IRS may impose a civil monetary penalty of up to $10,000 per violation for willful violations by practitioners.',
+   wrongReasons:'$1,000/$5,000: not the statutory maximums for willful violations. $25,000 applies specifically to tax shelter violations under S.10.51.',
+   taxUpdate2025:'As of 2025, the S.10.50 penalty structure remains: up to $10,000 per willful violation. The IRS Office of Professional Responsibility (OPR) enforces these standards.',
+   examTip:'High-priority Circular 230 topics: (1) Competence standard S.10.35; (2) Contingent fee rules S.10.27; (3) Return of client records S.10.28; (4) Prompt error notification S.10.21; (5) Written advice standards S.10.37.',source:'demo'},
   {id:'q10',part:'Part 1',topic:'Capital Gains',
    text:'Long-term capital gains rates apply to capital assets held for more than:',
    options:['6 months','9 months','1 year','2 years'],correct:2,
    explanation:'Long-term capital gains treatment requires a holding period of more than one year (more than 12 months). Assets held for 12 months or less generate short-term gains taxed as ordinary income.',
    wrongReasons:'6 months and 9 months produce short-term gains at ordinary income rates. 2 years is not required.',
    taxUpdate2025:'For 2025, LTCG rates: 0% up to $48,350 (single) / $96,700 (MFJ); 15% up to $533,400 (single) / $600,050 (MFJ); 20% above. NIIT of 3.8% applies for high earners.',
-   examTip:'Know all three LTCG rates and thresholds. Also: §1231 gains get LTCG treatment; §1250 unrecaptured depreciation taxed at max 25%; collectibles at max 28%; §1202 QSBS — up to 100% exclusion for stock held >5 years.',source:'demo'},
+   examTip:'Know all three LTCG rates and thresholds. Also: S.1231 gains get LTCG treatment; S.1250 unrecaptured depreciation taxed at max 25%; collectibles at max 28%; S.1202 QSBS - up to 100% exclusion for stock held >5 years.',source:'demo'},
 ];
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // INIT & PERSIST (Cloud-first)
-// ══════════════════════════════════════════════════════
+// ======================================================
 function init(){
-  // UI 초기화만 — 데이터는 checkSession()이 loadFromCloud()로 처리
+  // UI 초기화만 - 데이터는 checkSession()이 loadFromCloud()로 처리
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-  const k = getApiKey();
-  if(k){
-    document.getElementById('api-key-input').value = '•'.repeat(Math.min(k.length, 32));
-    document.getElementById('api-status').textContent = '✓ API 키가 저장되어 있습니다 — 자동으로 사용 중';
+  const savedKey = localStorage.getItem('ea_gemini_key');
+  const statusEl = document.getElementById('api-status');
+  const inputEl  = document.getElementById('api-key-input');
+  if(savedKey){
+    inputEl.value = '*'.repeat(Math.min(savedKey.length, 32));
+    statusEl.textContent = '[OK] 사용자 지정 API 키 사용 중';
+  } else {
+    inputEl.placeholder = '새 API 키로 교체하려면 여기에 입력...';
+    statusEl.textContent = '[OK] 내장 API 키 사용 중 - 모든 기기에서 자동 작동';
   }
 }
 
@@ -974,18 +902,29 @@ function save(){
   try{ localStorage.setItem('ea_prep_v3',JSON.stringify({q:S.questions,s:S.sessions,f:[...S.flagged],a:S.answered})); }catch(e){}
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // SETTINGS
-// ══════════════════════════════════════════════════════
+// ======================================================
 function saveApiKey(){
-  const input=document.getElementById('api-key-input');
-  const raw=input.value.trim();
-  // If it's all bullets (already saved), don't overwrite
-  if(!raw || /^•+$/.test(raw)){showToast('새 API 키를 입력해주세요');return;}
-  localStorage.setItem('ea_gemini_key',raw);
-  input.value='•'.repeat(Math.min(raw.length,32));
-  document.getElementById('api-status').textContent='✅ API 키 저장 완료 — 이 기기에서 자동 사용됩니다';
-  showToast('✅ API 키가 저장되었습니다');
+  const input  = document.getElementById('api-key-input');
+  const status = document.getElementById('api-status');
+  const raw    = input.value.trim();
+  if(!raw || /^[*]+$/.test(raw)){ showToast('새 API 키를 입력해주세요'); return; }
+  localStorage.setItem('ea_gemini_key', raw);
+  input.value = '*'.repeat(Math.min(raw.length, 32));
+  status.textContent = '[OK] 새 API 키로 교체 완료 - 이 기기에서 자동 사용됩니다';
+  showToast('[OK] API 키가 교체되었습니다');
+}
+
+function resetApiKeyToDefault(){
+  if(!confirm('저장된 API 키를 삭제하고 내장 기본 키로 되돌리시겠습니까?')) return;
+  localStorage.removeItem('ea_gemini_key');
+  const input  = document.getElementById('api-key-input');
+  const status = document.getElementById('api-status');
+  input.value = '';
+  input.placeholder = '새 API 키로 교체하려면 여기에 입력...';
+  status.textContent = '[OK] 내장 API 키로 복원되었습니다 - 모든 기기에서 자동 작동';
+  showToast('[OK] 내장 기본 키로 복원되었습니다');
 }
 function exportData(){
   const blob=new Blob([JSON.stringify({questions:S.questions,sessions:S.sessions,flagged:[...S.flagged],answered:S.answered},null,2)],{type:'application/json'});
@@ -998,9 +937,43 @@ function resetData(){
   showToast('All data reset');
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // NAVIGATION
-// ══════════════════════════════════════════════════════
+// ======================================================
+// HAMBURGER / MOBILE NAV
+function toggleDrawer(){
+  var drawer = document.getElementById('mobile-nav-drawer');
+  var btn    = document.getElementById('hamburger-btn');
+  var open   = drawer.classList.toggle('open');
+  var spans  = btn.querySelectorAll('span');
+  if(open){
+    spans[0].style.transform='translateY(7px) rotate(45deg)';
+    spans[1].style.opacity='0';
+    spans[2].style.transform='translateY(-7px) rotate(-45deg)';
+  } else {
+    spans[0].style.transform='';
+    spans[1].style.opacity='';
+    spans[2].style.transform='';
+  }
+}
+
+function closeDrawer(){
+  var drawer = document.getElementById('mobile-nav-drawer');
+  drawer.classList.remove('open');
+  var spans = document.getElementById('hamburger-btn').querySelectorAll('span');
+  spans[0].style.transform='';
+  spans[1].style.opacity='';
+  spans[2].style.transform='';
+}
+
+document.addEventListener('click', function(e){
+  var drawer = document.getElementById('mobile-nav-drawer');
+  var btn    = document.getElementById('hamburger-btn');
+  if(drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)){
+    closeDrawer();
+  }
+});
+
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
@@ -1016,38 +989,34 @@ function showScreen(name){
   if(name==='bookmarks') renderBookmarks();
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // DASHBOARD
-// ══════════════════════════════════════════════════════
+// ======================================================
 function renderDashboard(){
   const total=S.questions.length, seen=Object.keys(S.answered).length, unseen=total-seen;
   let tc=0,ta=0;
   for(const k in S.answered){tc+=S.answered[k].correct||0; ta+=S.answered[k].times||0;}
   const acc=ta>0?Math.round(tc/ta*100):0;
 
-  document.getElementById('stats-grid').innerHTML=`
-    <div class="stat-card"><div class="stat-label">총 문제</div><div class="stat-value">${total}</div><div class="stat-sub">${unseen}개 미학습</div></div>
-    <div class="stat-card"><div class="stat-label">학습 완료</div><div class="stat-value">${seen}</div><div class="stat-sub">${S.sessions.length}회 세션</div></div>
-    <div class="stat-card"><div class="stat-label">정확도</div><div class="stat-value">${acc}%</div><div class="stat-sub">${tc}/${ta} 정답</div></div>
-    <div class="stat-card"><div class="stat-label">플래그</div><div class="stat-value">${S.flagged.size}</div><div class="stat-sub">복습 예정</div></div>`;
+  document.getElementById('stats-grid').innerHTML='\n    <div class="stat-card"><div class="stat-label">총 문제</div><div class="stat-value">' + (total) + '</div><div class="stat-sub">' + (unseen) + '개 미학습</div></div>\n    <div class="stat-card"><div class="stat-label">학습 완료</div><div class="stat-value">' + (seen) + '</div><div class="stat-sub">' + (S.sessions.length) + '회 세션</div></div>\n    <div class="stat-card"><div class="stat-label">정확도</div><div class="stat-value">' + (acc) + '%</div><div class="stat-sub">' + (tc) + '/' + (ta) + ' 정답</div></div>\n    <div class="stat-card"><div class="stat-label">플래그</div><div class="stat-value">' + (S.flagged.size) + '</div><div class="stat-sub">복습 예정</div></div>';
 
-  const parts=[['Part 1','👤','Part 1 – 개인세'],['Part 2','🏢','Part 2 – 사업세'],['Part 3','⚖️','Part 3 – 대리인']];
+  const parts=[['Part 1','[U]','Part 1 - 개인세'],['Part 2','[Bld]','Part 2 - 사업세'],['Part 3','[=]','Part 3 - 대리인']];
   document.getElementById('unit-list').innerHTML=parts.map(([pk,icon,label])=>{
     const qs=S.questions.filter(q=>q.part===pk);
     const done=qs.filter(q=>S.answered[q.id]).length;
     const pct=qs.length>0?Math.round(done/qs.length*100):0;
-    return`<div class="unit-card"><div class="unit-icon">${icon}</div><div class="unit-info"><div class="unit-name">${label}</div><div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div><div class="unit-stats">${done} / ${qs.length}개 학습</div></div><div class="unit-count">${pct}%</div></div>`;
+    return'<div class="unit-card"><div class="unit-icon">' + (icon) + '</div><div class="unit-info"><div class="unit-name">' + (label) + '</div><div class="unit-progress-bar"><div class="unit-progress-fill" style="width:' + (pct) + '%"></div></div><div class="unit-stats">' + (done) + ' / ' + (qs.length) + '개 학습</div></div><div class="unit-count">' + (pct) + '%</div></div>';
   }).join('');
 
   const recent=S.sessions.slice(-5).reverse();
   document.getElementById('activity-log').innerHTML=recent.length===0
-    ?'<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>'
-    :recent.map(s=>`<div class="activity-row"><span style="font-weight:600;">${s.date}</span><span style="color:var(--text-muted);">${s.count}문제</span><span style="color:#16a34a;font-weight:600;margin-left:auto;">${s.correct}정답 · ${s.pct}%</span></div>`).join('');
+    ?'<div class="empty"><div class="empty-icon">[Book]</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>'
+    :recent.map(s=>'<div class="activity-row"><span style="font-weight:600;">' + (s.date) + '</span><span style="color:var(--text-muted);">' + (s.count) + '문제</span><span style="color:#16a34a;font-weight:600;margin-left:auto;">' + (s.correct) + '정답 . ' + (s.pct) + '%</span></div>').join('');
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // QUIZ SETUP
-// ══════════════════════════════════════════════════════
+// ======================================================
 function selectCount(n,btn){S.count=n;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
 function selectPart(p,btn){S.part=p;document.querySelectorAll('#part-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
 function selectSubset(s,btn){S.subset=s;document.querySelectorAll('#subset-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
@@ -1071,16 +1040,16 @@ function getPool(){
 function updateAvailCount(){
   const p=getPool(),avail=p.length,take=Math.min(S.count,avail);
   const el=document.getElementById('avail-count');
-  el.textContent=avail===0?'No questions match this filter':`${avail} questions available · session will use ${take}`;
+  el.textContent=avail===0?'No questions match this filter':(avail) + ' questions available . session will use ' + (take);
   document.getElementById('start-btn').disabled=avail===0;
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // QUIZ
-// ══════════════════════════════════════════════════════
+// ======================================================
 function startQuiz(){
   let pool=getPool(); if(!pool.length) return;
-  pool.sort((a,b)=>{const ta=S.answered[a.id]?.times||0,tb=S.answered[b.id]?.times||0;return ta-tb||Math.random()-.5;});
+  pool.sort((a,b)=>{const ta=(S.answered[a.id]&&S.answered[a.id].times)||0,tb=(S.answered[b.id]&&S.answered[b.id].times)||0;return ta-tb||Math.random()-.5;});
   S.quizQueue=pool.slice(0,S.count).map(q=>q.id);
   S.quizIdx=0; S.submitted=false; S.selected=null;
   S.results={correct:0,wrong:0,total:S.quizQueue.length};
@@ -1093,8 +1062,8 @@ function loadQuestion(){
   const q=curQ(); if(!q){showResults();return;}
   const pct=Math.round(S.quizIdx/S.quizQueue.length*100);
   document.getElementById('q-bar').style.width=pct+'%';
-  document.getElementById('q-progress-text').textContent=`Question ${S.quizIdx+1} of ${S.quizQueue.length}`;
-  document.getElementById('q-session-label').textContent=S.mode.toUpperCase()+' SESSION · 2025 TAX LAW';
+  document.getElementById('q-progress-text').textContent='Question ' + (S.quizIdx+1) + ' of ' + (S.quizQueue.length);
+  document.getElementById('q-session-label').textContent=S.mode.toUpperCase()+' SESSION . 2025 TAX LAW';
   document.getElementById('q-part').textContent=q.part;
   document.getElementById('q-topic').textContent=q.topic||'General';
   document.getElementById('q-text').textContent=q.text;
@@ -1113,20 +1082,20 @@ function loadQuestion(){
 
   // Reset copy button
   const copyBtn = document.getElementById('q-copy-btn');
-  copyBtn.textContent='📋 Copy';
+  copyBtn.textContent='[=] Copy';
   copyBtn.classList.remove('copied');
 
   const fl=S.flagged.has(q.id);
   document.getElementById('q-flag-btn').className='q-flag-btn'+(fl?' flagged':'');
-  document.getElementById('q-flag-btn').textContent=fl?'⚑ Flagged':'⚑ Flag';
-  document.getElementById('nav-flag').textContent=fl?'⚑ Unflag':'⚑ Flag';
+  document.getElementById('q-flag-btn').textContent=fl?'[F] Flagged':'[F] Flag';
+  document.getElementById('nav-flag').textContent=fl?'[F] Unflag':'[F] Flag';
 
   // Render options
   const ol=document.getElementById('options-list'); ol.innerHTML='';
   q.options.forEach((opt,i)=>{
     const btn=document.createElement('button');
     btn.className='option-btn';
-    btn.innerHTML=`<div class="opt-letter">${String.fromCharCode(65+i)}</div><div class="opt-text">${opt}</div>`;
+    btn.innerHTML='<div class="opt-letter">' + (String.fromCharCode(65+i)) + '</div><div class="opt-text">' + (opt) + '</div>';
     btn.onclick=()=>selectOption(i,btn);
     ol.appendChild(btn);
   });
@@ -1168,7 +1137,7 @@ function autoTimeout(){
   if(!S.answered[q.id]) S.answered[q.id]={times:0,correct:0,wrong:0};
   S.answered[q.id].times++; S.answered[q.id].wrong++; S.results.wrong++;
   save();
-  saveProgressToCloud(q.id, false); // ☁️ cloud
+  saveProgressToCloud(q.id, false); // [Cloud] cloud
   document.querySelectorAll('.option-btn').forEach((b,i)=>{b.disabled=true;if(i===q.correct) b.classList.add('reveal');});
   showExplanation(q,false,true);
 }
@@ -1184,7 +1153,7 @@ function submitAnswer(){
   if(isOk){S.answered[q.id].correct++;S.results.correct++;}
   else{S.answered[q.id].wrong++;S.results.wrong++;}
   save();
-  saveProgressToCloud(q.id, isOk); // ☁️ cloud
+  saveProgressToCloud(q.id, isOk); // [Cloud] cloud
 
   document.querySelectorAll('.option-btn').forEach((b,i)=>{
     b.disabled=true; b.classList.remove('sel');
@@ -1193,11 +1162,11 @@ function submitAnswer(){
   });
 
   if(S.answered[q.id].wrong>=2&&!S.flagged.has(q.id)){
-    S.flagged.add(q.id); save(); showToast('⚑ Auto-flagged — missed this question twice');
+    S.flagged.add(q.id); save(); showToast('[F] Auto-flagged - missed this question twice');
   }
 
   document.getElementById('btn-submit').disabled=true;
-  document.getElementById('btn-submit').textContent='Submitted ✓';
+  document.getElementById('btn-submit').textContent='Submitted OK';
   document.getElementById('btn-skip').style.display='none';
   showExplanation(q,isOk,false);
 }
@@ -1207,8 +1176,8 @@ function skipQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResult
 async function showExplanation(q,isOk,timeout){
   const ec=document.getElementById('explanation-card'); ec.classList.add('visible');
   const banner=document.getElementById('result-banner');
-  if(timeout){ banner.className='result-banner fail'; banner.textContent='⏱ Time\'s up! See the correct answer below'; }
-  else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'✓ Correct! Well done.':'✗ Incorrect — review the explanation below'; }
+  if(timeout){ banner.className='result-banner fail'; banner.textContent='[T] Time\'s up! See the correct answer below'; }
+  else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'OK Correct! Well done.':'X Incorrect - review the explanation below'; }
 
   // Always show CSV content immediately as a starting point
   const hasExplanation = q.explanation && q.explanation.trim().length > 2;
@@ -1217,12 +1186,12 @@ async function showExplanation(q,isOk,timeout){
   const hasTip         = q.examTip && q.examTip.trim().length > 2;
 
   // Show CSV content immediately (fast)
-  document.getElementById('exp-body').innerHTML    = hasExplanation ? q.explanation : '<span class="loading">AI generating explanation…</span>';
-  document.getElementById('wrong-body').innerHTML  = hasWrong       ? q.wrongReasons : '<span class="loading">Analyzing options…</span>';
-  document.getElementById('update-body').innerHTML = hasUpdate      ? q.taxUpdate2025 : '<span class="loading">Checking 2025 changes…</span>';
-  document.getElementById('tip-body').innerHTML    = hasTip         ? q.examTip : '<span class="loading">Generating exam tip…</span>';
+  document.getElementById('exp-body').innerHTML    = hasExplanation ? q.explanation : '<span class="loading">AI generating explanation...</span>';
+  document.getElementById('wrong-body').innerHTML  = hasWrong       ? q.wrongReasons : '<span class="loading">Analyzing options...</span>';
+  document.getElementById('update-body').innerHTML = hasUpdate      ? q.taxUpdate2025 : '<span class="loading">Checking 2025 changes...</span>';
+  document.getElementById('tip-body').innerHTML    = hasTip         ? q.examTip : '<span class="loading">Generating exam tip...</span>';
 
-  // ALWAYS run full AI verification — AI independently checks the correct answer
+  // ALWAYS run full AI verification - AI independently checks the correct answer
   // and overwrites if the question bank answer or explanation is wrong
   await fetchFullExplanation(q);
 }
@@ -1231,63 +1200,48 @@ async function fetchTaxUpdate(q){
   try{
     const text=await callGemini(
       'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown. IMPORTANT: All explanations must be based on 2025 U.S. tax law (tax year 2025 / IRC as amended through 2025). If the question bank source may reflect an older tax year, explicitly note any difference and always state the correct 2025 figure.',
-      `For this EA exam question, write a "2025 Tax Law Update" note (2-4 sentences):\n1) Start with: "⚠️ 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다."\n2) Then explain what CHANGED from 2023 or 2024 to 2025 relevant to this question — dollar amounts, thresholds, or rule changes.\n3) If nothing changed, confirm the rule is unchanged and state the current 2025 figure.\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]}\nExplanation: ${q.explanation}`
+      'For this EA exam question, write a "2025 Tax Law Update" note (2-4 sentences):\n1) Start with: "[!] 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다."\n2) Then explain what CHANGED from 2023 or 2024 to 2025 relevant to this question - dollar amounts, thresholds, or rule changes.\n3) If nothing changed, confirm the rule is unchanged and state the current 2025 figure.\nQuestion: ' + (q.text) + '\nCorrect answer: ' + (q.options[q.correct]) + '\nExplanation: ' + (q.explanation) + ''
     );
     q.taxUpdate2025=text; save();
     document.getElementById('update-body').innerHTML=text;
-  }catch(e){ document.getElementById('update-body').textContent='AI unavailable — check API key in Settings.'; }
+  }catch(e){ document.getElementById('update-body').textContent='AI unavailable - check API key in Settings.'; }
 }
 
 async function fetchWrongReasons(q){
   try{
     const letters=['A','B','C','D'];
     const wrongOpts = q.options
-      .map((o,i)=>i===q.correct?null:`${letters[i]}: ${o}`)
+      .map((o,i)=>i===q.correct?null:(letters[i]) + ': ' + (o))
       .filter(Boolean).join('\n');
     const text=await callGemini(
       '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 요청한 내용만 제공하고, 서론이나 마크다운 없이 답변하세요.',
-      `이 EA 시험 문제에서 각 오답 보기가 왜 틀렸는지 보기당 1문장으로 한국어로 설명하세요. 주요 세법 용어(IRC 조항, 세금 명칭 등)는 영어를 괄호에 병기하세요. 형식: "A: 이유. B: 이유." (정답 보기는 생략)\n문제: ${q.text}\n정답: ${q.options[q.correct]} (${letters[q.correct]})\n오답 보기:\n${wrongOpts}`
+      '이 EA 시험 문제에서 각 오답 보기가 왜 틀렸는지 보기당 1문장으로 한국어로 설명하세요. 주요 세법 용어(IRC 조항, 세금 명칭 등)는 영어를 괄호에 병기하세요. 형식: "A: 이유. B: 이유." (정답 보기는 생략)\n문제: ' + (q.text) + '\n정답: ' + (q.options[q.correct]) + ' (' + (letters[q.correct]) + ')\n오답 보기:\n' + (wrongOpts) + ''
     );
     q.wrongReasons=text; save();
     document.getElementById('wrong-body').innerHTML=text;
-  }catch(e){ document.getElementById('wrong-body').textContent='AI unavailable — check API key in Settings.'; }
+  }catch(e){ document.getElementById('wrong-body').textContent='AI unavailable - check API key in Settings.'; }
 }
 
 async function fetchExamTip(q){
   try{
     const text=await callGemini(
       '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 요청한 내용만 제공하고, 서론이나 마크다운 없이 답변하세요. 모든 내용은 2025년 미국 세법 기준으로 작성하세요.',
-      `이 EA 시험 문제(${q.topic||q.part})에 대해 2026년 EA 시험 대비 시험 팁을 한국어로 2~3문장 작성하세요. 자주 하는 실수, 암기 요령, 2025년 기준 수치/임계값을 포함하세요. 세법 용어(IRC 조항, 세금 명칭, 양식 번호 등)는 영어를 괄호에 병기하세요.\n문제: ${q.text}\n정답: ${q.options[q.correct]}`
+      '이 EA 시험 문제(' + (q.topic||q.part) + ')에 대해 2026년 EA 시험 대비 시험 팁을 한국어로 2~3문장 작성하세요. 자주 하는 실수, 암기 요령, 2025년 기준 수치/임계값을 포함하세요. 세법 용어(IRC 조항, 세금 명칭, 양식 번호 등)는 영어를 괄호에 병기하세요.\n문제: ' + (q.text) + '\n정답: ' + (q.options[q.correct]) + ''
     );
     q.examTip=text; save();
     document.getElementById('tip-body').innerHTML=text;
-  }catch(e){ document.getElementById('tip-body').textContent='AI unavailable — check API key in Settings.'; }
+  }catch(e){ document.getElementById('tip-body').textContent='AI unavailable - check API key in Settings.'; }
 }
 
 async function fetchFullExplanation(q){
   try{
     const raw=await callGemini(
-      `당신은 EA(Enrolled Agent) 시험 전문 튜터이자 세법 팩트체커입니다. 두 단계로 작업하세요:
-
-1단계 — 정답을 독립적으로 검증하세요.
-2025년 미국 세법 지식을 바탕으로 어떤 보기(A/B/C/D)가 실제로 정답인지 직접 판단하세요. 문제은행의 "정답 표시"가 맞다고 가정하지 마세요 — 틀릴 수 있습니다. 표시된 정답이 틀렸다면 실제 정답을 찾아 이유를 설명하세요.
-
-2단계 — 실제 정답을 기준으로 모든 설명을 작성하세요.
-문제은행 정답이 틀렸다면 explanation 필드 첫 줄에 반드시 다음을 포함하세요: "⚠️ 문제은행 오답 주의: 문제은행의 정답 표시가 잘못되었습니다. 실제 정답은 [X]입니다."
-
-반드시 유효한 JSON 객체만 반환하세요 — 마크다운, 서론 없이. 키:
-- explanation: 정답이 왜 맞는지 한국어로 상세히 설명. 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기. 2025년 세법 기준.
-- wrongReasons: 각 오답 보기가 왜 틀렸는지 보기당 1문장씩 한국어로. 형식: "A: 이유. B: 이유." — 실제 정답 보기는 생략. 용어는 영어 병기.
-- taxUpdate2025: "⚠️ 문제은행 기준 주의: AI 기준 2025년 세법으로 설명합니다."로 시작. 이 문제와 관련된 2025년 기준 수치/임계값/규정 변경사항을 한국어로 설명. 2024년 대비 변경사항 포함.
-- examTip: 2026년 EA 시험 대비 실전 팁을 한국어로 2~3문장. 2025년 기준 수치 포함. 자주 하는 실수와 암기 요령 포함. 용어는 영어 병기.
-- verifiedCorrect: 2025년 세법 기준 실제 정답 보기 (A/B/C/D 중 하나의 알파벳만).
-
-모든 내용은 반드시 2025년 미국 세법 기준으로 작성하세요.`,
-      `EA exam question:\n${q.text}\n\nOptions:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\nQuestion bank marks this as correct: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nCSV explanation (may be wrong — verify independently): ${q.explanation||'none provided'}`
+      '당신은 EA(Enrolled Agent) 시험 전문 튜터이자 세법 팩트체커입니다. 두 단계로 작업하세요:\n\n1단계 - 정답을 독립적으로 검증하세요.\n2025년 미국 세법 지식을 바탕으로 어떤 보기(A/B/C/D)가 실제로 정답인지 직접 판단하세요. 문제은행의 "정답 표시"가 맞다고 가정하지 마세요 - 틀릴 수 있습니다. 표시된 정답이 틀렸다면 실제 정답을 찾아 이유를 설명하세요.\n\n2단계 - 실제 정답을 기준으로 모든 설명을 작성하세요.\n문제은행 정답이 틀렸다면 explanation 필드 첫 줄에 반드시 다음을 포함하세요: "[!] 문제은행 오답 주의: 문제은행의 정답 표시가 잘못되었습니다. 실제 정답은 [X]입니다."\n\n반드시 유효한 JSON 객체만 반환하세요 - 마크다운, 서론 없이. 키:\n- explanation: 정답이 왜 맞는지 한국어로 상세히 설명. 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기. 2025년 세법 기준.\n- wrongReasons: 각 오답 보기가 왜 틀렸는지 보기당 1문장씩 한국어로. 형식: "A: 이유. B: 이유." - 실제 정답 보기는 생략. 용어는 영어 병기.\n- taxUpdate2025: "[!] 문제은행 기준 주의: AI 기준 2025년 세법으로 설명합니다."로 시작. 이 문제와 관련된 2025년 기준 수치/임계값/규정 변경사항을 한국어로 설명. 2024년 대비 변경사항 포함.\n- examTip: 2026년 EA 시험 대비 실전 팁을 한국어로 2~3문장. 2025년 기준 수치 포함. 자주 하는 실수와 암기 요령 포함. 용어는 영어 병기.\n- verifiedCorrect: 2025년 세법 기준 실제 정답 보기 (A/B/C/D 중 하나의 알파벳만).\n\n모든 내용은 반드시 2025년 미국 세법 기준으로 작성하세요.',
+      'EA exam question:\n' + (q.text) + '\n\nOptions:\n' + (q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')) + '\n\nQuestion bank marks this as correct: ' + (String.fromCharCode(65+q.correct)) + ') ' + (q.options[q.correct]) + '\n\nCSV explanation (may be wrong - verify independently): ' + (q.explanation||'none provided') + ''
     );
-    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const parsed=JSON.parse(raw.replace(/'''json|'''/g,'').trim());
 
-    // ── Determine if AI found a different correct answer ──
+    // == Determine if AI found a different correct answer ==
     const aiCorrectLetter  = (parsed.verifiedCorrect||'').toUpperCase().trim();
     const csvCorrectIdx    = q.correct;
     const csvCorrectLetter = String.fromCharCode(65+csvCorrectIdx);
@@ -1295,17 +1249,17 @@ async function fetchFullExplanation(q){
     const answerCorrected  = aiCorrectLetter && aiCorrectLetter !== csvCorrectLetter && aiCorrectIdx >= 0;
 
     if(answerCorrected){
-      // ── 1. Update q.correct in memory ──
+      // == 1. Update q.correct in memory ==
       const oldCorrect = q.correct;
       q.correct = aiCorrectIdx;
 
-      // ── 2. Re-evaluate the user's submitted answer ──
+      // == 2. Re-evaluate the user's submitted answer ==
       const userChosen = S.selected;
       const wasWrong   = userChosen !== oldCorrect;   // how it was scored
       const nowRight   = userChosen === aiCorrectIdx; // correct per AI
 
       if(wasWrong && nowRight){
-        // Flip the score: wrong → correct
+        // Flip the score: wrong -> correct
         const prog = S.answered[q.id];
         if(prog){
           prog.wrong   = Math.max(0, prog.wrong - 1);
@@ -1325,7 +1279,7 @@ async function fetchFullExplanation(q){
         // Update the result banner
         const banner = document.getElementById('result-banner');
         banner.className = 'result-banner ok';
-        banner.textContent = '✓ 정답 수정됨 — AI 검증으로 정답 처리되었습니다! 🎉';
+        banner.textContent = 'OK 정답 수정됨 - AI 검증으로 정답 처리되었습니다! [!]';
       } else {
         // Re-colour: show the AI-verified correct answer
         document.querySelectorAll('.option-btn').forEach((b,i)=>{
@@ -1335,28 +1289,25 @@ async function fetchFullExplanation(q){
         });
       }
 
-      // ── 3. Show warning box above explanation ──
-      const warn = `<div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-weight:700;color:#92400e;font-size:15px;">
-        ⚠️ 문제은행 오답 수정됨<br>
-        <span style="font-weight:400;font-size:14px;">문제은행 정답 <b>${csvCorrectLetter}</b> → AI 검증 정답 <b>${aiCorrectLetter}</b> 로 자동 수정되었습니다. 로컬 및 클라우드에 반영됩니다.</span>
-      </div>`;
-      document.getElementById('exp-body').innerHTML = warn + (parsed.explanation || '—');
+      // == 3. Show warning box above explanation ==
+      const warn = '<div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-weight:700;color:#92400e;font-size:15px;">\n        [!] 문제은행 오답 수정됨<br>\n        <span style="font-weight:400;font-size:14px;">문제은행 정답 <b>' + (csvCorrectLetter) + '</b> -> AI 검증 정답 <b>' + (aiCorrectLetter) + '</b> 로 자동 수정되었습니다. 로컬 및 클라우드에 반영됩니다.</span>\n      </div>';
+      document.getElementById('exp-body').innerHTML = warn + (parsed.explanation || '-');
 
-      // ── 4. Save corrected question to localStorage + Supabase ──
-      q.explanation   = parsed.explanation   || q.explanation || '—';
-      q.wrongReasons  = parsed.wrongReasons  || '—';
-      q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-      q.examTip       = parsed.examTip       || '—';
+      // == 4. Save corrected question to localStorage + Supabase ==
+      q.explanation   = parsed.explanation   || q.explanation || '-';
+      q.wrongReasons  = parsed.wrongReasons  || '-';
+      q.taxUpdate2025 = parsed.taxUpdate2025 || '-';
+      q.examTip       = parsed.examTip       || '-';
       save();
       fixQuestionInCloud(q);
-      showToast(`✅ 정답 ${csvCorrectLetter}→${aiCorrectLetter} 자동 수정 및 저장 완료`);
+      showToast('[OK] 정답 ' + (csvCorrectLetter) + '->' + (aiCorrectLetter) + ' 자동 수정 및 저장 완료');
 
     } else {
-      // No correction needed — just update explanations
-      q.explanation   = parsed.explanation   || q.explanation || '—';
-      q.wrongReasons  = parsed.wrongReasons  || '—';
-      q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-      q.examTip       = parsed.examTip       || '—';
+      // No correction needed - just update explanations
+      q.explanation   = parsed.explanation   || q.explanation || '-';
+      q.wrongReasons  = parsed.wrongReasons  || '-';
+      q.taxUpdate2025 = parsed.taxUpdate2025 || '-';
+      q.examTip       = parsed.examTip       || '-';
       save();
       fixQuestionInCloud(q); // still save updated explanations
       document.getElementById('exp-body').innerHTML = q.explanation;
@@ -1367,9 +1318,9 @@ async function fetchFullExplanation(q){
     document.getElementById('tip-body').innerHTML    = q.examTip;
 
   }catch(e){
-    const msg='AI unavailable. Check your API key in ⚙ Settings.';
+    const msg='AI unavailable. Check your API key in [S] Settings.';
     document.getElementById('exp-body').textContent   = q.explanation || msg;
-    document.getElementById('wrong-body').textContent = q.wrongReasons || '—';
+    document.getElementById('wrong-body').textContent = q.wrongReasons || '-';
     document.getElementById('update-body').textContent= msg;
     document.getElementById('tip-body').textContent   = msg;
   }
@@ -1378,20 +1329,20 @@ async function fetchFullExplanation(q){
 function nextQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResults();else loadQuestion();}
 function endSession(){clearInterval(S.timerInt);showResults();}
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // COPY QUESTION
-// ══════════════════════════════════════════════════════
+// ======================================================
 function copyQuestion(){
   const q=curQ(); if(!q) return;
   const letters=['A','B','C','D'];
   const lines=[q.text,''];
-  q.options.forEach((opt,i)=>{ lines.push(`${letters[i]}. ${opt}`); });
+  q.options.forEach((opt,i)=>{ lines.push((letters[i]) + '. ' + (opt)); });
   const text=lines.join('\n');
   navigator.clipboard.writeText(text).then(()=>{
     const btn=document.getElementById('q-copy-btn');
-    btn.textContent='✓ Copied!';
+    btn.textContent='OK Copied!';
     btn.classList.add('copied');
-    setTimeout(()=>{ btn.textContent='📋 Copy'; btn.classList.remove('copied'); }, 2000);
+    setTimeout(()=>{ btn.textContent='[=] Copy'; btn.classList.remove('copied'); }, 2000);
   }).catch(()=>{
     // Fallback for older browsers
     const ta=document.createElement('textarea');
@@ -1399,7 +1350,7 @@ function copyQuestion(){
     document.body.appendChild(ta); ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showToast('✓ 문제가 복사되었습니다');
+    showToast('OK 문제가 복사되었습니다');
   });
 }
 
@@ -1407,85 +1358,75 @@ function toggleFlag(){
   const q=curQ(); if(!q) return;
   if(S.flagged.has(q.id)) S.flagged.delete(q.id); else S.flagged.add(q.id);
   save();
-  saveProgressToCloud(q.id, null); // ☁️ sync flag
+  saveProgressToCloud(q.id, null); // [Cloud] sync flag
   const fl=S.flagged.has(q.id);
   document.getElementById('q-flag-btn').className='q-flag-btn'+(fl?' flagged':'');
-  document.getElementById('q-flag-btn').textContent=fl?'⚑ Flagged':'⚑ Flag';
-  document.getElementById('nav-flag').textContent=fl?'⚑ Unflag':'⚑ Flag';
+  document.getElementById('q-flag-btn').textContent=fl?'[F] Flagged':'[F] Flag';
+  document.getElementById('nav-flag').textContent=fl?'[F] Unflag':'[F] Flag';
   showToast(fl?'Question flagged for review':'Flag removed');
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // FOLLOW-UP
-// ══════════════════════════════════════════════════════
+// ======================================================
 async function sendFollowUp(){
   const q=curQ(), userQ=document.getElementById('ask-input').value.trim();
   if(!userQ) return;
   const box=document.getElementById('ai-answer');
-  box.innerHTML='<span class="loading">Thinking…</span>'; box.classList.add('visible');
+  box.innerHTML='<span class="loading">Thinking...</span>'; box.classList.add('visible');
   try{
     const text=await callGemini(
-      '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 중요사항: (1) 반드시 2025년 미국 세법 기준으로 2026년 EA 시험에 맞게 답변하세요. (2) 문제은행 정답이 틀릴 수 있으니 본인 지식으로 정확한 정답을 제시하세요. (3) 달러 금액, 임계값, 세율을 구체적으로 명시하세요. (4) 300단어 이내로 답변하되 절대 문장 중간에 끊지 마세요. (5) 구체적인 수치가 포함된 경우 "📌 2025 세법 기준:"으로 시작하세요. 모든 답변은 한국어로 하되, 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기하세요.',
-      `EA 시험 문제:\n"${q?.text}"\n\n보기:\n${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\n문제은행 정답: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}\n\n수강생 질문: ${userQ}`
+      '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 중요사항: (1) 반드시 2025년 미국 세법 기준으로 2026년 EA 시험에 맞게 답변하세요. (2) 문제은행 정답이 틀릴 수 있으니 본인 지식으로 정확한 정답을 제시하세요. (3) 달러 금액, 임계값, 세율을 구체적으로 명시하세요. (4) 300단어 이내로 답변하되 절대 문장 중간에 끊지 마세요. (5) 구체적인 수치가 포함된 경우 "[*] 2025 세법 기준:"으로 시작하세요. 모든 답변은 한국어로 하되, 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기하세요.',
+      'EA 시험 문제:\n"' + ((q && q.text)) + '"\n\n보기:\n' + ((q && q.options).map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')) + '\n\n문제은행 정답: ' + (q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:'') + '\n\n수강생 질문: ' + (userQ) + ''
     );
     box.innerHTML=text.replace(/\n/g,'<br>');
   }catch(e){ box.innerHTML='<em>'+e.message+'</em>'; }
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // RESULTS
-// ══════════════════════════════════════════════════════
+// ======================================================
 function showResults(){
   clearInterval(S.timerInt);
   const {correct,wrong,total}=S.results, answered=correct+wrong;
   const pct=answered>0?Math.round(correct/answered*100):0;
   S.sessions.push({date:new Date().toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),count:answered,correct,pct});
   save();
-  saveSessionToCloud(answered, correct, pct); // ☁️ cloud
+  saveSessionToCloud(answered, correct, pct); // [Cloud] cloud
   document.getElementById('r-pct').textContent=pct+'%';
   document.getElementById('r-correct').textContent=correct;
   document.getElementById('r-wrong').textContent=wrong;
   document.getElementById('r-total').textContent=answered;
   document.getElementById('r-flagged').textContent=S.flagged.size;
-  document.getElementById('r-title').textContent=pct>=80?'훌륭합니다! 🎉':pct>=60?'잘 하고 있어요 👍':'계속 학습하세요 📖';
-  document.getElementById('r-sub').textContent=`${answered}문제 중 ${correct}개 정답`;
+  document.getElementById('r-title').textContent=pct>=80?'훌륭합니다! [!]':pct>=60?'잘 하고 있어요 [+]':'계속 학습하세요 [Book]';
+  document.getElementById('r-sub').textContent=(answered) + '문제 중 ' + (correct) + '개 정답';
   showScreen('results');
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // BOOKMARKS
-// ══════════════════════════════════════════════════════
+// ======================================================
 function renderBookmarks(){
   const el=document.getElementById('bookmarks-list');
   const fqs=S.questions.filter(q=>S.flagged.has(q.id));
-  if(!fqs.length){ el.innerHTML='<div class="empty"><div class="empty-icon">⚑</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 ⚑ 플래그를 달면 여기서 복습할 수 있습니다</div></div>'; return; }
+  if(!fqs.length){ el.innerHTML='<div class="empty"><div class="empty-icon">[F]</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 [F] 플래그를 달면 여기서 복습할 수 있습니다</div></div>'; return; }
   el.innerHTML=fqs.map(q=>{
     const a=S.answered[q.id]||{times:0,wrong:0};
-    return`<div class="bookmark-card" onclick="openModal('${q.id}')">
-      <div class="bm-q">${q.text.length>110?q.text.slice(0,110)+'…':q.text}</div>
-      <div class="bm-meta"><span class="bm-tag">${q.part}</span><span class="bm-tag">${q.topic||'General'}</span><span style="font-size:12px;color:#dc2626;font-weight:600;">✗ ${a.wrong}회 오답</span><span style="font-size:12px;color:var(--text-muted);margin-left:auto;">${a.times}회 학습</span></div>
-    </div>`;
+    return'<div class="bookmark-card" onclick="openModal(\'' + (q.id) + '\')">\n      <div class="bm-q">' + (q.text.length>110?q.text.slice(0,110)+'...':q.text) + '</div>\n      <div class="bm-meta"><span class="bm-tag">' + (q.part) + '</span><span class="bm-tag">' + (q.topic||'General') + '</span><span style="font-size:12px;color:#dc2626;font-weight:600;">X ' + (a.wrong) + '회 오답</span><span style="font-size:12px;color:var(--text-muted);margin-left:auto;">' + (a.times) + '회 학습</span></div>\n    </div>';
   }).join('');
 }
 
 function openModal(id){
   const q=S.questions.find(x=>x.id===id); if(!q) return;
   const a=S.answered[id]||{times:0,correct:0,wrong:0};
-  document.getElementById('modal-content').innerHTML=`
-    <div style="margin-bottom:.75rem;"><span class="q-badge">${q.part}</span><span class="q-badge-gray" style="margin-left:6px;">${q.topic||'General'}</span></div>
-    <div style="font-size:16px;line-height:1.75;margin-bottom:1rem;color:var(--text-main);">${q.text}</div>
-    ${q.options.map((o,i)=>`<div style="padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:8px;border:1.5px solid ${i===q.correct?'#16a34a':'var(--border-clr)'};background:${i===q.correct?'rgba(22,163,74,.08)':'#f8faff'};color:${i===q.correct?'#15803d':'var(--text-muted)'};">${String.fromCharCode(65+i)}) ${o}</div>`).join('')}
-    ${q.explanation?`<div style="margin-top:1rem;"><div class="exp-label">해설</div><div style="font-size:15px;line-height:1.8;color:var(--text-muted);">${q.explanation}</div></div>`:''}
-    ${q.taxUpdate2025?`<div class="update-box" style="margin-top:.75rem;"><div class="update-label">📋 2025 세법 변경사항 (vs. 2023/2024)</div><div class="update-body">${q.taxUpdate2025}</div></div>`:''}
-    ${q.examTip?`<div class="tip-box" style="margin-top:.75rem;"><div class="tip-label">💡 EA Exam Tip</div><div class="tip-body">${q.examTip}</div></div>`:''}
-    <div style="display:flex;gap:12px;font-size:13px;color:var(--text-muted);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-clr);"><span>학습 횟수: ${a.times}×</span><span style="color:#16a34a;font-weight:600;">✓ ${a.correct}</span><span style="color:#dc2626;font-weight:600;">✗ ${a.wrong}</span></div>`;
+  document.getElementById('modal-content').innerHTML='\n    <div style="margin-bottom:.75rem;"><span class="q-badge">' + (q.part) + '</span><span class="q-badge-gray" style="margin-left:6px;">' + (q.topic||'General') + '</span></div>\n    <div style="font-size:16px;line-height:1.75;margin-bottom:1rem;color:var(--text-main);">' + (q.text) + '</div>\n    ' + (q.options.map((o,i)=>'<div style="padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:8px;border:1.5px solid ' + (i===q.correct?'#16a34a':'var(--border-clr)') + ';background:' + (i===q.correct?'rgba(22,163,74,.08)':'#f8faff') + ';color:' + (i===q.correct?'#15803d':'var(--text-muted)') + ';">' + (String.fromCharCode(65+i)) + ') ' + (o) + '</div>').join('')) + '\n    ' + (q.explanation?'<div style="margin-top:1rem;"><div class="exp-label">해설</div><div style="font-size:15px;line-height:1.8;color:var(--text-muted);">' + (q.explanation) + '</div></div>':'') + '\n    ' + (q.taxUpdate2025?'<div class="update-box" style="margin-top:.75rem;"><div class="update-label">[=] 2025 세법 변경사항 (vs. 2023/2024)</div><div class="update-body">' + (q.taxUpdate2025) + '</div></div>':'') + '\n    ' + (q.examTip?'<div class="tip-box" style="margin-top:.75rem;"><div class="tip-label">[Tip] EA Exam Tip</div><div class="tip-body">' + (q.examTip) + '</div></div>':'') + '\n    <div style="display:flex;gap:12px;font-size:13px;color:var(--text-muted);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-clr);"><span>학습 횟수: ' + (a.times) + 'x</span><span style="color:#16a34a;font-weight:600;">OK ' + (a.correct) + '</span><span style="color:#dc2626;font-weight:600;">X ' + (a.wrong) + '</span></div>';
   document.getElementById('modal-bg').classList.add('open');
 }
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
-// ══════════════════════════════════════════════════════
-// UPLOAD — CSV only (no JSON parsing errors)
-// ══════════════════════════════════════════════════════
+// ======================================================
+// UPLOAD - CSV only (no JSON parsing errors)
+// ======================================================
 function renderUploadList(){
   const src=[...new Set(S.questions.map(q=>q.source).filter(s=>s&&s!=='demo'))];
   const el=document.getElementById('upload-list');
@@ -1496,25 +1437,14 @@ function renderUploadList(){
   el.innerHTML=src.map(s=>{
     const cnt=S.questions.filter(q=>q.source===s).length;
     const safeId=encodeURIComponent(s);
-    return`<div class="upload-item" id="upload-item-${safeId}">
-      <div style="width:38px;height:38px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📄</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:15px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s}</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${cnt}개 문제</div>
-      </div>
-      <span class="upload-badge">${cnt}개</span>
-      <div class="upload-item-actions">
-        <button class="upload-action-btn replace" onclick="triggerReplace('${s}')" title="이 파일을 새 CSV로 교체">🔄 교체</button>
-        <button class="upload-action-btn delete" onclick="confirmDelete('${s}')" title="이 파일의 문제 삭제">🗑 삭제</button>
-      </div>
-    </div>`;
+    return'<div class="upload-item" id="upload-item-' + (safeId) + '">\n      <div style="width:38px;height:38px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">[Doc]</div>\n      <div style="flex:1;min-width:0;">\n        <div style="font-size:15px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (s) + '</div>\n        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">' + (cnt) + '개 문제</div>\n      </div>\n      <span class="upload-badge">' + (cnt) + '개</span>\n      <div class="upload-item-actions">\n        <button class="upload-action-btn replace" onclick="triggerReplace(\'' + (s) + '\')" title="이 파일을 새 CSV로 교체">[~] 교체</button>\n        <button class="upload-action-btn delete" onclick="confirmDelete(\'' + (s) + '\')" title="이 파일의 문제 삭제">[Del] 삭제</button>\n      </div>\n    </div>';
   }).join('');
 }
 
 function handleFileSelect(files){
   [...files].forEach(f=>{
     if(!f.name.endsWith('.csv')){
-      showToast('⚠️ CSV 파일만 지원됩니다: '+f.name);
+      showToast('[!] CSV 파일만 지원됩니다: '+f.name);
       return;
     }
     processCSVFile(f);
@@ -1527,7 +1457,7 @@ function handleDrop(e){
   handleFileSelect(e.dataTransfer.files);
 }
 
-// ── DELETE ──────────────────────────────────────────
+// == DELETE ==========================================
 let _deleteTarget = null; // source name pending confirmation
 
 function confirmDelete(sourceName){
@@ -1542,12 +1472,7 @@ function confirmDelete(sourceName){
   item.classList.add('confirm-delete');
   // Replace action buttons with confirm row
   const actions = item.querySelector('.upload-item-actions');
-  actions.innerHTML=`
-    <div class="delete-confirm-row">
-      <span>정말 삭제?</span>
-      <button class="confirm-yes" onclick="executeDelete('${sourceName}')">삭제</button>
-      <button class="confirm-no"  onclick="cancelDelete()">취소</button>
-    </div>`;
+  actions.innerHTML='\n    <div class="delete-confirm-row">\n      <span>정말 삭제?</span>\n      <button class="confirm-yes" onclick="executeDelete(\'' + (sourceName) + '\')">삭제</button>\n      <button class="confirm-no"  onclick="cancelDelete()">취소</button>\n    </div>';
 }
 
 function cancelDelete(){
@@ -1566,18 +1491,18 @@ function executeDelete(sourceName){
   const removed = before - S.questions.length;
   _deleteTarget = null;
   renderUploadList(); renderDashboard(); updateAvailCount();
-  showToast(`🗑 ${removed}개 문제 삭제됨 (${sourceName})`);
+  showToast('[Del] ' + (removed) + '개 문제 삭제됨 (' + (sourceName) + ')');
 
-  // ☁️ Supabase에서도 해당 source 문제 전체 삭제
-  if(SB_USER){
+  // [Cloud] Supabase에서도 해당 source 문제 전체 삭제
+  if(FIXED_USER_ID){
     sb.from('questions').delete().eq('source', sourceName).then(({error})=>{
-      if(error) showToast('⚠️ 클라우드 삭제 오류: '+error.message);
-      else showToast(`☁️ 클라우드에서도 "${sourceName}" 삭제 완료`);
+      if(error) showToast('[!] 클라우드 삭제 오류: '+error.message);
+      else showToast('[Cloud] 클라우드에서도 "' + (sourceName) + '" 삭제 완료');
     });
   }
 }
 
-// ── REPLACE ─────────────────────────────────────────
+// == REPLACE =========================================
 let _replaceTarget = null; // source name to replace
 
 function triggerReplace(sourceName){
@@ -1591,24 +1516,24 @@ function handleReplaceFile(files){
   if(!files || !files.length || !_replaceTarget) return;
   const file = files[0];
   if(!file.name.endsWith('.csv')){
-    showToast('⚠️ CSV 파일만 지원됩니다');
+    showToast('[!] CSV 파일만 지원됩니다');
     _replaceTarget = null;
     return;
   }
   const target = _replaceTarget;
   _replaceTarget = null;
-  showToast('📂 교체 중: '+file.name);
+  showToast('[File] 교체 중: '+file.name);
 
   const reader = new FileReader();
   reader.onload = ev => {
     try{
       const newQs = parseCSV(ev.target.result, target);
-      if(!newQs.length){ showToast('❌ 문제를 찾을 수 없습니다. CSV 형식 확인하세요.'); return; }
+      if(!newQs.length){ showToast('[X] 문제를 찾을 수 없습니다. CSV 형식 확인하세요.'); return; }
 
-      // ── 로컬: 해당 source 완전 삭제 후 교체 ──
+      // == 로컬: 해당 source 완전 삭제 후 교체 ==
       S.questions = S.questions.filter(q => q.source !== target);
 
-      // ── 중복 ID 처리: 다른 source에 같은 ID 있으면 새 것으로 덮어쓰기 ──
+      // == 중복 ID 처리: 다른 source에 같은 ID 있으면 새 것으로 덮어쓰기 ==
       const newIds = new Set(newQs.map(q => q.id));
       S.questions = S.questions.filter(q => !newIds.has(q.id));
       newQs.forEach(q=>{ q.source = target; S.questions.push(q); });
@@ -1619,43 +1544,43 @@ function handleReplaceFile(files){
       S.flagged.forEach(id=>{ if(!allIds.has(id)) S.flagged.delete(id); });
 
       save(); renderUploadList(); renderDashboard(); updateAvailCount();
-      showToast(`✅ ${newQs.length}개 문제로 교체됨 (${target})`);
+      showToast('[OK] ' + (newQs.length) + '개 문제로 교체됨 (' + (target) + ')');
 
-      // ☁️ Supabase: source 삭제 후 새로 upsert
+      // [Cloud] Supabase: source 삭제 후 새로 upsert
       (async()=>{
-        if(SB_USER){
+        if(FIXED_USER_ID){
           await sb.from('questions').delete().eq('source', target);
           const n = await uploadQuestionsToCloud(newQs);
-          if(n > 0) showToast(`☁️ ${n}개 문제 클라우드 교체 완료`);
+          if(n > 0) showToast('[Cloud] ' + (n) + '개 문제 클라우드 교체 완료');
         }
       })();
 
     }catch(err){
-      showToast('❌ 오류: '+err.message);
+      showToast('[X] 오류: '+err.message);
     }
   };
-  reader.onerror = () => showToast('❌ 파일 읽기 실패');
+  reader.onerror = () => showToast('[X] 파일 읽기 실패');
   reader.readAsText(file, 'utf-8');
 }
 
 function processCSVFile(file){
-  showToast('📂 읽는 중: '+file.name);
+  showToast('[File] 읽는 중: '+file.name);
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
       const qs=parseCSV(ev.target.result, file.name);
-      if(!qs.length){ showToast('❌ 문제를 찾을 수 없습니다. CSV 형식을 확인하세요.'); return; }
+      if(!qs.length){ showToast('[X] 문제를 찾을 수 없습니다. CSV 형식을 확인하세요.'); return; }
 
       const sourceName = file.name;
       const isReplace  = S.questions.some(q => q.source === sourceName);
 
       if(isReplace){
-        // ── 동일 파일명 재업로드: 해당 source 완전 삭제 후 교체 ──
+        // == 동일 파일명 재업로드: 해당 source 완전 삭제 후 교체 ==
         S.questions = S.questions.filter(q => q.source !== sourceName);
-        showToast(`🔄 기존 "${sourceName}" 교체 중…`);
+        showToast('[~] 기존 "' + (sourceName) + '" 교체 중...');
       }
 
-      // ── 중복 Question ID 처리: 기존 ID를 새 것으로 덮어쓰기 ──
+      // == 중복 Question ID 처리: 기존 ID를 새 것으로 덮어쓰기 ==
       const newIds = new Set(qs.map(q => q.id));
       S.questions = S.questions.filter(q => !newIds.has(q.id)); // 다른 source의 중복 ID 제거
       qs.forEach(q => S.questions.push(q));
@@ -1667,30 +1592,30 @@ function processCSVFile(file){
 
       save(); renderUploadList(); renderDashboard(); updateAvailCount();
       showToast(isReplace
-        ? `✅ "${sourceName}" 교체 완료 (${qs.length}개)`
-        : `✅ ${qs.length}개 문제 추가됨 (총 ${S.questions.length}개)`);
+        ? '[OK] "' + (sourceName) + '" 교체 완료 (' + (qs.length) + '개)'
+        : '[OK] ' + (qs.length) + '개 문제 추가됨 (총 ' + (S.questions.length) + '개)');
 
-      // ☁️ Supabase: 동일 source의 기존 문제 삭제 후 새로 upsert
+      // [Cloud] Supabase: 동일 source의 기존 문제 삭제 후 새로 upsert
       (async()=>{
-        if(SB_USER){
+        if(FIXED_USER_ID){
           if(isReplace){
             // 해당 source 문제를 클라우드에서도 삭제
             await sb.from('questions').delete().eq('source', sourceName);
           }
           const n = await uploadQuestionsToCloud(qs);
-          if(n > 0) showToast(`☁️ ${n}개 문제 클라우드 저장 완료`);
+          if(n > 0) showToast('[Cloud] ' + (n) + '개 문제 클라우드 저장 완료');
         }
       })();
 
     }catch(err){
-      showToast('❌ 오류: '+err.message);
+      showToast('[X] 오류: '+err.message);
     }
   };
-  reader.onerror=()=>showToast('❌ 파일 읽기 실패');
+  reader.onerror=()=>showToast('[X] 파일 읽기 실패');
   reader.readAsText(file,'utf-8');
 }
 
-// Robust CSV parser — handles quoted fields with commas/newlines inside
+// Robust CSV parser - handles quoted fields with commas/newlines inside
 function parseCSV(text, sourceName){
   // Strip BOM (Byte Order Mark) that Excel/Numbers adds to UTF-8 CSV files
   text = text.replace(/^\uFEFF/, '');
@@ -1780,7 +1705,7 @@ function splitCSVRows(text){
   const rows=[];
   let row=[], cur='', inQ=false;
   // Normalize line endings
-  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  text=text.replace(/\n/g,'\n').replace(/\n/g,'\n');
 
   for(let i=0;i<text.length;i++){
     const ch=text[i];
@@ -1802,16 +1727,15 @@ function splitCSVRows(text){
   return rows;
 }
 
-// ══════════════════════════════════════════════════════
+// ======================================================
 // UTILS
-// ══════════════════════════════════════════════════════
+// ======================================================
 function showToast(msg){
   const t=document.getElementById('toast'); t.textContent=msg;
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// START
-init();
+// START - window.onload ensures all scripts (CDN) are fully loaded
+window.onload = startApp;
+
 </script>
-</body>
-</html>
