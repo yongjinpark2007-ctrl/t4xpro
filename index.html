@@ -806,7 +806,7 @@ async function deleteFromCloud(sourceName){
 
 // CONFIG - Gemini API
 // ======================================================
-const GEMINI_MODEL   = 'gemini-2.5-flash';
+const GEMINI_MODEL   = 'gemini-2.0-flash';
 const GEMINI_URL     = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent';
 const GEMINI_KEY_DEFAULT = 'AIzaSyDh7HM0yGzVYRfM-9r5GkIkKyr-0yQ-xVU';
 
@@ -1354,6 +1354,7 @@ async function fetchFullExplanation(q){
       q.wrongReasons  = parsed.wrongReasons  || '-';
       q.taxUpdate2025 = parsed.taxUpdate2025 || '-';
       q.examTip       = parsed.examTip       || '-';
+      q.aiEnhanced    = true;
       save();
       fixQuestionInCloud(q); // still save updated explanations
       document.getElementById('exp-body').innerHTML = q.explanation;
