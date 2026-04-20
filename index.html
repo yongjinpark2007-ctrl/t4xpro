@@ -6,7 +6,7 @@
 <title>EA Exam Prep · 2025 Tax Law</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
 <style>
 :root{
   --navy:#1a3a6b;--navy-mid:#f4f7ff;--navy-light:#e8eef9;
@@ -611,10 +611,6 @@ const SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
 
 let sb = null;
-
-// Supabase is inlined above — always available immediately
-sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
 let SB_USER = null;
 
 // ── AUTH ────────────────────────────────────────────
@@ -654,8 +650,16 @@ async function doLogout(){
   location.reload();
 }
 
-// ── startApp: called on DOMContentLoaded ─────────────
+// ── startApp: called on DOMContentLoaded — CDN is ready by now ──
 function startApp(){
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  } catch(e) {
+    console.error('Supabase init failed:', e);
+    document.getElementById('lg-err').textContent = '⚠️ 초기화 오류. 페이지를 새로고침 해주세요.';
+    document.getElementById('lg-err').style.display = 'block';
+    return;
+  }
   checkSession();
   init();
 }
@@ -1881,12 +1885,8 @@ function showToast(msg){
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// START
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', startApp);
-} else {
-  startApp();
-}
+// START — window.onload ensures all scripts (CDN) are fully loaded
+window.onload = startApp;
 </script>
 </body>
 </html>
