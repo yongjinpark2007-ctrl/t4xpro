@@ -6,7 +6,7 @@
 <title>EA Exam Prep · 2025 Tax Law</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <style>
 :root{
   --navy:#1a3a6b;--navy-mid:#f4f7ff;--navy-light:#e8eef9;
@@ -578,9 +578,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 
   <div class="api-setup">
     <div class="exp-label">🔑 Google Gemini API Key (AI 해설용)</div>
-    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">AI 자동 해설에 사용됩니다. 한 번 저장하면 이 기기에서 자동으로 사용됩니다. <a href="https://aistudio.google.com" target="_blank" style="color:#2563eb;font-weight:600;">aistudio.google.com</a>에서 무료로 발급받을 수 있습니다.</div>
-    <input class="api-input" type="password" id="api-key-input" placeholder="Gemini API 키를 여기에 붙여넣기…"/>
-    <button class="btn-primary" onclick="saveApiKey()">API 키 저장</button>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">내장된 기본 API 키로 모든 기기에서 자동 작동합니다. 키를 교체하고 싶을 때만 아래에 입력하세요. <a href="https://aistudio.google.com" target="_blank" style="color:#2563eb;font-weight:600;">aistudio.google.com</a>에서 발급 가능합니다.</div>
+    <input class="api-input" type="password" id="api-key-input" placeholder="새 API 키로 교체하려면 여기에 입력…"/>
+    <button class="btn-primary" onclick="saveApiKey()" style="margin-bottom:8px;">🔄 API 키 교체</button>
+    <button class="btn-ghost" style="width:100%;" onclick="resetApiKeyToDefault()">↩ 내장 기본 키로 되돌리기</button>
     <div style="font-size:13px;color:#16a34a;margin-top:10px;font-weight:600;" id="api-status"></div>
   </div>
   <div style="background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;margin-top:1rem;">
@@ -608,9 +609,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 // ══════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-let SB_USER = null; // currently logged-in user
+let sb = null;
+
+// Supabase is inlined above — always available immediately
+sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let SB_USER = null;
 
 // ── AUTH ────────────────────────────────────────────
 async function doLogin(){
@@ -649,16 +654,25 @@ async function doLogout(){
   location.reload();
 }
 
+// ── startApp: called on DOMContentLoaded ─────────────
+function startApp(){
+  checkSession();
+  init();
+}
+
 // Check if already logged in (session persists across refreshes)
-(async function checkSession(){
-  const { data: { session } } = await sb.auth.getSession();
-  if(session){
-    SB_USER = session.user;
-    document.getElementById('login-gate').style.display = 'none';
-    await loadFromCloud();
-    updateSyncStatus();
-  }
-})();
+async function checkSession(){
+  if(!sb) return;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if(session){
+      SB_USER = session.user;
+      document.getElementById('login-gate').style.display = 'none';
+      await loadFromCloud();
+      updateSyncStatus();
+    }
+  } catch(e){ console.error('checkSession error:', e); }
+}
 
 function updateSyncStatus(){
   const el = document.getElementById('sync-status-text');
@@ -841,21 +855,24 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════════════════════
 // CONFIG — Gemini API
 // ══════════════════════════════════════════════════════
-const GEMINI_MODEL = 'gemini-2.5-flash';
-const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const GEMINI_MODEL   = 'gemini-2.5-flash';
+const GEMINI_URL     = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const GEMINI_KEY_DEFAULT = 'AIzaSyDh7HM0yGzVYRfM-9r5GkIkKyr-0yQ-xVU'; // 내장 기본 키
 
 function getApiKey(){
-  return localStorage.getItem('ea_gemini_key') || '';
+  // localStorage에 저장된 키가 있으면 우선 사용, 없으면 내장 기본 키 사용
+  return localStorage.getItem('ea_gemini_key') || GEMINI_KEY_DEFAULT;
 }
 
 async function callGemini(systemPrompt, userPrompt){
   const key = getApiKey();
-  if(!key) throw new Error('No API key set. Please add your Gemini API key in Settings.');
   const res = await fetch(`${GEMINI_URL}?key=${key}`, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      contents:[{role:'user', parts:[{text: systemPrompt + '\n\n' + userPrompt}]}],
+      contents:[{role:'user', parts:[{text: systemPrompt + '
+
+' + userPrompt}]}],
       generationConfig:{temperature:0.3, maxOutputTokens:3000}
     })
   });
@@ -960,10 +977,15 @@ const DEMO = [
 function init(){
   // UI 초기화만 — 데이터는 checkSession()이 loadFromCloud()로 처리
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-  const k = getApiKey();
-  if(k){
-    document.getElementById('api-key-input').value = '•'.repeat(Math.min(k.length, 32));
-    document.getElementById('api-status').textContent = '✓ API 키가 저장되어 있습니다 — 자동으로 사용 중';
+  const savedKey = localStorage.getItem('ea_gemini_key');
+  const statusEl = document.getElementById('api-status');
+  const inputEl  = document.getElementById('api-key-input');
+  if(savedKey){
+    inputEl.value = '•'.repeat(Math.min(savedKey.length, 32));
+    statusEl.textContent = '✅ 사용자 지정 API 키 사용 중';
+  } else {
+    inputEl.placeholder = '새 API 키로 교체하려면 여기에 입력…';
+    statusEl.textContent = '✅ 내장 API 키 사용 중 — 모든 기기에서 자동 작동';
   }
 }
 
@@ -978,14 +1000,25 @@ function save(){
 // SETTINGS
 // ══════════════════════════════════════════════════════
 function saveApiKey(){
-  const input=document.getElementById('api-key-input');
-  const raw=input.value.trim();
-  // If it's all bullets (already saved), don't overwrite
-  if(!raw || /^•+$/.test(raw)){showToast('새 API 키를 입력해주세요');return;}
-  localStorage.setItem('ea_gemini_key',raw);
-  input.value='•'.repeat(Math.min(raw.length,32));
-  document.getElementById('api-status').textContent='✅ API 키 저장 완료 — 이 기기에서 자동 사용됩니다';
-  showToast('✅ API 키가 저장되었습니다');
+  const input  = document.getElementById('api-key-input');
+  const status = document.getElementById('api-status');
+  const raw    = input.value.trim();
+  if(!raw || /^•+$/.test(raw)){ showToast('새 API 키를 입력해주세요'); return; }
+  localStorage.setItem('ea_gemini_key', raw);
+  input.value = '•'.repeat(Math.min(raw.length, 32));
+  status.textContent = '✅ 새 API 키로 교체 완료 — 이 기기에서 자동 사용됩니다';
+  showToast('✅ API 키가 교체되었습니다');
+}
+
+function resetApiKeyToDefault(){
+  if(!confirm('저장된 API 키를 삭제하고 내장 기본 키로 되돌리시겠습니까?')) return;
+  localStorage.removeItem('ea_gemini_key');
+  const input  = document.getElementById('api-key-input');
+  const status = document.getElementById('api-status');
+  input.value = '';
+  input.placeholder = '새 API 키로 교체하려면 여기에 입력…';
+  status.textContent = '✅ 내장 API 키로 복원되었습니다 — 모든 기기에서 자동 작동';
+  showToast('✅ 내장 기본 키로 복원되었습니다');
 }
 function exportData(){
   const blob=new Blob([JSON.stringify({questions:S.questions,sessions:S.sessions,flagged:[...S.flagged],answered:S.answered},null,2)],{type:'application/json'});
@@ -1231,7 +1264,13 @@ async function fetchTaxUpdate(q){
   try{
     const text=await callGemini(
       'You are an EA exam tutor. Provide ONLY the requested content, no preamble, no markdown. IMPORTANT: All explanations must be based on 2025 U.S. tax law (tax year 2025 / IRC as amended through 2025). If the question bank source may reflect an older tax year, explicitly note any difference and always state the correct 2025 figure.',
-      `For this EA exam question, write a "2025 Tax Law Update" note (2-4 sentences):\n1) Start with: "⚠️ 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다."\n2) Then explain what CHANGED from 2023 or 2024 to 2025 relevant to this question — dollar amounts, thresholds, or rule changes.\n3) If nothing changed, confirm the rule is unchanged and state the current 2025 figure.\nQuestion: ${q.text}\nCorrect answer: ${q.options[q.correct]}\nExplanation: ${q.explanation}`
+      `For this EA exam question, write a "2025 Tax Law Update" note (2-4 sentences):
+1) Start with: "⚠️ 문제은행 기준 주의: 이 문제가 구버전 세법 기준일 수 있으므로, AI 기준 2025년 세법으로 설명합니다."
+2) Then explain what CHANGED from 2023 or 2024 to 2025 relevant to this question — dollar amounts, thresholds, or rule changes.
+3) If nothing changed, confirm the rule is unchanged and state the current 2025 figure.
+Question: ${q.text}
+Correct answer: ${q.options[q.correct]}
+Explanation: ${q.explanation}`
     );
     q.taxUpdate2025=text; save();
     document.getElementById('update-body').innerHTML=text;
@@ -1243,10 +1282,15 @@ async function fetchWrongReasons(q){
     const letters=['A','B','C','D'];
     const wrongOpts = q.options
       .map((o,i)=>i===q.correct?null:`${letters[i]}: ${o}`)
-      .filter(Boolean).join('\n');
+      .filter(Boolean).join('
+');
     const text=await callGemini(
       '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 요청한 내용만 제공하고, 서론이나 마크다운 없이 답변하세요.',
-      `이 EA 시험 문제에서 각 오답 보기가 왜 틀렸는지 보기당 1문장으로 한국어로 설명하세요. 주요 세법 용어(IRC 조항, 세금 명칭 등)는 영어를 괄호에 병기하세요. 형식: "A: 이유. B: 이유." (정답 보기는 생략)\n문제: ${q.text}\n정답: ${q.options[q.correct]} (${letters[q.correct]})\n오답 보기:\n${wrongOpts}`
+      `이 EA 시험 문제에서 각 오답 보기가 왜 틀렸는지 보기당 1문장으로 한국어로 설명하세요. 주요 세법 용어(IRC 조항, 세금 명칭 등)는 영어를 괄호에 병기하세요. 형식: "A: 이유. B: 이유." (정답 보기는 생략)
+문제: ${q.text}
+정답: ${q.options[q.correct]} (${letters[q.correct]})
+오답 보기:
+${wrongOpts}`
     );
     q.wrongReasons=text; save();
     document.getElementById('wrong-body').innerHTML=text;
@@ -1257,7 +1301,9 @@ async function fetchExamTip(q){
   try{
     const text=await callGemini(
       '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 요청한 내용만 제공하고, 서론이나 마크다운 없이 답변하세요. 모든 내용은 2025년 미국 세법 기준으로 작성하세요.',
-      `이 EA 시험 문제(${q.topic||q.part})에 대해 2026년 EA 시험 대비 시험 팁을 한국어로 2~3문장 작성하세요. 자주 하는 실수, 암기 요령, 2025년 기준 수치/임계값을 포함하세요. 세법 용어(IRC 조항, 세금 명칭, 양식 번호 등)는 영어를 괄호에 병기하세요.\n문제: ${q.text}\n정답: ${q.options[q.correct]}`
+      `이 EA 시험 문제(${q.topic||q.part})에 대해 2026년 EA 시험 대비 시험 팁을 한국어로 2~3문장 작성하세요. 자주 하는 실수, 암기 요령, 2025년 기준 수치/임계값을 포함하세요. 세법 용어(IRC 조항, 세금 명칭, 양식 번호 등)는 영어를 괄호에 병기하세요.
+문제: ${q.text}
+정답: ${q.options[q.correct]}`
     );
     q.examTip=text; save();
     document.getElementById('tip-body').innerHTML=text;
@@ -1283,7 +1329,16 @@ async function fetchFullExplanation(q){
 - verifiedCorrect: 2025년 세법 기준 실제 정답 보기 (A/B/C/D 중 하나의 알파벳만).
 
 모든 내용은 반드시 2025년 미국 세법 기준으로 작성하세요.`,
-      `EA exam question:\n${q.text}\n\nOptions:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\nQuestion bank marks this as correct: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nCSV explanation (may be wrong — verify independently): ${q.explanation||'none provided'}`
+      `EA exam question:
+${q.text}
+
+Options:
+${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('
+')}
+
+Question bank marks this as correct: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}
+
+CSV explanation (may be wrong — verify independently): ${q.explanation||'none provided'}`
     );
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
 
@@ -1386,7 +1441,8 @@ function copyQuestion(){
   const letters=['A','B','C','D'];
   const lines=[q.text,''];
   q.options.forEach((opt,i)=>{ lines.push(`${letters[i]}. ${opt}`); });
-  const text=lines.join('\n');
+  const text=lines.join('
+');
   navigator.clipboard.writeText(text).then(()=>{
     const btn=document.getElementById('q-copy-btn');
     btn.textContent='✓ Copied!';
@@ -1426,9 +1482,19 @@ async function sendFollowUp(){
   try{
     const text=await callGemini(
       '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 중요사항: (1) 반드시 2025년 미국 세법 기준으로 2026년 EA 시험에 맞게 답변하세요. (2) 문제은행 정답이 틀릴 수 있으니 본인 지식으로 정확한 정답을 제시하세요. (3) 달러 금액, 임계값, 세율을 구체적으로 명시하세요. (4) 300단어 이내로 답변하되 절대 문장 중간에 끊지 마세요. (5) 구체적인 수치가 포함된 경우 "📌 2025 세법 기준:"으로 시작하세요. 모든 답변은 한국어로 하되, 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기하세요.',
-      `EA 시험 문제:\n"${q?.text}"\n\n보기:\n${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\n문제은행 정답: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}\n\n수강생 질문: ${userQ}`
+      `EA 시험 문제:
+"${q?.text}"
+
+보기:
+${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('
+')}
+
+문제은행 정답: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}
+
+수강생 질문: ${userQ}`
     );
-    box.innerHTML=text.replace(/\n/g,'<br>');
+    box.innerHTML=text.replace(/
+/g,'<br>');
   }catch(e){ box.innerHTML='<em>'+e.message+'</em>'; }
 }
 
@@ -1780,7 +1846,11 @@ function splitCSVRows(text){
   const rows=[];
   let row=[], cur='', inQ=false;
   // Normalize line endings
-  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  text=text.replace(/
+/g,'
+').replace(/
+/g,'
+');
 
   for(let i=0;i<text.length;i++){
     const ch=text[i];
@@ -1789,7 +1859,8 @@ function splitCSVRows(text){
       else inQ=!inQ;
     } else if(ch===',' && !inQ){
       row.push(cur); cur='';
-    } else if(ch==='\n' && !inQ){
+    } else if(ch==='
+' && !inQ){
       row.push(cur); cur='';
       if(row.some(c=>c.trim())) rows.push(row);
       row=[];
@@ -1811,7 +1882,11 @@ function showToast(msg){
 }
 
 // START
-init();
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
 </script>
 </body>
 </html>
