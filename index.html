@@ -439,7 +439,6 @@ html, body {
 
   <div class="explanation-card" id="explanation-card">
     <div class="result-banner" id="result-banner"></div>
-    <!-- AI 수정 제안을 표시할 영역 -->
     <div id="correction-box"></div>
 
     <div class="exp-section">
@@ -823,72 +822,52 @@ const DEMO = [
    text:'A taxpayer who is unmarried and pays more than half the cost of maintaining a home for a qualifying child may file under which status?',
    options:['Single','Married Filing Separately','Head of Household','Qualifying Surviving Spouse'],correct:2,
    explanation:'Head of Household (HOH) status is available to unmarried taxpayers who pay more than half the cost of keeping up a home for a qualifying person for more than half the year. HOH provides a higher standard deduction and lower tax rates than Single.',
-   wrongReasons:'Single: no qualifying dependent test met for HOH. MFS: reserved for married couples. QSS: requires the taxpayer to have been widowed in one of the two preceding tax years with a dependent child still living in the home.',
-   taxUpdate2025:'For 2025, the HOH standard deduction is $22,500 (up from $21,900 in 2024). The qualifying person must live with the taxpayer for more than half the year.',
-   examTip:'On the EA exam, distinguish HOH from QSS carefully. QSS applies only for the two tax years following the year of the spouse\'s death and requires a dependent child in the home. HOH does not require a prior marriage.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q2',part:'Part 1',topic:'Gross Income',
    text:'Which of the following is generally EXCLUDED from gross income?',
    options:['Tips received from customers','Alimony received under a pre-2019 divorce agreement','Life insurance proceeds received due to the death of the insured','Lottery winnings'],correct:2,
    explanation:'Life insurance death benefits paid to a named beneficiary are excluded from gross income under IRC §101(a). This is a fundamental exclusion tested heavily on Part 1.',
-   wrongReasons:'Tips are taxable compensation. Pre-2019 alimony is includible in the recipient\'s income. Lottery winnings are ordinary income fully subject to tax.',
-   taxUpdate2025:'The §101(a) exclusion remains unchanged for 2025. Alimony rules: agreements executed after 12/31/2018 — not deductible by payor, not income to recipient.',
-   examTip:'Memorize the big exclusions: gifts/inheritances (§102), life insurance (§101), municipal bond interest (§103), employer-paid health insurance (§106), and workers\' comp (§104).',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q3',part:'Part 1',topic:'Standard Deduction',
    text:'In 2025, what is the standard deduction for a single taxpayer under age 65?',
    options:['$13,850','$14,600','$15,000','$16,000'],correct:2,
    explanation:'The 2025 standard deduction for a single filer under 65 is $15,000. Standard deductions are adjusted annually for inflation under IRC §63(c)(4).',
-   wrongReasons:'$13,850 was the 2023 amount. $14,600 was the 2024 amount. $16,000 is not the current figure.',
-   taxUpdate2025:'2025 Standard Deductions: Single/MFS = $15,000 | MFJ/QSS = $30,000 | HOH = $22,500. Additional amounts for age 65+/blind: $2,000 (single/HOH) or $1,600 (MFJ/MFS/QSS).',
-   examTip:'Memorize all four filing status standard deduction amounts and the additional amounts for elderly/blind. Know that a dependent\'s deduction is limited to the greater of $1,350 or earned income + $450 (2025).',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q4',part:'Part 2',topic:'Business Entities',
    text:'A single-member LLC that has NOT elected corporate taxation is treated as which type of entity for federal income tax purposes?',
    options:['C Corporation','S Corporation','Partnership','Disregarded entity'],correct:3,
    explanation:'By default, a single-member LLC is a disregarded entity — its income and deductions flow directly to the owner\'s individual return (Schedule C for business, Schedule E for rental).',
-   wrongReasons:'C Corp: requires Form 8832 election. S Corp: requires Form 2553. Partnership: requires at least two members by definition.',
-   taxUpdate2025:'For 2025, single-member LLCs remain disregarded by default. Self-employment tax still applies to the SMLLC owner on net earnings.',
-   examTip:'Know the check-the-box defaults: single-member LLC = disregarded; multi-member LLC = partnership; corporations cannot be disregarded. An LLC can elect C Corp (Form 8832) or S Corp (Form 2553).',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q5',part:'Part 2',topic:'Depreciation',
    text:'Under MACRS, office furniture and fixtures generally fall into which recovery period?',
    options:['5-year','7-year','15-year','39-year'],correct:1,
    explanation:'Office furniture and fixtures are 7-year property under MACRS (Rev. Proc. 87-56). The half-year convention applies unless the mid-quarter convention is triggered.',
-   wrongReasons:'5-year: computers, autos, light trucks. 15-year: land improvements, QIP. 39-year: nonresidential real property.',
-   taxUpdate2025:'For 2025, bonus depreciation is 40% (down from 60% in 2024). Section 179 expensing limit = $1,250,000 with phase-out beginning at $3,130,000.',
-   examTip:'Know the 5 most-tested MACRS classes: 5-yr (autos/computers), 7-yr (furniture/equipment), 15-yr (land improvements/QIP), 27.5-yr (residential rental), 39-yr (nonresidential). Bonus depreciation phase-down is a hot 2025 exam topic.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q6',part:'Part 3',topic:'Enrollment & Credentials',
    text:'Which credential is NOT required to become an enrolled agent?',
    options:['Passing all three parts of the Special Enrollment Exam','A law degree','Passing an IRS suitability check','Maintaining continuing education after enrollment'],correct:1,
    explanation:'A law degree is not required to become an enrolled agent. EAs are licensed by passing the three-part SEE (or via qualifying IRS employment), a suitability check, and maintaining CE requirements.',
-   wrongReasons:'All three SEE parts must pass within a rolling 3-year window. The IRS suitability/background check is mandatory. 72 hours of CE per 3-year cycle is required.',
-   taxUpdate2025:'As of 2025, the three-year rolling window means a candidate who passes Part 1 on Jan 1, 2023, must pass Parts 2 and 3 by Dec 31, 2025.',
-   examTip:'Part 3 heavily tests Circular 230. Know: practitioners may NOT charge contingent fees for original returns; due diligence standards; written advice requirements; unlimited vs. limited practice rights.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q7',part:'Part 1',topic:'Tax Credits',
    text:'For 2025, the Child Tax Credit (CTC) is up to how much per qualifying child?',
    options:['$1,000','$1,600','$2,000','$3,600'],correct:2,
    explanation:'The Child Tax Credit remains $2,000 per qualifying child under age 17 for 2025. The refundable portion (ACTC) is up to $1,700.',
-   wrongReasons:'$1,000 was the pre-TCJA 2017 amount. $1,600 is not the full CTC amount. $3,600 was the 2021 temporary expansion.',
-   taxUpdate2025:'For 2025: CTC = $2,000 per qualifying child. Refundable ACTC maximum = $1,700. Phase-out at $400,000 MFJ / $200,000 others. Child must be under 17 at year-end with a valid SSN.',
-   examTip:'Know the CTC phase-out thresholds, the SSN requirement (ITIN does NOT qualify), and the difference between CTC and the $500 Credit for Other Dependents. A 17-year-old does NOT qualify for CTC.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q8',part:'Part 2',topic:'Self-Employment Tax',
    text:'A self-employed taxpayer may deduct what percentage of self-employment tax as an above-the-line adjustment to income?',
    options:['50%','7.65%','100%','15.3%'],correct:0,
    explanation:'Self-employed individuals deduct 50% of their SE tax as an above-the-line adjustment under IRC §164(f). This mirrors the employer\'s share of FICA which is deductible for W-2 employees.',
-   wrongReasons:'7.65%: the employee share of FICA. 100% would eliminate SE tax — not permitted. 15.3% is the total SE tax rate, not the deductible portion.',
-   taxUpdate2025:'For 2025, the SE tax rate remains 15.3% on net earnings up to $176,100 (SS wage base) and 2.9% above that. The 0.9% Additional Medicare Tax applies above $200,000 (single) / $250,000 (MFJ).',
-   examTip:'Remember two SE deductions: (1) 50% of SE tax — above-the-line on Schedule 1; (2) SE health insurance premiums — also above-the-line. Net earnings from SE = 92.35% × net profit.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q9',part:'Part 3',topic:'Circular 230',
    text:'Under Circular 230, what is the maximum monetary penalty for a practitioner who engages in a pattern of willful violations?',
    options:['$1,000 per violation','$5,000 per violation','$10,000 per violation','$25,000 per violation'],correct:2,
    explanation:'Under Circular 230 §10.50(b), the IRS may impose a civil monetary penalty of up to $10,000 per violation for willful violations by practitioners.',
-   wrongReasons:'$1,000/$5,000: not the statutory maximums for willful violations. $25,000 applies specifically to tax shelter violations under §10.51.',
-   taxUpdate2025:'As of 2025, the §10.50 penalty structure remains: up to $10,000 per willful violation. The IRS Office of Professional Responsibility (OPR) enforces these standards.',
-   examTip:'High-priority Circular 230 topics: (1) Competence standard §10.35; (2) Contingent fee rules §10.27; (3) Return of client records §10.28; (4) Prompt error notification §10.21; (5) Written advice standards §10.37.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
   {id:'q10',part:'Part 1',topic:'Capital Gains',
    text:'Long-term capital gains rates apply to capital assets held for more than:',
    options:['6 months','9 months','1 year','2 years'],correct:2,
    explanation:'Long-term capital gains treatment requires a holding period of more than one year (more than 12 months). Assets held for 12 months or less generate short-term gains taxed as ordinary income.',
-   wrongReasons:'6 months and 9 months produce short-term gains at ordinary income rates. 2 years is not required.',
-   taxUpdate2025:'For 2025, LTCG rates: 0% up to $48,350 (single) / $96,700 (MFJ); 15% up to $533,400 (single) / $600,050 (MFJ); 20% above. NIIT of 3.8% applies for high earners.',
-   examTip:'Know all three LTCG rates and thresholds. Also: §1231 gains get LTCG treatment; §1250 unrecaptured depreciation taxed at max 25%; collectibles at max 28%; §1202 QSBS — up to 100% exclusion for stock held >5 years.',source:'demo'},
+   wrongReasons:'', taxUpdate2025:'', examTip:'', source:'demo'},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -1127,6 +1106,7 @@ function skipQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResult
 
 // ─────────────────────────────────────────────────────────────────
 // 핵심 변경: Explanation 보존 + 사용자 확인 정답 수정
+// + Wrong/Update/Tip 항상 AI로 교체
 // ─────────────────────────────────────────────────────────────────
 async function showExplanation(q, isOk, timeout){
   const ec = document.getElementById('explanation-card'); ec.classList.add('visible');
@@ -1134,20 +1114,17 @@ async function showExplanation(q, isOk, timeout){
   if(timeout){ banner.className='result-banner fail'; banner.textContent='⏱ Time\'s up! See the correct answer below'; }
   else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'✓ Correct! Well done.':'✗ Incorrect — review the explanation below'; }
 
-  // 기존 CSV 내용 표시 (원본 해설 보존)
+  // 기존 CSV 내용 중 Explanation만 보존 (다른 섹션은 AI로 완전히 대체할 예정)
   const origExp = q.explanation && q.explanation.trim().length > 2 ? q.explanation : '';
-  const origWrong = q.wrongReasons || '';
-  const origUpdate = q.taxUpdate2025 || '';
-  const origTip = q.examTip || '';
 
-  document.getElementById('wrong-body').innerHTML = origWrong || '<span class="loading">Analyzing options…</span>';
-  document.getElementById('update-body').innerHTML = origUpdate || '<span class="loading">Checking 2025 changes…</span>';
-  document.getElementById('tip-body').innerHTML = origTip || '<span class="loading">Generating exam tip…</span>';
+  // 나머지 섹션은 로딩 표시 후 AI가 덮어쓸 것임
+  document.getElementById('wrong-body').innerHTML = '<span class="loading">AI generating…</span>';
+  document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
+  document.getElementById('tip-body').innerHTML = '<span class="loading">Generating exam tip…</span>';
 
   // Explanation은 일단 원본 표시 (없으면 로딩)
   document.getElementById('exp-body').innerHTML = origExp || '<span class="loading">AI generating explanation…</span>';
   
-  // 수정 제안 박스 초기화
   document.getElementById('correction-box').innerHTML = '';
 
   await fetchFullExplanation(q, origExp);
@@ -1167,7 +1144,7 @@ async function fetchFullExplanation(q, origExp){
     const aiCorrectIdx = 'ABCD'.indexOf(aiCorrectLetter);
     const answerMismatch = (aiCorrectIdx >= 0 && aiCorrectIdx !== q.correct);
     
-    // Explanation 구성: 원본 + AI 추가분
+    // Explanation 구성: 원본 + AI 추가분 (원본이 있을 경우)
     let finalExplanation = origExp;
     if (origExp && parsed.explanation) {
       finalExplanation = origExp + '<br><br><strong style="color:#2563eb;">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
@@ -1176,10 +1153,14 @@ async function fetchFullExplanation(q, origExp){
     }
     document.getElementById('exp-body').innerHTML = finalExplanation || '—';
     
-    // 다른 필드 업데이트 (원본 우선, 없으면 AI)
-    if(!q.wrongReasons) { q.wrongReasons = parsed.wrongReasons; document.getElementById('wrong-body').innerHTML = parsed.wrongReasons; }
-    if(!q.taxUpdate2025) { q.taxUpdate2025 = parsed.taxUpdate2025; document.getElementById('update-body').innerHTML = parsed.taxUpdate2025; }
-    if(!q.examTip) { q.examTip = parsed.examTip; document.getElementById('tip-body').innerHTML = parsed.examTip; }
+    // 🔥 핵심 변경: 아래 세 섹션은 항상 AI 결과로 완전히 교체
+    q.wrongReasons = parsed.wrongReasons || '—';
+    q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+    q.examTip = parsed.examTip || '—';
+    
+    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
+    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
+    document.getElementById('tip-body').innerHTML = q.examTip;
     
     // AI가 다른 정답을 제안한 경우 → 사용자 확인 UI 표시
     if(answerMismatch){
@@ -1196,10 +1177,13 @@ async function fetchFullExplanation(q, origExp){
     
     q.aiEnhanced = true;
     save();
-    fixQuestionInCloud(q); // 해설 필드만 업데이트 (correct는 변경 안 함)
+    fixQuestionInCloud(q); // 해설 필드 업데이트 (correct는 변경 안 함)
   }catch(e){
     console.error('AI error:', e);
     document.getElementById('exp-body').innerHTML = origExp || 'AI 해설을 불러오지 못했습니다.';
+    document.getElementById('wrong-body').innerHTML = 'AI 응답 오류';
+    document.getElementById('update-body').innerHTML = 'AI 응답 오류';
+    document.getElementById('tip-body').innerHTML = 'AI 응답 오류';
   }
 }
 
@@ -1213,7 +1197,7 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   const oldCorrect = q.correct;
   q.correct = newCorrectIdx;
   
-  // 현재 세션 점수 재계산 (사용자가 이미 제출한 답안 기준)
+  // 현재 세션 점수 재계산
   const userChosen = S.selected;
   if(userChosen !== undefined && userChosen !== null){
     const wasWrong = (userChosen !== oldCorrect);
@@ -1238,11 +1222,9 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
     }
   }
   
-  // 클라우드에 반영
   await fixQuestionInCloud(q);
   showToast(`✅ 정답이 ${newLetter}로 수정되었습니다.`);
   document.getElementById('correction-box').innerHTML = '';
-  // 점수 표시 업데이트를 위해 약간의 재렌더링 (다음 문제로 넘어갈 때 자연스럽게 반영)
 };
 
 function nextQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResults();else loadQuestion();}
