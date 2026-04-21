@@ -983,7 +983,7 @@ function updateAvailCount(){
 }
 
 // ══════════════════════════════════════════════════════
-// QUIZ (callDeepSeek 사용)
+// QUIZ
 // ══════════════════════════════════════════════════════
 function startQuiz(){
   let pool=getPool(); if(!pool.length) return;
@@ -1106,7 +1106,7 @@ function skipQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResult
 
 // ─────────────────────────────────────────────────────────────────
 // 핵심 변경: Explanation 보존 + 사용자 확인 정답 수정
-// + Wrong/Update/Tip 항상 AI로 교체
+// + Wrong/Update/Tip 항상 AI로 교체 (aiEnhanced 무시하고 강제 호출)
 // ─────────────────────────────────────────────────────────────────
 async function showExplanation(q, isOk, timeout){
   const ec = document.getElementById('explanation-card'); ec.classList.add('visible');
@@ -1114,37 +1114,37 @@ async function showExplanation(q, isOk, timeout){
   if(timeout){ banner.className='result-banner fail'; banner.textContent='⏱ Time\'s up! See the correct answer below'; }
   else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'✓ Correct! Well done.':'✗ Incorrect — review the explanation below'; }
 
-  // 기존 CSV 내용 중 Explanation만 보존 (다른 섹션은 AI로 완전히 대체할 예정)
+  // 기존 CSV 내용 중 Explanation만 보존
   const origExp = q.explanation && q.explanation.trim().length > 2 ? q.explanation : '';
 
-  // 나머지 섹션은 로딩 표시 후 AI가 덮어쓸 것임
+  // 로딩 표시
   document.getElementById('wrong-body').innerHTML = '<span class="loading">AI generating…</span>';
   document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
   document.getElementById('tip-body').innerHTML = '<span class="loading">Generating exam tip…</span>';
-
-  // Explanation은 일단 원본 표시 (없으면 로딩)
   document.getElementById('exp-body').innerHTML = origExp || '<span class="loading">AI generating explanation…</span>';
-  
   document.getElementById('correction-box').innerHTML = '';
 
+  // 항상 AI 호출하여 세 섹션 업데이트 (aiEnhanced 무시)
   await fetchFullExplanation(q, origExp);
+  await fetchAISections(q); // 추가: Wrong/Update/Tip 강제 업데이트
 }
 
+// Explanation + 정답 검증 (기존 로직)
 async function fetchFullExplanation(q, origExp){
+  // aiEnhanced 여부와 관계없이 일단 AI를 호출하여 Explanation을 업데이트할 수 있지만,
+  // 여기서는 기존처럼 aiEnhanced가 false일 때만 Explanation 갱신
   if(q.aiEnhanced) return;
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
-      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 한국어 상세 해설\n- wrongReasons: 오답 이유\n- taxUpdate2025: 2025 세법 업데이트\n- examTip: 시험 팁\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
+      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 한국어 상세 해설\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
     
-    // AI가 제안한 정답
     const aiCorrectLetter = (parsed.verifiedCorrect||'').toUpperCase().trim();
     const aiCorrectIdx = 'ABCD'.indexOf(aiCorrectLetter);
     const answerMismatch = (aiCorrectIdx >= 0 && aiCorrectIdx !== q.correct);
     
-    // Explanation 구성: 원본 + AI 추가분 (원본이 있을 경우)
     let finalExplanation = origExp;
     if (origExp && parsed.explanation) {
       finalExplanation = origExp + '<br><br><strong style="color:#2563eb;">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
@@ -1153,16 +1153,6 @@ async function fetchFullExplanation(q, origExp){
     }
     document.getElementById('exp-body').innerHTML = finalExplanation || '—';
     
-    // 🔥 핵심 변경: 아래 세 섹션은 항상 AI 결과로 완전히 교체
-    q.wrongReasons = parsed.wrongReasons || '—';
-    q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-    q.examTip = parsed.examTip || '—';
-    
-    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
-    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
-    document.getElementById('tip-body').innerHTML = q.examTip;
-    
-    // AI가 다른 정답을 제안한 경우 → 사용자 확인 UI 표시
     if(answerMismatch){
       const correctionBox = document.getElementById('correction-box');
       correctionBox.innerHTML = `
@@ -1175,15 +1165,41 @@ async function fetchFullExplanation(q, origExp){
       `;
     }
     
+    q.explanation = finalExplanation;
     q.aiEnhanced = true;
     save();
-    fixQuestionInCloud(q); // 해설 필드 업데이트 (correct는 변경 안 함)
+    fixQuestionInCloud(q);
   }catch(e){
     console.error('AI error:', e);
     document.getElementById('exp-body').innerHTML = origExp || 'AI 해설을 불러오지 못했습니다.';
-    document.getElementById('wrong-body').innerHTML = 'AI 응답 오류';
-    document.getElementById('update-body').innerHTML = 'AI 응답 오류';
-    document.getElementById('tip-body').innerHTML = 'AI 응답 오류';
+  }
+}
+
+// 🔥 새로운 함수: WrongReasons, TaxUpdate2025, ExamTip을 항상 AI로 가져와 덮어쓰기
+async function fetchAISections(q){
+  try{
+    const raw = await callDeepSeek(
+      `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
+      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- wrongReasons: 각 오답 보기가 왜 틀렸는지 한국어로 설명 (형식: "A: 이유. B: 이유.")\n- taxUpdate2025: 2025 세법 기준 변경사항 또는 확인 사항\n- examTip: EA 시험 팁`
+    );
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    
+    q.wrongReasons = parsed.wrongReasons || '—';
+    q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+    q.examTip = parsed.examTip || '—';
+    
+    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
+    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
+    document.getElementById('tip-body').innerHTML = q.examTip;
+    
+    // 클라우드에도 저장 (선택사항)
+    save();
+    fixQuestionInCloud(q);
+  }catch(e){
+    console.error('AI sections error:', e);
+    document.getElementById('wrong-body').innerHTML = '⚠️ AI 응답 오류';
+    document.getElementById('update-body').innerHTML = '⚠️ AI 응답 오류';
+    document.getElementById('tip-body').innerHTML = '⚠️ AI 응답 오류';
   }
 }
 
@@ -1197,7 +1213,6 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   const oldCorrect = q.correct;
   q.correct = newCorrectIdx;
   
-  // 현재 세션 점수 재계산
   const userChosen = S.selected;
   if(userChosen !== undefined && userChosen !== null){
     const wasWrong = (userChosen !== oldCorrect);
@@ -1212,7 +1227,6 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
       S.results.correct = (S.results.correct || 0) + 1;
       save();
       saveProgressToCloud(q.id, true);
-      // UI 업데이트
       document.querySelectorAll('.option-btn').forEach((b,i)=>{
         b.classList.remove('correct-ans','wrong-ans','reveal','sel');
         if(i === newCorrectIdx) b.classList.add('correct-ans');
@@ -1332,7 +1346,7 @@ function openModal(id){
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
 // ══════════════════════════════════════════════════════
-// MOBILE DRAWER (햄버거 메뉴 동작)
+// MOBILE DRAWER
 // ══════════════════════════════════════════════════════
 function toggleDrawer(){
   const drawer = document.getElementById('mobile-nav-drawer');
@@ -1358,7 +1372,7 @@ function closeDrawer(){
 }
 
 // ══════════════════════════════════════════════════════
-// UPLOAD & CSV PARSING
+// UPLOAD & CSV PARSING (생략 없이 그대로 포함)
 // ══════════════════════════════════════════════════════
 function renderUploadList(){
   const src=[...new Set(S.questions.map(q=>q.source).filter(s=>s&&s!=='demo'))];
