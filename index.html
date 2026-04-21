@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>EA Exam Prep · 2025 Tax Law</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -501,7 +501,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
   <div id="upload-list"></div>
 </div>
 
-<!-- ═══ SETTINGS (DeepSeek API 적용) ═══ -->
+<!-- ═══ SETTINGS ═══ -->
 <div id="screen-settings" class="screen">
   <div class="section-title">Settings</div>
 
@@ -539,7 +539,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 
 <script>
 // ══════════════════════════════════════════════════════
-// SUPABASE INIT (기존과 동일)
+// SUPABASE INIT
 // ══════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://azninzbyhassthztvjuv.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmluemJ5aGFzc3RoenR2anV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODkxOTgsImV4cCI6MjA5MjE2NTE5OH0.1y0w6EAgVSaZq6_3gzVKR0LW_3ubNS4u4MVqHv68HCc';
@@ -605,7 +605,7 @@ function updateSyncStatus(){
 }
 
 // ══════════════════════════════════════════════════════
-// CLOUD LOAD / SAVE (기존과 동일)
+// CLOUD LOAD / SAVE
 // ══════════════════════════════════════════════════════
 async function loadFromCloud(){
   if(!SB_USER) return;
@@ -731,7 +731,7 @@ async function fixQuestionInCloud(q){
 }
 
 // ══════════════════════════════════════════════════════
-// DEEPSEEK API (Gemini → DeepSeek 교체)
+// DEEPSEEK API
 // ══════════════════════════════════════════════════════
 const DEEPSEEK_MODEL = 'deepseek-chat';
 const DEEPSEEK_URL   = 'https://api.deepseek.com/v1/chat/completions';
@@ -771,7 +771,7 @@ async function callDeepSeek(systemPrompt, userPrompt){
 }
 
 // ══════════════════════════════════════════════════════
-// STATE (기존과 동일)
+// STATE
 // ══════════════════════════════════════════════════════
 const S = {
   questions:[], sessions:[], flagged:new Set(), answered:{},
@@ -781,7 +781,7 @@ const S = {
   timerInt:null, timerSec:90,
 };
 
-// DEMO QUESTIONS (기존과 동일)
+// DEMO QUESTIONS
 const DEMO = [
   {id:'q1',part:'Part 1',topic:'Filing Status',
    text:'A taxpayer who is unmarried and pays more than half the cost of maintaining a home for a qualifying child may file under which status?',
@@ -856,7 +856,7 @@ const DEMO = [
 ];
 
 // ══════════════════════════════════════════════════════
-// INIT & PERSIST (기존과 동일)
+// INIT & PERSIST
 // ══════════════════════════════════════════════════════
 function init(){
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
@@ -872,7 +872,7 @@ function save(){
 }
 
 // ══════════════════════════════════════════════════════
-// SETTINGS (DeepSeek 키 저장)
+// SETTINGS
 // ══════════════════════════════════════════════════════
 function saveApiKey(){
   const input=document.getElementById('api-key-input');
@@ -883,12 +883,10 @@ function saveApiKey(){
   document.getElementById('api-status').textContent='✅ API 키 저장 완료 — 이 기기에서 자동 사용됩니다';
   showToast('✅ API 키가 저장되었습니다');
 }
-
 function exportData(){
   const blob=new Blob([JSON.stringify({questions:S.questions,sessions:S.sessions,flagged:[...S.flagged],answered:S.answered},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ea-prep-data.json'; a.click();
 }
-
 function resetData(){
   localStorage.removeItem('ea_prep_v3');
   S.questions=JSON.parse(JSON.stringify(DEMO)); S.sessions=[]; S.flagged=new Set(); S.answered={};
@@ -897,7 +895,7 @@ function resetData(){
 }
 
 // ══════════════════════════════════════════════════════
-// NAVIGATION (기존과 동일)
+// NAVIGATION
 // ══════════════════════════════════════════════════════
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -913,7 +911,7 @@ function showScreen(name){
 }
 
 // ══════════════════════════════════════════════════════
-// DASHBOARD (기존과 동일)
+// DASHBOARD
 // ══════════════════════════════════════════════════════
 function renderDashboard(){
   const total=S.questions.length, seen=Object.keys(S.answered).length, unseen=total-seen;
@@ -942,7 +940,7 @@ function renderDashboard(){
 }
 
 // ══════════════════════════════════════════════════════
-// QUIZ SETUP (기존과 동일)
+// QUIZ SETUP
 // ══════════════════════════════════════════════════════
 function selectCount(n,btn){S.count=n;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
 function selectPart(p,btn){S.part=p;document.querySelectorAll('#part-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
@@ -1217,7 +1215,7 @@ function nextQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResult
 function endSession(){clearInterval(S.timerInt);showResults();}
 
 // ══════════════════════════════════════════════════════
-// COPY / FLAG / FOLLOW-UP (callDeepSeek 사용)
+// COPY / FLAG / FOLLOW-UP
 // ══════════════════════════════════════════════════════
 function copyQuestion(){
   const q=curQ(); if(!q) return;
@@ -1267,7 +1265,7 @@ async function sendFollowUp(){
 }
 
 // ══════════════════════════════════════════════════════
-// RESULTS (기존과 동일)
+// RESULTS
 // ══════════════════════════════════════════════════════
 function showResults(){
   clearInterval(S.timerInt);
@@ -1287,7 +1285,7 @@ function showResults(){
 }
 
 // ══════════════════════════════════════════════════════
-// BOOKMARKS / UPLOAD / UTILS (기존과 동일)
+// BOOKMARKS
 // ══════════════════════════════════════════════════════
 function renderBookmarks(){
   const el=document.getElementById('bookmarks-list');
@@ -1317,26 +1315,291 @@ function openModal(id){
 }
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
-// (이하 UPLOAD, CSV 파싱, 유틸리티 함수는 원본과 동일하므로 생략 없이 포함되어야 함)
-// ... 원본 index.html 의 upload, parseCSV, splitCSVRows, showToast, toggleDrawer 등 모든 코드 유지 ...
-// ※ 실제 전체 코드에는 해당 함수들이 모두 포함되어 있습니다. (길이 제약으로 생략 표기)
-// ※ 전체 코드를 그대로 복사하여 사용하시면 됩니다.
+// ══════════════════════════════════════════════════════
+// MOBILE DRAWER (햄버거 메뉴 동작)
+// ══════════════════════════════════════════════════════
+function toggleDrawer(){
+  const drawer = document.getElementById('mobile-nav-drawer');
+  const btn    = document.getElementById('hamburger-btn');
+  const open   = drawer.classList.toggle('open');
+  const spans  = btn.querySelectorAll('span');
+  if(open){
+    spans[0].style.transform='translateY(7px) rotate(45deg)';
+    spans[1].style.opacity='0';
+    spans[2].style.transform='translateY(-7px) rotate(-45deg)';
+  } else {
+    spans[0].style.transform='';
+    spans[1].style.opacity='';
+    spans[2].style.transform='';
+  }
+}
 
-function toggleDrawer(){ /* ... */ }
-function closeDrawer(){ /* ... */ }
-function renderUploadList(){ /* ... */ }
-function handleFileSelect(files){ /* ... */ }
-function handleDrop(e){ /* ... */ }
-function confirmDelete(sourceName){ /* ... */ }
-function cancelDelete(){ /* ... */ }
-function executeDelete(sourceName){ /* ... */ }
-function triggerReplace(sourceName){ /* ... */ }
-function handleReplaceFile(files){ /* ... */ }
-function processCSVFile(file){ /* ... */ }
-function parseCSV(text, sourceName){ /* ... */ }
-function splitCSVRows(text){ /* ... */ }
-function cell(row, idx){ /* ... */ }
-function showToast(msg){ /* ... */ }
+function closeDrawer(){
+  const drawer = document.getElementById('mobile-nav-drawer');
+  drawer.classList.remove('open');
+  const spans = document.getElementById('hamburger-btn').querySelectorAll('span');
+  spans[0].style.transform=''; spans[1].style.opacity=''; spans[2].style.transform='';
+}
+
+// ══════════════════════════════════════════════════════
+// UPLOAD & CSV PARSING
+// ══════════════════════════════════════════════════════
+function renderUploadList(){
+  const src=[...new Set(S.questions.map(q=>q.source).filter(s=>s&&s!=='demo'))];
+  const el=document.getElementById('upload-list');
+  if(src.length===0){
+    el.innerHTML='<div style="font-size:15px;color:var(--text-muted);padding:10px 0;">데모 문제 10개가 기본으로 포함되어 있습니다. CSV 파일을 업로드하여 문제를 추가하세요.</div>';
+    return;
+  }
+  el.innerHTML=src.map(s=>{
+    const cnt=S.questions.filter(q=>q.source===s).length;
+    const safeId=encodeURIComponent(s);
+    return`<div class="upload-item" id="upload-item-${safeId}">
+      <div style="width:38px;height:38px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📄</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${cnt}개 문제</div>
+      </div>
+      <span class="upload-badge">${cnt}개</span>
+      <div class="upload-item-actions">
+        <button class="upload-action-btn replace" onclick="triggerReplace('${s}')" title="이 파일을 새 CSV로 교체">🔄 교체</button>
+        <button class="upload-action-btn delete" onclick="confirmDelete('${s}')" title="이 파일의 문제 삭제">🗑 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handleFileSelect(files){
+  [...files].forEach(f=>{
+    if(!f.name.endsWith('.csv')){
+      showToast('⚠️ CSV 파일만 지원됩니다: '+f.name);
+      return;
+    }
+    processCSVFile(f);
+  });
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  handleFileSelect(e.dataTransfer.files);
+}
+
+let _deleteTarget = null;
+function confirmDelete(sourceName){
+  if(_deleteTarget && _deleteTarget !== sourceName) cancelDelete();
+  _deleteTarget = sourceName;
+  const safeId  = encodeURIComponent(sourceName);
+  const item    = document.getElementById('upload-item-'+safeId);
+  if(!item) return;
+  item.classList.add('confirm-delete');
+  const actions = item.querySelector('.upload-item-actions');
+  actions.innerHTML=`
+    <div class="delete-confirm-row">
+      <span>정말 삭제?</span>
+      <button class="confirm-yes" onclick="executeDelete('${sourceName}')">삭제</button>
+      <button class="confirm-no"  onclick="cancelDelete()">취소</button>
+    </div>`;
+}
+function cancelDelete(){
+  if(!_deleteTarget) return;
+  _deleteTarget = null;
+  renderUploadList();
+}
+function executeDelete(sourceName){
+  const before = S.questions.length;
+  S.questions = S.questions.filter(q => q.source !== sourceName);
+  const ids = new Set(S.questions.map(q=>q.id));
+  for(const k in S.answered){ if(!ids.has(k)) delete S.answered[k]; }
+  S.flagged.forEach(id=>{ if(!ids.has(id)) S.flagged.delete(id); });
+  save();
+  const removed = before - S.questions.length;
+  _deleteTarget = null;
+  renderUploadList(); renderDashboard(); updateAvailCount();
+  showToast(`🗑 ${removed}개 문제 삭제됨 (${sourceName})`);
+  if(SB_USER){
+    sb.from('questions').delete().eq('source', sourceName).then(({error})=>{
+      if(error) showToast('⚠️ 클라우드 삭제 오류: '+error.message);
+      else showToast(`☁️ 클라우드에서도 "${sourceName}" 삭제 완료`);
+    });
+  }
+}
+
+let _replaceTarget = null;
+function triggerReplace(sourceName){
+  _replaceTarget = sourceName;
+  const inp = document.getElementById('replace-input');
+  inp.value = '';
+  inp.click();
+}
+function handleReplaceFile(files){
+  if(!files || !files.length || !_replaceTarget) return;
+  const file = files[0];
+  if(!file.name.endsWith('.csv')){
+    showToast('⚠️ CSV 파일만 지원됩니다');
+    _replaceTarget = null;
+    return;
+  }
+  const target = _replaceTarget;
+  _replaceTarget = null;
+  showToast('📂 교체 중: '+file.name);
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const newQs = parseCSV(ev.target.result, target);
+      if(!newQs.length){ showToast('❌ 문제를 찾을 수 없습니다. CSV 형식 확인하세요.'); return; }
+      S.questions = S.questions.filter(q => q.source !== target);
+      const newIds = new Set(newQs.map(q => q.id));
+      S.questions = S.questions.filter(q => !newIds.has(q.id));
+      newQs.forEach(q=>{ q.source = target; S.questions.push(q); });
+      const allIds = new Set(S.questions.map(q=>q.id));
+      for(const k in S.answered){ if(!allIds.has(k)) delete S.answered[k]; }
+      S.flagged.forEach(id=>{ if(!allIds.has(id)) S.flagged.delete(id); });
+      save(); renderUploadList(); renderDashboard(); updateAvailCount();
+      showToast(`✅ ${newQs.length}개 문제로 교체됨 (${target})`);
+      (async()=>{
+        if(SB_USER){
+          await sb.from('questions').delete().eq('source', target);
+          const n = await uploadQuestionsToCloud(newQs);
+          if(n > 0) showToast(`☁️ ${n}개 문제 클라우드 교체 완료`);
+        }
+      })();
+    }catch(err){
+      showToast('❌ 오류: '+err.message);
+    }
+  };
+  reader.onerror = () => showToast('❌ 파일 읽기 실패');
+  reader.readAsText(file, 'utf-8');
+}
+
+function processCSVFile(file){
+  showToast('📂 읽는 중: '+file.name);
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const qs=parseCSV(ev.target.result, file.name);
+      if(!qs.length){ showToast('❌ 문제를 찾을 수 없습니다. CSV 형식을 확인하세요.'); return; }
+      const sourceName = file.name;
+      const isReplace  = S.questions.some(q => q.source === sourceName);
+      if(isReplace){
+        S.questions = S.questions.filter(q => q.source !== sourceName);
+        showToast(`🔄 기존 "${sourceName}" 교체 중…`);
+      }
+      const newIds = new Set(qs.map(q => q.id));
+      S.questions = S.questions.filter(q => !newIds.has(q.id));
+      qs.forEach(q => S.questions.push(q));
+      const allIds = new Set(S.questions.map(q => q.id));
+      for(const k in S.answered){ if(!allIds.has(k)) delete S.answered[k]; }
+      S.flagged.forEach(id=>{ if(!allIds.has(id)) S.flagged.delete(id); });
+      save(); renderUploadList(); renderDashboard(); updateAvailCount();
+      showToast(isReplace
+        ? `✅ "${sourceName}" 교체 완료 (${qs.length}개)`
+        : `✅ ${qs.length}개 문제 추가됨 (총 ${S.questions.length}개)`);
+      (async()=>{
+        if(SB_USER){
+          if(isReplace) await sb.from('questions').delete().eq('source', sourceName);
+          const n = await uploadQuestionsToCloud(qs);
+          if(n > 0) showToast(`☁️ ${n}개 문제 클라우드 저장 완료`);
+        }
+      })();
+    }catch(err){
+      showToast('❌ 오류: '+err.message);
+    }
+  };
+  reader.onerror=()=>showToast('❌ 파일 읽기 실패');
+  reader.readAsText(file,'utf-8');
+}
+
+function parseCSV(text, sourceName){
+  text = text.replace(/^\uFEFF/, '');
+  const rows=splitCSVRows(text);
+  if(rows.length<2){ throw new Error('헤더 포함 최소 2줄 이상이어야 합니다'); }
+  const header=rows[0].map(h=>h.trim().toLowerCase());
+  const col=name=>header.indexOf(name);
+  const isFormatA = col('text')!==-1;
+  const isFormatB = col('question')!==-1;
+  if(!isFormatA && !isFormatB) throw new Error('헤더에 "text" 또는 "question" 컬럼이 필요합니다');
+  const qs=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];
+    if(row.length<2 || !row[0].trim()) continue;
+    let text, optA, optB, optC, optD, correct, explanation, part, topic;
+    if(isFormatA){
+      text        = cell(row, col('text'));
+      optA        = cell(row, col('options_a'));
+      optB        = cell(row, col('options_b'));
+      optC        = cell(row, col('options_c'));
+      optD        = cell(row, col('options_d'));
+      const corRaw= cell(row, col('correct')).trim();
+      correct     = isNaN(corRaw) ? 'ABCD'.indexOf(corRaw.toUpperCase()) : parseInt(corRaw);
+      explanation = cell(row, col('explanation'));
+      part        = cell(row, col('part')) || 'Part 1';
+      topic       = cell(row, col('topic')) || 'General';
+    } else {
+      text        = cell(row, col('question'));
+      optA        = cell(row, col('a'));
+      optB        = cell(row, col('b'));
+      optC        = cell(row, col('c'));
+      optD        = cell(row, col('d'));
+      const corRaw= cell(row, col('correct')).trim();
+      correct     = isNaN(corRaw) ? 'ABCD'.indexOf(corRaw.toUpperCase()) : parseInt(corRaw);
+      explanation = cell(row, col('explanation'));
+      part        = cell(row, col('part')) || 'Part 1';
+      topic       = cell(row, col('topic')) || 'General';
+    }
+    const qid         = cell(row, col('question_id'));
+    const wrongReasons= cell(row, col('wrong_reasons'));
+    const taxUpdate   = cell(row, col('tax_update_2025'));
+    const examTip     = cell(row, col('exam_tip'));
+    if(!text || !optA) continue;
+    if(correct<0||correct>3) correct=0;
+    const options=[optA,optB,optC,optD].filter(Boolean);
+    if(options.length<2) continue;
+    qs.push({
+      id: qid || ('csv'+Date.now()+Math.random().toString(36).slice(2,7)),
+      question_id: qid,
+      source: sourceName,
+      text, options, correct, explanation,
+      part, topic,
+      wrongReasons: wrongReasons,
+      taxUpdate2025: taxUpdate,
+      examTip: examTip
+    });
+  }
+  return qs;
+}
+
+function splitCSVRows(text){
+  const rows=[];
+  let row=[], cur='', inQ=false;
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){
+      if(inQ && text[i+1]==='"'){ cur+='"'; i++; }
+      else inQ=!inQ;
+    } else if(ch===',' && !inQ){
+      row.push(cur); cur='';
+    } else if(ch==='\n' && !inQ){
+      row.push(cur); cur='';
+      if(row.some(c=>c.trim())) rows.push(row);
+      row=[];
+    } else {
+      cur+=ch;
+    }
+  }
+  if(cur||row.length) { row.push(cur); if(row.some(c=>c.trim())) rows.push(row); }
+  return rows;
+}
+
+function cell(row, idx){
+  return (idx>=0 && idx<row.length) ? row[idx].trim() : '';
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
+}
 
 // START
 init();
