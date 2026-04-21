@@ -18,22 +18,33 @@
   --text-main:#1a237e;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{
-  height:100%;
-  font-family:'DM Sans',sans-serif;
-  background:var(--page-bg);
-  color:var(--text-main);
-  font-size:16px;
-  /* 스크롤 바운스 방지 */
+
+/* 🔥 모바일 스크롤 바운스 완전 차단 */
+html, body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--page-bg);
+  color: var(--text-main);
+  font-size: 16px;
+  -webkit-overflow-scrolling: auto; /* 내부 스크롤만 touch로 */
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
+  touch-action: none; /* body 자체 스크롤 방지 */
 }
+
 #app{
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
-  height:100%;
-  overflow:hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 /* HEADER */
@@ -57,14 +68,16 @@ html,body{
 .mobile-nav-item{display:block;width:100%;text-align:left;padding:13px 16px;background:none;border:none;color:#93c5fd;font-family:inherit;font-size:16px;font-weight:500;border-radius:10px;cursor:pointer;transition:all .15s;}
 .mobile-nav-item:hover,.mobile-nav-item.active{background:rgba(37,99,235,.35);color:#fff;}
 
-/* CONTENT */
+/* CONTENT - 내부 스크롤 전용 */
 .content{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-  background:var(--page-bg);
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--page-bg);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  touch-action: pan-y; /* 수직 스크롤만 허용 */
+  padding-bottom: 1rem; /* 하단 여유 */
 }
 .screen{display:none;padding:1.5rem;max-width:900px;margin:0 auto;word-break:break-word;}
 .screen.active{display:block;}
@@ -252,7 +265,6 @@ html,body{
   .screen{padding:1rem;}
   .question-text{font-size:19px;line-height:1.75;}
   .opt-text{font-size:17px;line-height:1.65;}
-  /* AI 응답 및 설명 폰트 크기 통일 (19px) */
   .exp-body{font-size:19px;line-height:1.65;}
   .update-body{font-size:19px;line-height:1.65;}
   .tip-body{font-size:19px;line-height:1.65;}
