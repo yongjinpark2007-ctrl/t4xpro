@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>EA Exam Prep · 2025 Tax Law</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ========== 전체 스타일 (원본과 동일) ========== */
+/* ========== 전체 스타일 ========== */
 :root{
   --navy:#1a3a6b;--navy-mid:#f4f7ff;--navy-light:#e8eef9;
   --gold:#2563eb;--gold-light:#3b7dff;
@@ -18,8 +18,23 @@
   --text-main:#1a237e;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg);color:var(--text-main);font-size:16px;}
-#app{display:flex;flex-direction:column;min-height:100vh;}
+html,body{
+  height:100%;
+  font-family:'DM Sans',sans-serif;
+  background:var(--page-bg);
+  color:var(--text-main);
+  font-size:16px;
+  /* 스크롤 바운스 방지 */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+#app{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  height:100%;
+  overflow:hidden;
+}
 
 /* HEADER */
 .header{background:#1a3a6b;border-bottom:2px solid #2563eb;padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;flex-shrink:0;box-shadow:0 2px 8px rgba(26,58,107,.2);}
@@ -43,7 +58,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 .mobile-nav-item:hover,.mobile-nav-item.active{background:rgba(37,99,235,.35);color:#fff;}
 
 /* CONTENT */
-.content{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--page-bg);}
+.content{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:var(--page-bg);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
 .screen{display:none;padding:1.5rem;max-width:900px;margin:0 auto;word-break:break-word;}
 .screen.active{display:block;}
 
@@ -230,10 +252,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
   .screen{padding:1rem;}
   .question-text{font-size:19px;line-height:1.75;}
   .opt-text{font-size:17px;line-height:1.65;}
-  .exp-body{font-size:20px;line-height:1.55;}
-  .update-body{font-size:20px;line-height:1.55;}
-  .tip-body{font-size:20px;line-height:1.55;}
-  .ai-answer{font-size:20px;line-height:1.55;}
+  /* AI 응답 및 설명 폰트 크기 통일 (19px) */
+  .exp-body{font-size:19px;line-height:1.65;}
+  .update-body{font-size:19px;line-height:1.65;}
+  .tip-body{font-size:19px;line-height:1.65;}
+  .ai-answer{font-size:19px;line-height:1.65;}
   .result-banner{font-size:17px;}
   .exp-label{font-size:14px;letter-spacing:.03em;}
   .update-label,.tip-label{font-size:13px;}
@@ -314,7 +337,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg)
 <div class="mobile-nav-drawer" id="mobile-nav-drawer">
   <button class="mobile-nav-item active" id="mob-dashboard" onclick="showScreen('dashboard');closeDrawer()">📊 Dashboard</button>
   <button class="mobile-nav-item" id="mob-study" onclick="showScreen('quiz-setup');closeDrawer()">📚 Study</button>
-  <button class="mobile-nav-item" id="mob-review" onclick="showScreen('bookmarks');closeDrawer()">Review</button>
+  <button class="mobile-nav-item" id="mob-review" onclick="showScreen('bookmarks');closeDrawer()">📋 Review</button>
   <button class="mobile-nav-item" id="mob-upload" onclick="showScreen('upload');closeDrawer()">📂 Upload</button>
   <button class="mobile-nav-item" id="mob-settings" onclick="showScreen('settings');closeDrawer()">⚙ Settings</button>
 </div>
