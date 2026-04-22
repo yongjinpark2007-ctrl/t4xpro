@@ -1219,6 +1219,7 @@ async function fetchFullExplanation(q, origExp){
 }
 
 async function fetchAISections(q){
+  // 이미 유효한 AI 해설이 저장되어 있는지 확인
   const hasValidSections = q.wrongReasons && q.wrongReasons.trim() !== '' && q.wrongReasons !== '—' &&
                            q.taxUpdate2025 && q.taxUpdate2025.trim() !== '' && q.taxUpdate2025 !== '—' &&
                            q.examTip && q.examTip.trim() !== '' && q.examTip !== '—';
@@ -1237,9 +1238,19 @@ async function fetchAISections(q){
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
     
-    q.wrongReasons = parsed.wrongReasons || '—';
-    q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-    q.examTip = parsed.examTip || '—';
+    // 🔥 wrongReasons가 객체인 경우 문자열로 변환
+    let wrongReasonsStr = '';
+    if (typeof parsed.wrongReasons === 'object' && parsed.wrongReasons !== null) {
+      wrongReasonsStr = Object.entries(parsed.wrongReasons)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('<br>');
+    } else {
+      wrongReasonsStr = parsed.wrongReasons || '—';
+    }
+    
+    q.wrongReasons = wrongReasonsStr;
+    q.taxUpdate2025 = (typeof parsed.taxUpdate2025 === 'string') ? parsed.taxUpdate2025 : (parsed.taxUpdate2025 ? JSON.stringify(parsed.taxUpdate2025) : '—');
+    q.examTip = (typeof parsed.examTip === 'string') ? parsed.examTip : (parsed.examTip ? JSON.stringify(parsed.examTip) : '—');
     
     document.getElementById('wrong-body').innerHTML = q.wrongReasons;
     document.getElementById('update-body').innerHTML = q.taxUpdate2025;
