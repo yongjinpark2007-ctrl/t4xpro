@@ -392,29 +392,34 @@ html, body {
     <div style="font-size:13px;color:var(--text-muted);">All AI explanations are based on 2025 U.S. tax law.</div>
   </div>
   <div class="start-card">
-    <div class="exp-label">Number of Questions</div>
+    <!-- 문제 수 -->
+    <div class="exp-label">🔢 Number of Questions</div>
     <div class="mode-grid">
       <button class="mode-btn selected" onclick="selectCount(5,this)"><span class="mode-num">5</span><span class="mode-label">Quick</span></button>
       <button class="mode-btn" onclick="selectCount(10,this)"><span class="mode-num">10</span><span class="mode-label">Standard</span></button>
       <button class="mode-btn" onclick="selectCount(15,this)"><span class="mode-num">15</span><span class="mode-label">Extended</span></button>
       <button class="mode-btn" onclick="selectCount(20,this)"><span class="mode-num">20</span><span class="mode-label">Full</span></button>
     </div>
-    <div class="exp-label" style="margin-top:1rem;">① EA Part</div>
+
+    <!-- EA Exam Part -->
+    <div class="exp-label" style="margin-top:1rem;">📌 EA Exam Part</div>
     <div class="filter-row" id="part-row">
       <button class="filter-chip selected" onclick="selectPart('all',this)">All Parts</button>
       <button class="filter-chip" onclick="selectPart('part1',this)">Part 1 – Individuals</button>
       <button class="filter-chip" onclick="selectPart('part2',this)">Part 2 – Businesses</button>
       <button class="filter-chip" onclick="selectPart('part3',this)">Part 3 – Representation</button>
     </div>
-    <div class="exp-label" style="margin-top:1rem;">② 문제 범위</div>
+
+    <!-- 문제 범위 (아이콘 제거) -->
+    <div class="exp-label" style="margin-top:1rem;">🎯 문제 범위</div>
     <div class="filter-row" id="subset-row">
-      <button class="filter-chip selected" onclick="selectSubset('all',this)">🔀 Random</button>
-      <button class="filter-chip" onclick="selectSubset('unseen',this)">👁 Unseen Only</button>
-      <button class="filter-chip" onclick="selectSubset('flagged',this)">⚑ Flagged Only</button>
+      <button class="filter-chip selected" onclick="selectSubset('all',this)">Random</button>
+      <button class="filter-chip" onclick="selectSubset('unseen',this)">Unseen Only</button>
+      <button class="filter-chip" onclick="selectSubset('flagged',this)">Flagged Only</button>
     </div>
-    
-    <!-- 🔥 반복 학습 필터 (Repeat Round) -->
-    <div class="exp-label" style="margin-top:1rem;">🔄 반복 학습 (Repeat Round)</div>
+
+    <!-- 반복 학습 -->
+    <div class="exp-label" style="margin-top:1rem;">🔄 Repeat Round</div>
     <select class="repeat-select" id="repeat-select" onchange="selectRepeat(this.value)">
       <option value="all" selected>All (모든 문제)</option>
       <option value="le1">1회 이하 (0~1회)</option>
@@ -423,12 +428,14 @@ html, body {
       <option value="le4">4회 이하 (0~4회)</option>
     </select>
 
-    <div class="exp-label" style="margin-top:1rem;">Study Mode</div>
+    <!-- Study Mode -->
+    <div class="exp-label" style="margin-top:1rem;">⚙️ Study Mode</div>
     <div class="filter-row" id="mode-row">
       <button class="filter-chip selected" onclick="selectMode('normal',this)">Normal</button>
       <button class="filter-chip" onclick="selectMode('review',this)">Review Wrong Answers</button>
       <button class="filter-chip" onclick="selectMode('timed',this)">Timed (90s/Q)</button>
     </div>
+
     <div style="margin-top:1.25rem;">
       <button class="btn-primary" id="start-btn" onclick="startQuiz()">Start Session →</button>
       <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;" id="avail-count"></div>
