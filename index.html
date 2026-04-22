@@ -119,6 +119,26 @@ html, body {
 .filter-chip:hover{border-color:#2563eb;color:#2563eb;}
 .filter-chip.selected{background:#dbeafe;border-color:#2563eb;color:#1a3a6b;font-weight:600;}
 
+/* 반복 학습 드롭다운 */
+.repeat-select {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #fff;
+  border: 1.5px solid var(--border-clr);
+  border-radius: 12px;
+  color: var(--text-main);
+  margin: 8px 0 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
 /* BUTTONS */
 .btn-primary{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:14px 24px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;width:100%;}
 .btn-primary:hover{background:#1d4ed8;}
@@ -392,6 +412,17 @@ html, body {
       <button class="filter-chip" onclick="selectSubset('unseen',this)">👁 Unseen Only</button>
       <button class="filter-chip" onclick="selectSubset('flagged',this)">⚑ Flagged Only</button>
     </div>
+    
+    <!-- 🔥 반복 학습 필터 (Repeat Round) -->
+    <div class="exp-label" style="margin-top:1rem;">🔄 반복 학습 (Repeat Round)</div>
+    <select class="repeat-select" id="repeat-select" onchange="selectRepeat(this.value)">
+      <option value="all" selected>All (모든 문제)</option>
+      <option value="le1">1회 이하 (0~1회)</option>
+      <option value="le2">2회 이하 (0~2회)</option>
+      <option value="le3">3회 이하 (0~3회)</option>
+      <option value="le4">4회 이하 (0~4회)</option>
+    </select>
+
     <div class="exp-label" style="margin-top:1rem;">Study Mode</div>
     <div class="filter-row" id="mode-row">
       <button class="filter-chip selected" onclick="selectMode('normal',this)">Normal</button>
@@ -812,6 +843,7 @@ const S = {
   questions:[], sessions:[], flagged:new Set(), answered:{},
   quizQueue:[], quizIdx:0, submitted:false, selected:null,
   count:5, filter:'all', part:'all', subset:'all', mode:'normal',
+  repeatFilter: 'all',   // 반복 학습 필터 (all, le1, le2, le3, le4)
   results:{correct:0,wrong:0,total:0},
   timerInt:null, timerSec:90,
 };
@@ -962,6 +994,12 @@ function selectPart(p,btn){S.part=p;document.querySelectorAll('#part-row .filter
 function selectSubset(s,btn){S.subset=s;document.querySelectorAll('#subset-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
 function selectMode(m,btn){S.mode=m;document.querySelectorAll('#mode-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
 
+// 🔥 반복 학습 필터 핸들러
+function selectRepeat(val){
+  S.repeatFilter = val;
+  updateAvailCount();
+}
+
 function getPool(){
   let p=S.questions;
   if(S.part==='part1') p=p.filter(q=>q.part==='Part 1');
@@ -970,6 +1008,12 @@ function getPool(){
 
   if(S.subset==='unseen') p=p.filter(q=>!S.answered[q.id]);
   else if(S.subset==='flagged') p=p.filter(q=>S.flagged.has(q.id));
+
+  // 반복 학습 필터 (N회 이하)
+  if(S.repeatFilter !== 'all'){
+    const maxTimes = parseInt(S.repeatFilter.replace('le','')); // 'le2' → 2
+    p = p.filter(q => (S.answered[q.id]?.times || 0) <= maxTimes);
+  }
 
   if(S.mode==='review') p=p.filter(q=>S.answered[q.id]&&S.answered[q.id].wrong>0);
   return p;
@@ -1111,8 +1155,7 @@ function skipQuestion(){
 }
 
 // ─────────────────────────────────────────────────────────────────
-// 핵심 변경: Explanation 보존 + 사용자 확인 정답 수정
-// + Wrong/Update/Tip 항상 AI로 교체 (단, 이미 저장된 값이 있으면 재사용)
+// Explanation 보존 + 사용자 확인 정답 수정 + AI 해설 재사용
 // ─────────────────────────────────────────────────────────────────
 async function showExplanation(q, isOk, timeout){
   const ec = document.getElementById('explanation-card'); ec.classList.add('visible');
@@ -1120,19 +1163,15 @@ async function showExplanation(q, isOk, timeout){
   if(timeout){ banner.className='result-banner fail'; banner.textContent='⏱ Time\'s up! See the correct answer below'; }
   else { banner.className='result-banner '+(isOk?'ok':'fail'); banner.textContent=isOk?'✓ Correct! Well done.':'✗ Incorrect — review the explanation below'; }
 
-  // 기존 CSV 내용 중 Explanation만 보존
   const origExp = q.explanation && q.explanation.trim().length > 2 ? q.explanation : '';
 
-  // 로딩 표시 (AI 호출 전까지)
   document.getElementById('wrong-body').innerHTML = '<span class="loading">AI generating…</span>';
   document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
   document.getElementById('tip-body').innerHTML = '<span class="loading">Generating exam tip…</span>';
   document.getElementById('exp-body').innerHTML = origExp || '<span class="loading">AI generating explanation…</span>';
   document.getElementById('correction-box').innerHTML = '';
 
-  // Explanation 갱신 (aiEnhanced 플래그에 따라)
   await fetchFullExplanation(q, origExp);
-  // AI 해설 섹션 갱신 (저장된 값이 있으면 재사용)
   await fetchAISections(q);
 }
 
@@ -1179,22 +1218,18 @@ async function fetchFullExplanation(q, origExp){
   }
 }
 
-// 🔥 수정된 함수: 저장된 AI 해설이 있으면 API 호출 없이 재사용
 async function fetchAISections(q){
-  // 이미 유효한 AI 해설이 저장되어 있는지 확인
   const hasValidSections = q.wrongReasons && q.wrongReasons.trim() !== '' && q.wrongReasons !== '—' &&
                            q.taxUpdate2025 && q.taxUpdate2025.trim() !== '' && q.taxUpdate2025 !== '—' &&
                            q.examTip && q.examTip.trim() !== '' && q.examTip !== '—';
   
   if (hasValidSections) {
-    // 저장된 값으로 DOM 업데이트 후 API 호출 건너뛰기
     document.getElementById('wrong-body').innerHTML = q.wrongReasons;
     document.getElementById('update-body').innerHTML = q.taxUpdate2025;
     document.getElementById('tip-body').innerHTML = q.examTip;
     return;
   }
 
-  // 저장된 값이 없으면 AI 호출
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
@@ -1220,7 +1255,6 @@ async function fetchAISections(q){
   }
 }
 
-// 사용자가 AI 제안을 수락했을 때 실행
 window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   if(!confirm(`정답을 ${newLetter}로 수정하시겠습니까?\n현재 세션 점수도 자동 조정됩니다.`)) return;
   
