@@ -1106,7 +1106,7 @@ function skipQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResult
 
 // ─────────────────────────────────────────────────────────────────
 // 핵심 변경: Explanation 보존 + 사용자 확인 정답 수정
-// + Wrong/Update/Tip 항상 AI로 교체 (aiEnhanced 무시하고 강제 호출)
+// + Wrong/Update/Tip 항상 AI로 교체 (단, 이미 저장된 값이 있으면 재사용)
 // ─────────────────────────────────────────────────────────────────
 async function showExplanation(q, isOk, timeout){
   const ec = document.getElementById('explanation-card'); ec.classList.add('visible');
@@ -1117,22 +1117,20 @@ async function showExplanation(q, isOk, timeout){
   // 기존 CSV 내용 중 Explanation만 보존
   const origExp = q.explanation && q.explanation.trim().length > 2 ? q.explanation : '';
 
-  // 로딩 표시
+  // 로딩 표시 (AI 호출 전까지)
   document.getElementById('wrong-body').innerHTML = '<span class="loading">AI generating…</span>';
   document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
   document.getElementById('tip-body').innerHTML = '<span class="loading">Generating exam tip…</span>';
   document.getElementById('exp-body').innerHTML = origExp || '<span class="loading">AI generating explanation…</span>';
   document.getElementById('correction-box').innerHTML = '';
 
-  // 항상 AI 호출하여 세 섹션 업데이트 (aiEnhanced 무시)
+  // Explanation 갱신 (aiEnhanced 플래그에 따라)
   await fetchFullExplanation(q, origExp);
-  await fetchAISections(q); // 추가: Wrong/Update/Tip 강제 업데이트
+  // AI 해설 섹션 갱신 (저장된 값이 있으면 재사용)
+  await fetchAISections(q);
 }
 
-// Explanation + 정답 검증 (기존 로직)
 async function fetchFullExplanation(q, origExp){
-  // aiEnhanced 여부와 관계없이 일단 AI를 호출하여 Explanation을 업데이트할 수 있지만,
-  // 여기서는 기존처럼 aiEnhanced가 false일 때만 Explanation 갱신
   if(q.aiEnhanced) return;
   try{
     const raw = await callDeepSeek(
@@ -1175,8 +1173,22 @@ async function fetchFullExplanation(q, origExp){
   }
 }
 
-// 🔥 새로운 함수: WrongReasons, TaxUpdate2025, ExamTip을 항상 AI로 가져와 덮어쓰기
+// 🔥 수정된 함수: 저장된 AI 해설이 있으면 API 호출 없이 재사용
 async function fetchAISections(q){
+  // 이미 유효한 AI 해설이 저장되어 있는지 확인
+  const hasValidSections = q.wrongReasons && q.wrongReasons.trim() !== '' && q.wrongReasons !== '—' &&
+                           q.taxUpdate2025 && q.taxUpdate2025.trim() !== '' && q.taxUpdate2025 !== '—' &&
+                           q.examTip && q.examTip.trim() !== '' && q.examTip !== '—';
+  
+  if (hasValidSections) {
+    // 저장된 값으로 DOM 업데이트 후 API 호출 건너뛰기
+    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
+    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
+    document.getElementById('tip-body').innerHTML = q.examTip;
+    return;
+  }
+
+  // 저장된 값이 없으면 AI 호출
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
@@ -1192,7 +1204,6 @@ async function fetchAISections(q){
     document.getElementById('update-body').innerHTML = q.taxUpdate2025;
     document.getElementById('tip-body').innerHTML = q.examTip;
     
-    // 클라우드에도 저장 (선택사항)
     save();
     fixQuestionInCloud(q);
   }catch(e){
