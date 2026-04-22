@@ -986,6 +986,7 @@ function updateAvailCount(){
 // QUIZ
 // ══════════════════════════════════════════════════════
 function startQuiz(){
+  clearInterval(S.timerInt);
   let pool=getPool(); if(!pool.length) return;
   pool.sort((a,b)=>{const ta=S.answered[a.id]?.times||0,tb=S.answered[b.id]?.times||0;return ta-tb||Math.random()-.5;});
   S.quizQueue=pool.slice(0,S.count).map(q=>q.id);
@@ -997,6 +998,7 @@ function startQuiz(){
 function curQ(){const id=S.quizQueue[S.quizIdx];return id?S.questions.find(q=>q.id===id):null;}
 
 function loadQuestion(){
+  clearInterval(S.timerInt);
   const q=curQ(); if(!q){showResults();return;}
   const pct=Math.round(S.quizIdx/S.quizQueue.length*100);
   document.getElementById('q-bar').style.width=pct+'%';
@@ -1041,7 +1043,6 @@ function loadQuestion(){
   document.getElementById('ai-answer').classList.remove('visible');
   document.getElementById('ask-input').value='';
 
-  clearInterval(S.timerInt);
   const tb=document.getElementById('timer-badge');
   if(S.mode==='timed'){
     S.timerSec=90; tb.style.display='block'; tb.textContent='90s'; tb.style.background='rgba(163,45,45,.2)';
@@ -1102,7 +1103,12 @@ function submitAnswer(){
   showExplanation(q,isOk,false);
 }
 
-function skipQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResults();else loadQuestion();}
+function skipQuestion(){
+  clearInterval(S.timerInt);
+  S.quizIdx++;
+  if(S.quizIdx>=S.quizQueue.length) showResults();
+  else loadQuestion();
+}
 
 // ─────────────────────────────────────────────────────────────────
 // 핵심 변경: Explanation 보존 + 사용자 확인 정답 수정
@@ -1252,8 +1258,17 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   document.getElementById('correction-box').innerHTML = '';
 };
 
-function nextQuestion(){S.quizIdx++;if(S.quizIdx>=S.quizQueue.length) showResults();else loadQuestion();}
-function endSession(){clearInterval(S.timerInt);showResults();}
+function nextQuestion(){
+  clearInterval(S.timerInt);
+  S.quizIdx++;
+  if(S.quizIdx>=S.quizQueue.length) showResults();
+  else loadQuestion();
+}
+
+function endSession(){
+  clearInterval(S.timerInt);
+  showResults();
+}
 
 // ══════════════════════════════════════════════════════
 // COPY / FLAG / FOLLOW-UP
@@ -1383,7 +1398,7 @@ function closeDrawer(){
 }
 
 // ══════════════════════════════════════════════════════
-// UPLOAD & CSV PARSING (생략 없이 그대로 포함)
+// UPLOAD & CSV PARSING
 // ══════════════════════════════════════════════════════
 function renderUploadList(){
   const src=[...new Set(S.questions.map(q=>q.source).filter(s=>s&&s!=='demo'))];
