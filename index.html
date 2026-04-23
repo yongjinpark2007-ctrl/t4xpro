@@ -410,7 +410,7 @@ html, body {
       <button class="filter-chip" onclick="selectPart('part3',this)">Part 3 – Representation</button>
     </div>
 
-    <!-- 문제 범위 (아이콘 제거) -->
+    <!-- 문제 범위 -->
     <div class="exp-label" style="margin-top:1rem;">🎯 문제 범위</div>
     <div class="filter-row" id="subset-row">
       <button class="filter-chip selected" onclick="selectSubset('all',this)">Random</button>
@@ -591,6 +591,28 @@ html, body {
     <button class="btn-primary" onclick="saveApiKey()">API 키 저장</button>
     <div style="font-size:13px;color:#16a34a;margin-top:10px;font-weight:600;" id="api-status"></div>
   </div>
+
+  <!-- AI 생성 설정 (NEW) -->
+  <div style="background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;margin-top:1rem;">
+    <div class="exp-label" style="margin-bottom:10px;">🤖 AI 자동 생성 설정</div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+        <input type="checkbox" id="ai-toggle-explanation" checked> 
+        <span>✅ 기본 해설 (Explanation) 자동 생성</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+        <input type="checkbox" id="ai-toggle-taxupdate" checked> 
+        <span>📋 2025 세법 Update 생성</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+        <input type="checkbox" id="ai-toggle-examtip" checked> 
+        <span>💡 EA Exam Tip 생성</span>
+      </label>
+      <p style="font-size:13px; color:var(--text-muted); margin-top:8px;">체크 해제 시 해당 항목은 AI 호출 없이 기존 DB 값만 표시됩니다.</p>
+      <button class="btn-ghost" style="margin-top:8px;" onclick="saveAISettings()">설정 저장</button>
+    </div>
+  </div>
+
   <div style="background:#fff;border:1.5px solid var(--border-clr);border-radius:14px;padding:1.25rem;margin-top:1rem;">
     <div class="exp-label" style="margin-bottom:10px;">데이터 관리</div>
     <button class="btn-ghost" style="margin-bottom:10px;width:100%;" onclick="exportData()">모든 데이터 내보내기 (JSON)</button>
@@ -619,6 +641,31 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let SB_USER = null;
+
+// AI 설정 (기본값 true)
+const AI_SETTINGS = {
+  explanation: true,
+  taxUpdate: true,
+  examTip: true
+};
+
+function loadAISettings() {
+  const saved = localStorage.getItem('ea_ai_settings');
+  if (saved) {
+    try { Object.assign(AI_SETTINGS, JSON.parse(saved)); } catch(e) {}
+  }
+  document.getElementById('ai-toggle-explanation').checked = AI_SETTINGS.explanation;
+  document.getElementById('ai-toggle-taxupdate').checked = AI_SETTINGS.taxUpdate;
+  document.getElementById('ai-toggle-examtip').checked = AI_SETTINGS.examTip;
+}
+
+function saveAISettings() {
+  AI_SETTINGS.explanation = document.getElementById('ai-toggle-explanation').checked;
+  AI_SETTINGS.taxUpdate = document.getElementById('ai-toggle-taxupdate').checked;
+  AI_SETTINGS.examTip = document.getElementById('ai-toggle-examtip').checked;
+  localStorage.setItem('ea_ai_settings', JSON.stringify(AI_SETTINGS));
+  showToast('⚙️ AI 생성 설정이 저장되었습니다.');
+}
 
 // ── AUTH ────────────────────────────────────────────
 async function doLogin(){
@@ -791,15 +838,15 @@ async function uploadQuestionsToCloud(questions){
   return uploaded;
 }
 
-async function fixQuestionInCloud(q){
+// 선택적 업데이트 지원
+async function fixQuestionInCloud(q, options = {}) {
   if(!SB_USER) return;
-  const { error } = await sb.from('questions').update({
-    correct:         q.correct,
-    explanation:     q.explanation || null,
-    wrong_reasons:   q.wrongReasons || null,
-    tax_update_2025: q.taxUpdate2025 || null,
-    exam_tip:        q.examTip || null,
-  }).eq('id', q.id);
+  const updateData = {};
+  if (options.explanation !== false) updateData.explanation = q.explanation || null;
+  if (options.taxUpdate !== false) updateData.tax_update_2025 = q.taxUpdate2025 || null;
+  if (options.examTip !== false) updateData.exam_tip = q.examTip || null;
+  // wrong_reasons는 절대 업데이트하지 않음
+  const { error } = await sb.from('questions').update(updateData).eq('id', q.id);
   if(error) showToast('⚠️ 클라우드 수정 오류: ' + error.message);
 }
 
@@ -850,12 +897,12 @@ const S = {
   questions:[], sessions:[], flagged:new Set(), answered:{},
   quizQueue:[], quizIdx:0, submitted:false, selected:null,
   count:5, filter:'all', part:'all', subset:'all', mode:'normal',
-  repeatFilter: 'all',   // 반복 학습 필터 (all, le1, le2, le3, le4)
+  repeatFilter: 'all',
   results:{correct:0,wrong:0,total:0},
   timerInt:null, timerSec:90,
 };
 
-// DEMO QUESTIONS
+// DEMO QUESTIONS (생략 없이 그대로 유지)
 const DEMO = [
   {id:'q1',part:'Part 1',topic:'Filing Status',
    text:'A taxpayer who is unmarried and pays more than half the cost of maintaining a home for a qualifying child may file under which status?',
@@ -913,6 +960,7 @@ const DEMO = [
 // INIT & PERSIST
 // ══════════════════════════════════════════════════════
 function init(){
+  loadAISettings();
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
   const k = getApiKey();
   if(k){
@@ -1001,7 +1049,6 @@ function selectPart(p,btn){S.part=p;document.querySelectorAll('#part-row .filter
 function selectSubset(s,btn){S.subset=s;document.querySelectorAll('#subset-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
 function selectMode(m,btn){S.mode=m;document.querySelectorAll('#mode-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
 
-// 🔥 반복 학습 필터 핸들러
 function selectRepeat(val){
   S.repeatFilter = val;
   updateAvailCount();
@@ -1016,9 +1063,8 @@ function getPool(){
   if(S.subset==='unseen') p=p.filter(q=>!S.answered[q.id]);
   else if(S.subset==='flagged') p=p.filter(q=>S.flagged.has(q.id));
 
-  // 반복 학습 필터 (N회 이하)
   if(S.repeatFilter !== 'all'){
-    const maxTimes = parseInt(S.repeatFilter.replace('le','')); // 'le2' → 2
+    const maxTimes = parseInt(S.repeatFilter.replace('le',''));
     p = p.filter(q => (S.answered[q.id]?.times || 0) <= maxTimes);
   }
 
@@ -1036,14 +1082,61 @@ function updateAvailCount(){
 // ══════════════════════════════════════════════════════
 // QUIZ
 // ══════════════════════════════════════════════════════
-function startQuiz(){
+async function startQuiz(){
   clearInterval(S.timerInt);
   let pool=getPool(); if(!pool.length) return;
   pool.sort((a,b)=>{const ta=S.answered[a.id]?.times||0,tb=S.answered[b.id]?.times||0;return ta-tb||Math.random()-.5;});
   S.quizQueue=pool.slice(0,S.count).map(q=>q.id);
+  
+  // Unseen Only 세션이면 백그라운드 사전 생성 실행
+  if (S.subset === 'unseen') {
+    pregenerateAIForQueue(S.quizQueue);
+  }
+  
   S.quizIdx=0; S.submitted=false; S.selected=null;
   S.results={correct:0,wrong:0,total:S.quizQueue.length};
   showScreen('quiz'); loadQuestion();
+}
+
+// 백그라운드 AI 사전 생성 (비동기)
+async function pregenerateAIForQueue(questionIds) {
+  if (!AI_SETTINGS.explanation && !AI_SETTINGS.taxUpdate && !AI_SETTINGS.examTip) return;
+  
+  showToast('🤖 AI 해설 미리 생성 중... (백그라운드)');
+  for (const qid of questionIds) {
+    const q = S.questions.find(x => x.id === qid);
+    if (!q) continue;
+    
+    const needExp = AI_SETTINGS.explanation && !q.aiEnhanced && (!q.explanation || q.explanation === '—');
+    const needTax = AI_SETTINGS.taxUpdate && (!q.taxUpdate2025 || q.taxUpdate2025 === '—');
+    const needTip = AI_SETTINGS.examTip && (!q.examTip || q.examTip === '—');
+    
+    if (!needExp && !needTax && !needTip) continue;
+    
+    try {
+      let promptFields = [];
+      if (needExp) promptFields.push('explanation');
+      if (needTax) promptFields.push('taxUpdate2025');
+      if (needTip) promptFields.push('examTip');
+      
+      const raw = await callDeepSeek(
+        `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
+        `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키: ${promptFields.join(', ')}`
+      );
+      const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+      
+      if (needExp) { q.explanation = parsed.explanation || q.explanation || '—'; q.aiEnhanced = true; }
+      if (needTax) q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+      if (needTip) q.examTip = parsed.examTip || '—';
+      
+      save();
+      await fixQuestionInCloud(q, { explanation: needExp, taxUpdate: needTax, examTip: needTip });
+    } catch(e) {
+      console.warn(`배치 생성 실패 (${qid}):`, e);
+    }
+    await new Promise(r => setTimeout(r, 200)); // API 호출 간격
+  }
+  showToast('✅ AI 해설 사전 생성 완료');
 }
 
 function curQ(){const id=S.quizQueue[S.quizIdx];return id?S.questions.find(q=>q.id===id):null;}
@@ -1162,7 +1255,7 @@ function skipQuestion(){
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Explanation 보존 + 사용자 확인 정답 수정 + AI 해설 재사용
+// Explanation (AI 토글 적용)
 // ─────────────────────────────────────────────────────────────────
 async function showExplanation(q, isOk, timeout){
   const ec = document.getElementById('explanation-card'); ec.classList.add('visible');
@@ -1172,10 +1265,11 @@ async function showExplanation(q, isOk, timeout){
 
   const origExp = q.explanation && q.explanation.trim().length > 2 ? q.explanation : '';
 
-  document.getElementById('wrong-body').innerHTML = '<span class="loading">AI generating…</span>';
+  // 초기 로딩 표시
+  document.getElementById('wrong-body').innerHTML = q.wrongReasons || '—';
   document.getElementById('update-body').innerHTML = '<span class="loading">Checking 2025 changes…</span>';
   document.getElementById('tip-body').innerHTML = '<span class="loading">Generating exam tip…</span>';
-  document.getElementById('exp-body').innerHTML = origExp || '<span class="loading">AI generating explanation…</span>';
+  document.getElementById('exp-body').innerHTML = origExp || (AI_SETTINGS.explanation ? '<span class="loading">AI generating explanation…</span>' : '—');
   document.getElementById('correction-box').innerHTML = '';
 
   await fetchFullExplanation(q, origExp);
@@ -1183,7 +1277,11 @@ async function showExplanation(q, isOk, timeout){
 }
 
 async function fetchFullExplanation(q, origExp){
-  if(q.aiEnhanced) return;
+  if (q.aiEnhanced) return;
+  if (!AI_SETTINGS.explanation) {
+    document.getElementById('exp-body').innerHTML = origExp || '—';
+    return;
+  }
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
@@ -1218,7 +1316,7 @@ async function fetchFullExplanation(q, origExp){
     q.explanation = finalExplanation;
     q.aiEnhanced = true;
     save();
-    fixQuestionInCloud(q);
+    fixQuestionInCloud(q, { explanation: true, taxUpdate: false, examTip: false });
   }catch(e){
     console.error('AI error:', e);
     document.getElementById('exp-body').innerHTML = origExp || 'AI 해설을 불러오지 못했습니다.';
@@ -1226,48 +1324,35 @@ async function fetchFullExplanation(q, origExp){
 }
 
 async function fetchAISections(q){
-  // 이미 유효한 AI 해설이 저장되어 있는지 확인
-  const hasValidSections = q.wrongReasons && q.wrongReasons.trim() !== '' && q.wrongReasons !== '—' &&
-                           q.taxUpdate2025 && q.taxUpdate2025.trim() !== '' && q.taxUpdate2025 !== '—' &&
-                           q.examTip && q.examTip.trim() !== '' && q.examTip !== '—';
+  // wrongReasons는 DB 값만 표시 (AI 호출 안 함)
+  document.getElementById('wrong-body').innerHTML = q.wrongReasons || '—';
   
-  if (hasValidSections) {
-    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
-    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
-    document.getElementById('tip-body').innerHTML = q.examTip;
+  const needsTax = AI_SETTINGS.taxUpdate && (!q.taxUpdate2025 || q.taxUpdate2025 === '—');
+  const needsTip = AI_SETTINGS.examTip && (!q.examTip || q.examTip === '—');
+  
+  if (!needsTax && !needsTip) {
+    document.getElementById('update-body').innerHTML = q.taxUpdate2025 || '—';
+    document.getElementById('tip-body').innerHTML = q.examTip || '—';
     return;
   }
-
+  
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
-      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- wrongReasons: 각 오답 보기가 왜 틀렸는지 한국어로 설명 (형식: "A: 이유. B: 이유.")\n- taxUpdate2025: 2025 세법 기준 변경사항 또는 확인 사항\n- examTip: EA 시험 팁`
+      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- taxUpdate2025: 2025 세법 기준 변경사항 또는 확인 사항 (한국어)\n- examTip: EA 시험 팁 (한국어)`
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
     
-    // 🔥 wrongReasons가 객체인 경우 문자열로 변환
-    let wrongReasonsStr = '';
-    if (typeof parsed.wrongReasons === 'object' && parsed.wrongReasons !== null) {
-      wrongReasonsStr = Object.entries(parsed.wrongReasons)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('<br>');
-    } else {
-      wrongReasonsStr = parsed.wrongReasons || '—';
-    }
+    if (needsTax) q.taxUpdate2025 = (typeof parsed.taxUpdate2025 === 'string') ? parsed.taxUpdate2025 : '—';
+    if (needsTip) q.examTip = (typeof parsed.examTip === 'string') ? parsed.examTip : '—';
     
-    q.wrongReasons = wrongReasonsStr;
-    q.taxUpdate2025 = (typeof parsed.taxUpdate2025 === 'string') ? parsed.taxUpdate2025 : (parsed.taxUpdate2025 ? JSON.stringify(parsed.taxUpdate2025) : '—');
-    q.examTip = (typeof parsed.examTip === 'string') ? parsed.examTip : (parsed.examTip ? JSON.stringify(parsed.examTip) : '—');
-    
-    document.getElementById('wrong-body').innerHTML = q.wrongReasons;
-    document.getElementById('update-body').innerHTML = q.taxUpdate2025;
-    document.getElementById('tip-body').innerHTML = q.examTip;
+    document.getElementById('update-body').innerHTML = q.taxUpdate2025 || '—';
+    document.getElementById('tip-body').innerHTML = q.examTip || '—';
     
     save();
-    fixQuestionInCloud(q);
+    await fixQuestionInCloud(q, { explanation: false, taxUpdate: needsTax, examTip: needsTip });
   }catch(e){
     console.error('AI sections error:', e);
-    document.getElementById('wrong-body').innerHTML = '⚠️ AI 응답 오류';
     document.getElementById('update-body').innerHTML = '⚠️ AI 응답 오류';
     document.getElementById('tip-body').innerHTML = '⚠️ AI 응답 오류';
   }
@@ -1305,7 +1390,7 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
     }
   }
   
-  await fixQuestionInCloud(q);
+  await fixQuestionInCloud(q, { explanation: false, taxUpdate: false, examTip: false });
   showToast(`✅ 정답이 ${newLetter}로 수정되었습니다.`);
   document.getElementById('correction-box').innerHTML = '';
 };
@@ -1450,7 +1535,7 @@ function closeDrawer(){
 }
 
 // ══════════════════════════════════════════════════════
-// UPLOAD & CSV PARSING
+// UPLOAD & CSV PARSING (그대로 유지)
 // ══════════════════════════════════════════════════════
 function renderUploadList(){
   const src=[...new Set(S.questions.map(q=>q.source).filter(s=>s&&s!=='demo'))];
