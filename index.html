@@ -1010,7 +1010,7 @@ function showScreen(name){
 }
 
 // ══════════════════════════════════════════════════════
-// DASHBOARD
+// DASHBOARD (Part별 정확도/플래그 추가)
 // ══════════════════════════════════════════════════════
 function renderDashboard(){
   const total=S.questions.length, seen=Object.keys(S.answered).length, unseen=total-seen;
@@ -1029,7 +1029,27 @@ function renderDashboard(){
     const qs=S.questions.filter(q=>q.part===pk);
     const done=qs.filter(q=>S.answered[q.id]).length;
     const pct=qs.length>0?Math.round(done/qs.length*100):0;
-    return`<div class="unit-card"><div class="unit-icon">${icon}</div><div class="unit-info"><div class="unit-name">${label}</div><div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div><div class="unit-stats">${done} / ${qs.length}개 학습</div></div><div class="unit-count">${pct}%</div></div>`;
+
+    // Part별 정확도 계산
+    let tCorrect=0, tAttempts=0;
+    qs.forEach(q=>{
+      const a = S.answered[q.id];
+      if(a){ tCorrect += a.correct; tAttempts += a.times; }
+    });
+    const partAcc = tAttempts>0 ? Math.round(tCorrect/tAttempts*100) : 0;
+
+    // Part별 플래그 수
+    const partFlags = qs.filter(q=>S.flagged.has(q.id)).length;
+
+    return`<div class="unit-card">
+      <div class="unit-icon">${icon}</div>
+      <div class="unit-info">
+        <div class="unit-name">${label}</div>
+        <div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div>
+        <div class="unit-stats">${done} / ${qs.length}개 학습 · 정확도 ${partAcc}% · 플래그 ${partFlags}</div>
+      </div>
+      <div class="unit-count">${pct}%</div>
+    </div>`;
   }).join('');
 
   const recent=S.sessions.slice(-5).reverse();
