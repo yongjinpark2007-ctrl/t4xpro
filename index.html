@@ -1073,23 +1073,88 @@ async function loadLiveSessionFromCloud(){
   }catch(e){ return null; }
 }
 
+// ── Resume 배지: 사용자가 임시로 닫으면 이 세션동안 숨김 ──
+let _resumeBadgeDismissed = false;
+let _resumeBadgeScrollTimer = null;
+
 function updateResumeBadge(){
   const has = S.quizQueue && S.quizQueue.length > 0 && S.quizIdx < S.quizQueue.length;
   let badge = document.getElementById('resume-badge');
-  if(has){
-    if(!badge){
-      badge = document.createElement('button');
-      badge.id = 'resume-badge';
-      badge.style.cssText = 'position:fixed;bottom:90px;right:20px;background:#16a34a;color:#fff;border:none;border-radius:24px;padding:12px 18px;font-size:14px;font-weight:600;box-shadow:0 4px 12px rgba(22,163,74,.4);cursor:pointer;z-index:1000;font-family:inherit;display:flex;align-items:center;gap:6px;';
-      badge.onclick = resumeQuiz;
-      document.body.appendChild(badge);
-    }
-    const tag = S.reviewMode ? '복습' : '학습';
-    badge.innerHTML = `▶ ${tag} 재개 <span style="opacity:.85;font-weight:500;">(${S.quizIdx+1}/${S.quizQueue.length})</span>`;
-    badge.style.display = 'flex';
-  } else if(badge){
-    badge.style.display = 'none';
+
+  // Quiz 화면에 있으면 (이미 학습 중) 배지 숨김
+  const quizScreenActive = document.getElementById('screen-quiz')?.classList.contains('active');
+
+  // 사용자가 ×로 닫았으면 숨김
+  if(!has || quizScreenActive || _resumeBadgeDismissed){
+    if(badge) badge.style.display = 'none';
+    return;
   }
+
+  if(!badge){
+    badge = document.createElement('div');
+    badge.id = 'resume-badge';
+    // 모바일 하단 네비(약 60px) + 여유 공간 = 80px 위
+    badge.style.cssText = `
+      position:fixed; bottom:80px; right:16px;
+      background:#16a34a; color:#fff;
+      border-radius:24px; box-shadow:0 4px 14px rgba(22,163,74,.45);
+      z-index:1000; font-family:inherit;
+      display:flex; align-items:center; gap:0;
+      transition:all .25s ease; opacity:.95;
+    `.replace(/\s+/g,' ').trim();
+
+    // 라벨 (클릭 시 resume)
+    const label = document.createElement('button');
+    label.id = 'resume-badge-label';
+    label.style.cssText = 'background:none;border:none;color:inherit;font-family:inherit;font-size:14px;font-weight:600;padding:11px 6px 11px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;';
+    label.onclick = (e)=>{ e.stopPropagation(); resumeQuiz(); };
+    badge.appendChild(label);
+
+    // × 닫기 버튼
+    const close = document.createElement('button');
+    close.id = 'resume-badge-close';
+    close.innerHTML = '×';
+    close.title = '이 화면에서 숨기기';
+    close.style.cssText = 'background:rgba(0,0,0,.18);border:none;color:#fff;width:26px;height:26px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;margin-right:8px;font-family:inherit;padding:0;display:flex;align-items:center;justify-content:center;';
+    close.onclick = (e)=>{
+      e.stopPropagation();
+      _resumeBadgeDismissed = true;
+      badge.style.display = 'none';
+      showToast('학습 재개 버튼이 숨겨졌습니다. Dashboard에서 다시 표시됩니다.');
+    };
+    badge.appendChild(close);
+
+    // 배지 자체 클릭은 resume (×만 stopPropagation)
+    badge.onclick = ()=> resumeQuiz();
+
+    document.body.appendChild(badge);
+
+    // 스크롤 시 일시 축소 — 모바일에서 콘텐츠 가림 최소화
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', ()=>{
+      const b = document.getElementById('resume-badge');
+      if(!b || b.style.display === 'none') return;
+      // 스크롤 중 → 반투명 + 축소
+      b.style.opacity = '.45';
+      b.style.transform = 'scale(.85)';
+      clearTimeout(_resumeBadgeScrollTimer);
+      _resumeBadgeScrollTimer = setTimeout(()=>{
+        b.style.opacity = '.95';
+        b.style.transform = 'scale(1)';
+      }, 600);
+    }, { passive: true });
+  }
+
+  const tag = S.reviewMode ? '복습' : '학습';
+  document.getElementById('resume-badge-label').innerHTML =
+    `▶ ${tag} 재개 <span style="opacity:.85;font-weight:500;">(${S.quizIdx+1}/${S.quizQueue.length})</span>`;
+  badge.style.display = 'flex';
+}
+
+// dashboard로 돌아오면 dismiss 상태 초기화 (다시 보이도록)
+function resetResumeBadgeDismiss(){
+  _resumeBadgeDismissed = false;
+  updateResumeBadge();
 }
 
 function resumeQuiz(){
@@ -1144,7 +1209,7 @@ function showScreen(name){
   const mobMap={dashboard:'mob-dashboard','quiz-setup':'mob-study',bookmarks:'mob-review',upload:'mob-upload',settings:'mob-settings'};
   document.querySelectorAll('.mobile-nav-item').forEach(b=>b.classList.remove('active'));
   if(mobMap[name]) { const el=document.getElementById(mobMap[name]); if(el) el.classList.add('active'); }
-  if(name==='dashboard') renderDashboard();
+  if(name==='dashboard') { renderDashboard(); resetResumeBadgeDismiss(); }
   if(name==='bookmarks') renderBookmarks();
   // 화면 전환 후에도 Resume 배지 상태 갱신
   updateResumeBadge();
