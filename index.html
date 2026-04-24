@@ -355,7 +355,7 @@ html, body {
   </div>
   <div class="header-nav">
     <button class="nav-btn active" onclick="showScreen('dashboard');closeDrawer()">Dashboard</button>
-    <button class="nav-btn" onclick="openStudy()">Study</button>
+    <button class="nav-btn" onclick="showScreen('quiz-setup');closeDrawer()">Study</button>
     <button class="nav-btn" onclick="showScreen('bookmarks');closeDrawer()">Review</button>
     <button class="nav-btn" onclick="showScreen('upload');closeDrawer()">Upload</button>
     <button class="nav-btn" onclick="showScreen('settings');closeDrawer()">⚙</button>
@@ -368,7 +368,7 @@ html, body {
 <!-- Mobile drawer -->
 <div class="mobile-nav-drawer" id="mobile-nav-drawer">
   <button class="mobile-nav-item active" id="mob-dashboard" onclick="showScreen('dashboard');closeDrawer()">📊 Dashboard</button>
-  <button class="mobile-nav-item" id="mob-study" onclick="openStudy()">📚 Study</button>
+  <button class="mobile-nav-item" id="mob-study" onclick="showScreen('quiz-setup');closeDrawer()">📚 Study</button>
   <button class="mobile-nav-item" id="mob-review" onclick="showScreen('bookmarks');closeDrawer()">📋 Review</button>
   <button class="mobile-nav-item" id="mob-upload" onclick="showScreen('upload');closeDrawer()">📂 Upload</button>
   <button class="mobile-nav-item" id="mob-settings" onclick="showScreen('settings');closeDrawer()">⚙ Settings</button>
@@ -527,7 +527,7 @@ html, body {
   </div>
   <div class="result-btns">
     <button class="btn-navy" style="flex:1;" onclick="showScreen('dashboard')">Dashboard</button>
-    <button class="btn-primary" style="flex:1;" onclick="clearLiveQuiz();showScreen('quiz-setup')">New Session →</button>
+    <button class="btn-primary" style="flex:1;" onclick="showScreen('quiz-setup')">New Session →</button>
   </div>
 </div>
 
@@ -791,26 +791,11 @@ async function loadFromCloud(){
       .order('created_at', { ascending: false })
       .limit(20);
     S.sessions = (sRows || []).map(r => ({
-      id: r.id,
-      created_at: r.created_at,
       date: new Date(r.created_at).toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
-      count: r.count, correct: r.correct, pct: r.pct,
-      question_ids: r.question_ids || []
+      count: r.count, correct: r.correct, pct: r.pct
     }));
 
-    // ── 진행 중 세션 (live_session) ──
-    const liveCloud = await loadLiveSessionFromCloud();
-    if(liveCloud){
-      // 클라우드에 진행 중 세션이 있으면 → 로컬보다 우선 (모바일↔PC 동기화)
-      S.quizQueue = liveCloud.queue || [];
-      S.quizIdx = liveCloud.idx || 0;
-      S.mode = liveCloud.mode || 'normal';
-      S.results = liveCloud.results || {correct:0, wrong:0, total:S.quizQueue.length};
-      S.reviewMode = liveCloud.review_mode || false;
-    }
-
     renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-    updateResumeBadge();
     showToast(`✅ ${S.questions.length}개 문제 로드 완료`);
   } catch(e){
     showToast('⚠️ 클라우드 로드 실패: ' + e.message);
@@ -833,15 +818,12 @@ async function saveProgressToCloud(questionId, isCorrect, isFlagged){
   }, { onConflict: 'user_id,question_id' });
 }
 
-async function saveSessionToCloud(count, correct, pct, questionIds){
-  if(!SB_USER) return null;
-  const { data, error } = await sb.from('sessions').insert({
+async function saveSessionToCloud(count, correct, pct){
+  if(!SB_USER) return;
+  await sb.from('sessions').insert({
     user_id: SB_USER.id,
-    count, correct, pct,
-    question_ids: questionIds || []
-  }).select().single();
-  if(error){ console.warn('session save:', error); return null; }
-  return data;
+    count, correct, pct
+  });
 }
 
 async function uploadQuestionsToCloud(questions){
@@ -934,7 +916,6 @@ const S = {
   questions:[], sessions:[], flagged:new Set(), answered:{},
   quizQueue:[], quizIdx:0, submitted:false, selected:null,
   count:5, filter:'all', part:'all', subset:'all', mode:'normal',
-  reviewMode: false,
   repeatFilter: 'all',
   results:{correct:0,wrong:0,total:0},
   timerInt:null, timerSec:90,
@@ -999,22 +980,7 @@ const DEMO = [
 // ══════════════════════════════════════════════════════
 function init(){
   loadAISettings();
-  // localStorage에서 진행 중 세션 즉시 복원 (오프라인/빠른 표시)
-  try{
-    const raw = localStorage.getItem('ea_prep_v3');
-    if(raw){
-      const obj = JSON.parse(raw);
-      if(obj.live && obj.live.queue && obj.live.queue.length > 0 && obj.live.idx < obj.live.queue.length){
-        S.quizQueue = obj.live.queue;
-        S.quizIdx = obj.live.idx;
-        S.mode = obj.live.mode || 'normal';
-        S.results = obj.live.results || {correct:0, wrong:0, total:S.quizQueue.length};
-        S.reviewMode = obj.live.reviewMode || false;
-      }
-    }
-  }catch(e){}
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-  updateResumeBadge();
   const k = getApiKey();
   if(k){
     document.getElementById('api-key-input').value = '•'.repeat(Math.min(k.length, 32));
@@ -1023,87 +989,7 @@ function init(){
 }
 
 function save(){
-  try{
-    const liveQuiz = (S.quizQueue && S.quizQueue.length > 0 && S.quizIdx < S.quizQueue.length) ? {
-      queue: S.quizQueue,
-      idx: S.quizIdx,
-      mode: S.mode,
-      results: S.results,
-      reviewMode: S.reviewMode || false
-    } : null;
-    localStorage.setItem('ea_prep_v3',JSON.stringify({
-      q:S.questions, s:S.sessions, f:[...S.flagged], a:S.answered,
-      live: liveQuiz
-    }));
-  }catch(e){}
-  saveLiveSessionToCloud();
-  updateResumeBadge();
-}
-
-// ── 진행 중 세션 → 클라우드 (debounced) ──
-let _liveSaveTimer = null;
-function saveLiveSessionToCloud(){
-  if(!SB_USER) return;
-  clearTimeout(_liveSaveTimer);
-  _liveSaveTimer = setTimeout(async ()=>{
-    try{
-      if(S.quizQueue && S.quizQueue.length > 0 && S.quizIdx < S.quizQueue.length){
-        await sb.from('live_session').upsert({
-          user_id: SB_USER.id,
-          queue: S.quizQueue,
-          idx: S.quizIdx,
-          mode: S.mode,
-          results: S.results,
-          review_mode: S.reviewMode || false,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-      } else {
-        await sb.from('live_session').delete().eq('user_id', SB_USER.id);
-      }
-    }catch(e){ console.warn('live session sync failed:', e); }
-  }, 1500);
-}
-
-async function loadLiveSessionFromCloud(){
-  if(!SB_USER) return null;
-  try{
-    const { data, error } = await sb.from('live_session').select('*').eq('user_id', SB_USER.id).maybeSingle();
-    if(error || !data) return null;
-    return data;
-  }catch(e){ return null; }
-}
-
-function updateResumeBadge(){
-  const has = S.quizQueue && S.quizQueue.length > 0 && S.quizIdx < S.quizQueue.length;
-  let badge = document.getElementById('resume-badge');
-  if(has){
-    if(!badge){
-      badge = document.createElement('button');
-      badge.id = 'resume-badge';
-      badge.style.cssText = 'position:fixed;bottom:90px;right:20px;background:#16a34a;color:#fff;border:none;border-radius:24px;padding:12px 18px;font-size:14px;font-weight:600;box-shadow:0 4px 12px rgba(22,163,74,.4);cursor:pointer;z-index:1000;font-family:inherit;display:flex;align-items:center;gap:6px;';
-      badge.onclick = resumeQuiz;
-      document.body.appendChild(badge);
-    }
-    const tag = S.reviewMode ? '복습' : '학습';
-    badge.innerHTML = `▶ ${tag} 재개 <span style="opacity:.85;font-weight:500;">(${S.quizIdx+1}/${S.quizQueue.length})</span>`;
-    badge.style.display = 'flex';
-  } else if(badge){
-    badge.style.display = 'none';
-  }
-}
-
-function resumeQuiz(){
-  if(!S.quizQueue || S.quizQueue.length === 0) return;
-  if(S.quizIdx >= S.quizQueue.length){ updateResumeBadge(); return; }
-  showScreen('quiz');
-  loadQuestion();
-}
-
-function clearLiveQuiz(){
-  S.quizQueue = []; S.quizIdx = 0;
-  S.results = {correct:0, wrong:0, total:0};
-  S.reviewMode = false;
-  save();
+  try{ localStorage.setItem('ea_prep_v3',JSON.stringify({q:S.questions,s:S.sessions,f:[...S.flagged],a:S.answered})); }catch(e){}
 }
 
 // ══════════════════════════════════════════════════════
@@ -1125,10 +1011,7 @@ function exportData(){
 function resetData(){
   localStorage.removeItem('ea_prep_v3');
   S.questions=JSON.parse(JSON.stringify(DEMO)); S.sessions=[]; S.flagged=new Set(); S.answered={};
-  S.quizQueue=[]; S.quizIdx=0; S.reviewMode=false;
-  if(SB_USER){ sb.from('live_session').delete().eq('user_id', SB_USER.id); }
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
-  updateResumeBadge();
   showToast('All data reset');
 }
 
@@ -1146,24 +1029,6 @@ function showScreen(name){
   if(mobMap[name]) { const el=document.getElementById(mobMap[name]); if(el) el.classList.add('active'); }
   if(name==='dashboard') renderDashboard();
   if(name==='bookmarks') renderBookmarks();
-  // 화면 전환 후에도 Resume 배지 상태 갱신
-  updateResumeBadge();
-}
-
-// Study 탭 진입 라우터: 진행 중 세션 있으면 Quiz로, 아니면 Setup으로
-function openStudy(){
-  closeDrawer();
-  if(S.quizQueue && S.quizQueue.length > 0 && S.quizIdx < S.quizQueue.length){
-    // 진행 중 세션 있음 → 사용자 선택
-    if(confirm(`진행 중인 세션이 있습니다 (${S.quizIdx+1}/${S.quizQueue.length}).\n\n[확인] 이어서 풀기\n[취소] 새 세션 시작`)){
-      resumeQuiz();
-    } else {
-      clearLiveQuiz();
-      showScreen('quiz-setup');
-    }
-  } else {
-    showScreen('quiz-setup');
-  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1209,35 +1074,10 @@ function renderDashboard(){
     </div>`;
   }).join('');
 
-  // Recent Sessions: 최근 5개를 역순으로 (가장 최근이 위)
-  // S.sessions 배열은 추가순(오래된→최신). slice(-5).reverse() 로 최신 5개 표시
-  const recentItems = S.sessions.slice(-5).reverse();
-  const recentEl = document.getElementById('activity-log');
-  if(recentItems.length === 0){
-    recentEl.innerHTML = '<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>';
-  } else {
-    recentEl.innerHTML = recentItems.map((s)=>{
-      // S.sessions에서의 실제 인덱스 찾기 (slice + reverse 했으므로 역산)
-      const realIdx = S.sessions.length - 1 - recentItems.indexOf(s);
-      const hasIds = s.question_ids && s.question_ids.length > 0;
-      // 날짜+시간 포맷 (created_at이 있으면 사용)
-      let label = s.date;
-      if(s.created_at){
-        const d = new Date(s.created_at);
-        label = d.toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) + ' ' +
-                d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
-      }
-      const colorClass = s.pct >= 80 ? '#16a34a' : s.pct >= 60 ? '#ca8a04' : '#dc2626';
-      const clickable = hasIds ? `onclick="reviewSession(${realIdx})" style="cursor:pointer;" title="클릭하여 이 세션 복습"` : 'style="opacity:.6;" title="구버전 세션 (다시보기 불가)"';
-      const reviewBtn = hasIds ? '<span style="margin-left:8px;font-size:11px;color:#2563eb;font-weight:600;">🔄 복습</span>' : '';
-      return `<div class="activity-row" ${clickable}>
-        <span style="font-weight:600;">${label}</span>
-        <span style="color:var(--text-muted);">${s.count}문제</span>
-        <span style="color:${colorClass};font-weight:600;margin-left:auto;">${s.correct}정답 · ${s.pct}%</span>
-        ${reviewBtn}
-      </div>`;
-    }).join('');
-  }
+  const recent=S.sessions.slice(-5).reverse();
+  document.getElementById('activity-log').innerHTML=recent.length===0
+    ?'<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>'
+    :recent.map(s=>`<div class="activity-row"><span style="font-weight:600;">${s.date}</span><span style="color:var(--text-muted);">${s.count}문제</span><span style="color:#16a34a;font-weight:600;margin-left:auto;">${s.correct}정답 · ${s.pct}%</span></div>`).join('');
 }
 
 // ══════════════════════════════════════════════════════
@@ -1293,34 +1133,8 @@ async function startQuiz(){
   }
   
   S.quizIdx=0; S.submitted=false; S.selected=null;
-  S.reviewMode = false;
   S.results={correct:0,wrong:0,total:S.quizQueue.length};
-  save();
   showScreen('quiz'); loadQuestion();
-}
-
-// ── 과거 세션 다시보기 (Review 모드) ──
-function reviewSession(sessionIndex){
-  const s = S.sessions[sessionIndex];
-  if(!s || !s.question_ids || s.question_ids.length === 0){
-    showToast('⚠️ 이 세션은 문제 ID가 저장되지 않았습니다 (구버전 세션)');
-    return;
-  }
-  // 세션의 문제 ID들이 현재 questions에 모두 있는지 확인
-  const validIds = s.question_ids.filter(id => S.questions.find(q => q.id === id));
-  if(validIds.length === 0){
-    showToast('⚠️ 이 세션의 문제들을 찾을 수 없습니다');
-    return;
-  }
-  S.quizQueue = validIds;
-  S.quizIdx = 0; S.submitted = false; S.selected = null;
-  S.reviewMode = true;
-  S.mode = 'normal';
-  S.results = {correct:0, wrong:0, total:validIds.length};
-  save();
-  showScreen('quiz');
-  loadQuestion();
-  showToast(`🔄 ${s.date} 세션 복습 시작 (${validIds.length}문제)`);
 }
 
 // 백그라운드 AI 사전 생성 (비동기)
@@ -1412,24 +1226,8 @@ function loadQuestion(){
   document.getElementById('ai-answer').classList.remove('visible');
   document.getElementById('ask-input').value='';
 
-  // ── Review 모드: 정답을 즉시 공개 (과거 세션 다시보기) ──
-  if(S.reviewMode){
-    document.querySelectorAll('.option-btn').forEach((b,i)=>{
-      b.disabled = true;
-      if(i === q.correct) b.classList.add('reveal');
-    });
-    document.getElementById('btn-submit').style.display = 'none';
-    document.getElementById('btn-skip').style.display = 'none';
-    showExplanation(q, true, false);
-    // 진행 표시: 'Review n of N'
-    document.getElementById('q-progress-text').textContent = `Review ${S.quizIdx+1} of ${S.quizQueue.length}`;
-    document.getElementById('q-session-label').textContent = '🔄 REVIEW · 과거 세션 다시보기';
-  } else {
-    document.getElementById('btn-submit').style.display = '';
-  }
-
   const tb=document.getElementById('timer-badge');
-  if(S.mode==='timed' && !S.reviewMode){
+  if(S.mode==='timed'){
     S.timerSec=90; tb.style.display='block'; tb.textContent='90s'; tb.style.background='rgba(163,45,45,.2)';
     S.timerInt=setInterval(()=>{
       S.timerSec--;
@@ -1491,7 +1289,6 @@ function submitAnswer(){
 function skipQuestion(){
   clearInterval(S.timerInt);
   S.quizIdx++;
-  save();
   if(S.quizIdx>=S.quizQueue.length) showResults();
   else loadQuestion();
 }
@@ -1638,19 +1435,8 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
 function nextQuestion(){
   clearInterval(S.timerInt);
   S.quizIdx++;
-  save();
-  if(S.quizIdx>=S.quizQueue.length){
-    if(S.reviewMode){
-      // Review 모드 종료 — 결과 화면 없이 대시보드로
-      clearLiveQuiz();
-      showToast('✅ 복습 완료');
-      showScreen('dashboard');
-    } else {
-      showResults();
-    }
-  } else {
-    loadQuestion();
-  }
+  if(S.quizIdx>=S.quizQueue.length) showResults();
+  else loadQuestion();
 }
 
 function endSession(){
@@ -1715,24 +1501,9 @@ function showResults(){
   clearInterval(S.timerInt);
   const {correct,wrong,total}=S.results, answered=correct+wrong;
   const pct=answered>0?Math.round(correct/answered*100):0;
-  // 세션 종료 — 풀었던 문제 ID도 함께 저장
-  const completedQueue = [...S.quizQueue];
-  const sessionRecord = {
-    date: new Date().toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),
-    count: answered, correct, pct,
-    question_ids: completedQueue,
-    created_at: new Date().toISOString()
-  };
-  S.sessions.push(sessionRecord);
-  // 진행 중 세션 정리
-  clearLiveQuiz();
-  saveSessionToCloud(answered, correct, pct, completedQueue).then(saved=>{
-    if(saved && saved.id){
-      // 클라우드에 저장된 id를 로컬 마지막 세션에 매핑
-      const last = S.sessions[S.sessions.length-1];
-      if(last) last.id = saved.id;
-    }
-  });
+  S.sessions.push({date:new Date().toLocaleDateString('ko-KR',{month:'short',day:'numeric',year:'numeric'}),count:answered,correct,pct});
+  save();
+  saveSessionToCloud(answered, correct, pct);
   document.getElementById('r-pct').textContent=pct+'%';
   document.getElementById('r-correct').textContent=correct;
   document.getElementById('r-wrong').textContent=wrong;
