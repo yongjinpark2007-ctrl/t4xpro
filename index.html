@@ -722,17 +722,26 @@ function updateSyncStatus(){
 }
 
 // ══════════════════════════════════════════════════════
-// CLOUD LOAD / SAVE
+// CLOUD LOAD / SAVE (페이지네이션 적용)
 // ══════════════════════════════════════════════════════
 async function loadFromCloud(){
   if(!SB_USER) return;
   showToast('☁️ 클라우드에서 불러오는 중…');
   try{
-    const { data: qRows, error: qErr } = await sb
-      .from('questions')
-      .select('*')
-      .order('created_at', { ascending: true });
-    if(qErr) throw qErr;
+    // ── questions 페이지네이션 ──
+    let qRows = [];
+    const PAGE_SIZE = 1000;
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      const { data, error } = await sb
+        .from('questions')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .range(offset, offset + PAGE_SIZE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      qRows = qRows.concat(data);
+      if (data.length < PAGE_SIZE) break;   // 마지막 페이지
+    }
 
     if(qRows && qRows.length > 0){
       S.questions = qRows.map(r => ({
@@ -753,11 +762,19 @@ async function loadFromCloud(){
       if(S.questions.length === 0) S.questions = JSON.parse(JSON.stringify(DEMO));
     }
 
-    const { data: pRows, error: pErr } = await sb
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', SB_USER.id);
-    if(pErr) throw pErr;
+    // ── user_progress 페이지네이션 ──
+    let pRows = [];
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      const { data, error } = await sb
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', SB_USER.id)
+        .range(offset, offset + PAGE_SIZE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      pRows = pRows.concat(data);
+      if (data.length < PAGE_SIZE) break;
+    }
 
     S.answered = {};
     S.flagged  = new Set();
@@ -766,6 +783,7 @@ async function loadFromCloud(){
       if(r.flagged) S.flagged.add(r.question_id);
     });
 
+    // ── sessions ──
     const { data: sRows } = await sb
       .from('sessions')
       .select('*')
@@ -810,7 +828,11 @@ async function saveSessionToCloud(count, correct, pct){
 
 async function uploadQuestionsToCloud(questions){
   if(!SB_USER){ showToast('⚠️ 로그인 필요'); return 0; }
-  const rows = questions.map(q => ({
+  // 중복 id 제거 (같은 id가 여러 개면 마지막 항목만 유지)
+  const uniqueQuestions = Array.from(
+    new Map(questions.map(q => [q.id, q])).values()
+  );
+  const rows = uniqueQuestions.map(q => ({
     id:              q.id,
     question_id:     q.question_id || null,
     source:          q.source,
