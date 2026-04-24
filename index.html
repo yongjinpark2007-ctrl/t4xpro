@@ -1340,13 +1340,13 @@ async function pregenerateAIForQueue(questionIds) {
     
     try {
       let promptFields = [];
-      if (needExp) promptFields.push('explanation');
-      if (needTax) promptFields.push('taxUpdate2025');
-      if (needTip) promptFields.push('examTip');
+      if (needExp) promptFields.push('explanation: 한국어 상세 해설 (2025년 미국 세법 기준)');
+      if (needTax) promptFields.push('taxUpdate2025: 2025년 세법 기준 변경사항 또는 확인 사항 (한국어)');
+      if (needTip) promptFields.push('examTip: 반드시 2025년 미국 세법(2026년 EA 시험 적용) 기준의 시험 팁만 제시 (한국어). 2023/2024년 기준 정보 금지. 구체적인 2025년 금액·임계값·세율 포함');
       
       const raw = await callDeepSeek(
-        `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
-        `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키: ${promptFields.join(', ')}`
+        `당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법(2026년 EA 시험 적용 기준)을 따릅니다. 2024년 이전 세법 기준 정보는 절대 사용하지 마세요. 아래 JSON 형식으로만 응답하세요.`,
+        `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n${promptFields.map(f=>'- '+f).join('\n')}`
       );
       const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
       
@@ -1578,8 +1578,8 @@ async function fetchAISections(q){
   
   try{
     const raw = await callDeepSeek(
-      `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
-      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- taxUpdate2025: 2025 세법 기준 변경사항 또는 확인 사항 (한국어)\n- examTip: EA 시험 팁 (한국어)`
+      `당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법(2026년 EA 시험 적용 기준)을 따릅니다. 2024년 이전 세법 기준 정보는 절대 사용하지 마세요. 아래 JSON 형식으로만 응답하세요.`,
+      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- taxUpdate2025: 2025년 세법 기준 변경사항 또는 확인 사항 (한국어). 2024년 대비 변경된 점이 있으면 명시.\n- examTip: 반드시 2025년 미국 세법(2026년 EA 시험 적용) 기준의 시험 팁만 제시 (한국어). 2023/2024년 기준 정보 절대 금지. 구체적인 2025년 금액·임계값·세율을 포함하고, 답변 시작 시 "📌 2025 세법 기준:" 으로 시작.`
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
     
