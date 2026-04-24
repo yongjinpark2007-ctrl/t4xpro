@@ -1323,7 +1323,7 @@ async function fetchFullExplanation(q, origExp){
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
-      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 한국어 상세 해설\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
+      `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 2025년 기준 한국어 상세 해설\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
     
