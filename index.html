@@ -1596,25 +1596,35 @@ async function fetchFullExplanation(q, origExp){
     document.getElementById('exp-body').innerHTML = origExp || '—';
     return;
   }
+
+  // ── 가드: origExp에 이미 "🤖 AI 추가 분석" 마커가 있으면 = DB에 합본이 저장된 상태
+  // → AI 재호출 없이 그대로 표시하고 종료 (중복 방지)
+  if (origExp && origExp.includes('🤖 AI 추가 분석')) {
+    document.getElementById('exp-body').innerHTML = origExp;
+    q.aiEnhanced = true;
+    return;
+  }
+
   try{
     const raw = await callDeepSeek(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
       `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 한국어 상세 해설\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
-    
+
     const aiCorrectLetter = (parsed.verifiedCorrect||'').toUpperCase().trim();
     const aiCorrectIdx = 'ABCD'.indexOf(aiCorrectLetter);
     const answerMismatch = (aiCorrectIdx >= 0 && aiCorrectIdx !== q.correct);
-    
-    let finalExplanation = origExp;
+
+    // 화면 표시용 합본 (원본 + AI 분석)
+    let displayExplanation = origExp;
     if (origExp && parsed.explanation) {
-      finalExplanation = origExp + '<br><br><strong style="color:#2563eb;">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
+      displayExplanation = origExp + '<br><br><strong style="color:#2563eb;">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
     } else {
-      finalExplanation = parsed.explanation || '';
+      displayExplanation = parsed.explanation || '';
     }
-    document.getElementById('exp-body').innerHTML = finalExplanation || '—';
-    
+    document.getElementById('exp-body').innerHTML = displayExplanation || '—';
+
     if(answerMismatch){
       const correctionBox = document.getElementById('correction-box');
       correctionBox.innerHTML = `
@@ -1626,8 +1636,11 @@ async function fetchFullExplanation(q, origExp){
         </div>
       `;
     }
-    
-    q.explanation = finalExplanation;
+
+    // ── 핵심 수정: q.explanation에는 합본이 아니라 원본 + AI분석 분리해서 저장 ──
+    // 화면용 = displayExplanation (메모리에만)
+    // DB 저장용 = 합본(검색·표시 일관성) BUT 마커가 1번만 나타나도록 보장
+    q.explanation = displayExplanation;
     q.aiEnhanced = true;
     save();
     fixQuestionInCloud(q, { explanation: true, taxUpdate: false, examTip: false });
