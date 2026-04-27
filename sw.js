@@ -3,15 +3,15 @@
  *
  * 캐싱 전략:
  *   - HTML (index.html): network-first → 새 버전이 있으면 가져오고, 오프라인이면 캐시 사용
- *   - API 호출 (Supabase, Gemini): network-only → 절대 캐시 안 함 (개인 데이터, 항상 최신 필요)
+ *   - API 호출 (Supabase, DeepSeek): network-only → 절대 캐시 안 함 (개인 데이터, 항상 최신 필요)
  *   - 정적 자원 (Google Fonts, Supabase CDN): cache-first → 빠른 로딩
  *
  * 업데이트 방법:
  *   배포 후 새 버전을 강제 적용하려면 아래 CACHE_VERSION 숫자만 올려주세요.
- *   (예: 'v1' → 'v2'). 다음 방문 시 자동으로 새 캐시가 만들어집니다.
+ *   (예: 'v2' → 'v3'). 다음 방문 시 자동으로 새 캐시가 만들어집니다.
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `t4xpro-${CACHE_VERSION}`;
 
 // 앱 셸 - 오프라인에서도 앱이 켜지도록 미리 받아둘 파일
@@ -26,8 +26,8 @@ const PRECACHE_URLS = [
 
 // 항상 네트워크로만 가야 하는 호스트 (캐시 절대 안 함)
 const NETWORK_ONLY_HOSTS = [
-  'supabase.co',                   // Supabase REST API
-  'generativelanguage.googleapis.com', // Gemini API
+  'supabase.co',         // Supabase REST API
+  'api.deepseek.com',    // DeepSeek AI API
 ];
 
 // 캐시 우선으로 다뤄도 되는 호스트 (CDN, 폰트)
