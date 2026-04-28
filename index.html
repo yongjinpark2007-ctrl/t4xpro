@@ -424,6 +424,9 @@ html, body {
       <button class="filter-chip" onclick="selectPart('part1',this)">Part 1 – Individuals</button>
       <button class="filter-chip" onclick="selectPart('part2',this)">Part 2 – Businesses</button>
       <button class="filter-chip" onclick="selectPart('part3',this)">Part 3 – Representation</button>
+      <button class="filter-chip" onclick="selectPart('partA',this)">Part A</button>
+      <button class="filter-chip" onclick="selectPart('partB',this)">Part B</button>
+      <button class="filter-chip" onclick="selectPart('partC',this)">Part C</button>
     </div>
 
     <!-- 문제 범위 -->
@@ -1348,6 +1351,9 @@ function getPool(){
   if(S.part==='part1') p=p.filter(q=>q.part==='Part 1');
   else if(S.part==='part2') p=p.filter(q=>q.part==='Part 2');
   else if(S.part==='part3') p=p.filter(q=>q.part==='Part 3');
+  else if(S.part==='partA') p=p.filter(q=>q.part==='Part A');
+  else if(S.part==='partB') p=p.filter(q=>q.part==='Part B');
+  else if(S.part==='partC') p=p.filter(q=>q.part==='Part C');
 
   if(S.subset==='unseen') p=p.filter(q=>!S.answered[q.id]);
   else if(S.subset==='flagged') p=p.filter(q=>S.flagged.has(q.id));
@@ -1528,10 +1534,6 @@ function loadQuestion(){
       if(S.timerSec<=0){clearInterval(S.timerInt);if(!S.submitted) autoTimeout();}
     },1000);
   } else { tb.style.display='none'; }
-
-  // ── PREFETCH: 다음 문제 1개의 AI 응답을 백그라운드로 미리 호출 ──
-  // 1초 지연 = 현재 화면 렌더링/사용자가 문제 읽기 시작 후에 네트워크 부담 시작
-  setTimeout(() => { prefetchNextQuestion().catch(()=>{}); }, 1000);
 }
 
 function selectOption(i,btn){
@@ -1593,29 +1595,6 @@ function skipQuestion(){
 // ─────────────────────────────────────────────────────────────────
 // Explanation (AI 토글 적용, wrongReasons 섹션 제거됨)
 // ─────────────────────────────────────────────────────────────────
-
-// AI가 문제은행과 다른 정답을 제안할 때 노란 경고 박스 렌더링.
-// q._aiMismatch가 있으면 표시, 없으면 박스 비움.
-// 이 헬퍼를 통해 prefetch된 문제도 동일한 경고 UI를 보여줄 수 있음.
-function renderAICorrectionBox(q){
-  const correctionBox = document.getElementById('correction-box');
-  if (!correctionBox) return;
-  if (!q || !q._aiMismatch) {
-    correctionBox.innerHTML = '';
-    return;
-  }
-  const { idx, letter } = q._aiMismatch;
-  if (idx < 0 || idx >= q.options.length) { correctionBox.innerHTML = ''; return; }
-  correctionBox.innerHTML = `
-    <div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:1rem;">
-      <div style="font-weight:700;color:#92400e;margin-bottom:8px;">⚠️ AI가 문제은행 정답과 다른 답을 제안했습니다</div>
-      <div style="margin-bottom:10px;font-size:15px;">문제은행 정답: <strong>${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}</strong><br>AI 제안 정답: <strong style="color:#2563eb;">${letter}) ${q.options[idx]}</strong></div>
-      <button class="btn-primary" style="background:#f59e0b;padding:10px 16px;font-size:14px;" onclick="acceptAICorrection('${q.id}', ${idx}, '${letter}')">✅ 이 제안을 수락하고 문제은행 수정</button>
-      <button class="btn-ghost" style="margin-left:8px;" onclick="this.parentElement.parentElement.remove()">무시</button>
-    </div>
-  `;
-}
-
 async function showExplanation(q, isOk, timeout){
   const ec = document.getElementById('explanation-card'); ec.classList.add('visible');
   const banner = document.getElementById('result-banner');
@@ -1627,7 +1606,7 @@ async function showExplanation(q, isOk, timeout){
   // 초기 로딩 표시 (wrong-body, update-body 제거됨)
   document.getElementById('tip-body').innerHTML = '<span class="loading">Generating exam tip…</span>';
   document.getElementById('exp-body').innerHTML = origExp || (AI_SETTINGS.explanation ? '<span class="loading">AI generating explanation…</span>' : '—');
-  renderAICorrectionBox(q);  // prefetch로 _aiMismatch 캐시되어 있으면 즉시 표시
+  document.getElementById('correction-box').innerHTML = '';
 
   await fetchFullExplanation(q, origExp);
   await fetchAISections(q);
@@ -1669,10 +1648,15 @@ async function fetchFullExplanation(q, origExp){
     document.getElementById('exp-body').innerHTML = displayExplanation || '—';
 
     if(answerMismatch){
-      q._aiMismatch = { idx: aiCorrectIdx, letter: aiCorrectLetter };
-      renderAICorrectionBox(q);
-    } else {
-      delete q._aiMismatch;
+      const correctionBox = document.getElementById('correction-box');
+      correctionBox.innerHTML = `
+        <div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:1rem;">
+          <div style="font-weight:700;color:#92400e;margin-bottom:8px;">⚠️ AI가 문제은행 정답과 다른 답을 제안했습니다</div>
+          <div style="margin-bottom:10px;font-size:15px;">문제은행 정답: <strong>${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}</strong><br>AI 제안 정답: <strong style="color:#2563eb;">${aiCorrectLetter}) ${q.options[aiCorrectIdx]}</strong></div>
+          <button class="btn-primary" style="background:#f59e0b;padding:10px 16px;font-size:14px;" onclick="acceptAICorrection('${q.id}', ${aiCorrectIdx}, '${aiCorrectLetter}')">✅ 이 제안을 수락하고 문제은행 수정</button>
+          <button class="btn-ghost" style="margin-left:8px;" onclick="this.parentElement.parentElement.remove()">무시</button>
+        </div>
+      `;
     }
 
     // ── 핵심 수정: q.explanation에는 합본이 아니라 원본 + AI분석 분리해서 저장 ──
@@ -1717,87 +1701,6 @@ async function fetchAISections(q){
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// AI PREFETCH (다음 문제 1개만 백그라운드로 미리 호출)
-// ═══════════════════════════════════════════════════════
-// - 동시성 1로 제한 (한 번에 하나만 진행)
-// - 이미 캐시된 문제는 skip
-// - 실패는 조용히 무시 (실제 제출 시 정상 호출됨)
-// - DOM은 절대 건드리지 않음 (백그라운드 작업)
-const PREFETCH = { inFlight: null, inFlightId: null };
-
-async function prefetchNextQuestion(){
-  if (PREFETCH.inFlight) return;                                // 동시 1개 제한
-  if (!getApiKey()) return;                                     // API 키 없음
-  if (!AI_SETTINGS.explanation && !AI_SETTINGS.examTip) return; // AI 둘 다 꺼짐
-  if (S.reviewMode) return;                                     // 리뷰 모드는 무의미
-
-  const nextIdx = S.quizIdx + 1;
-  if (!S.quizQueue || nextIdx >= S.quizQueue.length) return;
-  const nextId = S.quizQueue[nextIdx];
-  const q = S.questions.find(x => x.id === nextId);
-  if (!q) return;
-
-  // 이미 둘 다 채워져 있으면 할 일 없음
-  const expDone = q.aiEnhanced || (q.explanation && q.explanation.includes('🤖 AI 추가 분석'));
-  const tipDone = q.examTip && q.examTip !== '—' && q.examTip.length > 2;
-  if (expDone && tipDone) return;
-
-  PREFETCH.inFlightId = q.id;
-  PREFETCH.inFlight = (async () => {
-    const tag = `[Prefetch ${q.id}]`;
-    try {
-      // ── 해설 prefetch ──
-      if (AI_SETTINGS.explanation && !expDone) {
-        const raw = await callDeepSeek(
-          `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
-          `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 한국어 상세 해설\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
-        );
-        const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
-        const origExp = (q.explanation && q.explanation.trim().length > 2) ? q.explanation : '';
-        let combined = parsed.explanation || '';
-        if (origExp && parsed.explanation) {
-          combined = origExp + '<br><br><strong style="color:#2563eb;">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
-        }
-        q.explanation = combined;
-        q.aiEnhanced = true;
-
-        // 정답 불일치는 _aiMismatch에 저장 → showExplanation이 경고박스 렌더
-        const aiLetter = (parsed.verifiedCorrect||'').toUpperCase().trim();
-        const aiIdx = 'ABCD'.indexOf(aiLetter);
-        if (aiIdx >= 0 && aiIdx !== q.correct) {
-          q._aiMismatch = { idx: aiIdx, letter: aiLetter };
-        } else {
-          delete q._aiMismatch;
-        }
-
-        save();
-        fixQuestionInCloud(q, { explanation: true, taxUpdate: false, examTip: false });
-        console.log(tag, '✓ explanation cached');
-      }
-
-      // ── 시험 팁 prefetch ──
-      if (AI_SETTINGS.examTip && !tipDone) {
-        const raw = await callDeepSeek(
-          `당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법(2026년 EA 시험 적용 기준)을 따릅니다. 2024년 이전 세법 기준 정보는 절대 사용하지 마세요. 아래 JSON 형식으로만 응답하세요.`,
-          `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- examTip: 반드시 2025년 미국 세법(2026년 EA 시험 적용) 기준의 시험 팁만 제시 (한국어). 2023/2024년 기준 정보 절대 금지. 2024년 대비 변경된 금액·임계값·세율이 있으면 함께 언급. 답변 시작 시 "📌 2025 세법 기준:" 으로 시작.`
-        );
-        const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
-        q.examTip = (typeof parsed.examTip === 'string') ? parsed.examTip : '—';
-        save();
-        await fixQuestionInCloud(q, { explanation: false, taxUpdate: false, examTip: true });
-        console.log(tag, '✓ examTip cached');
-      }
-    } catch (e) {
-      console.warn(tag, 'silent fail:', e.message);
-      // 실패해도 사용자 제출 시 normal 경로로 다시 시도되므로 OK
-    } finally {
-      PREFETCH.inFlight = null;
-      PREFETCH.inFlightId = null;
-    }
-  })();
-}
-
 window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   if(!confirm(`정답을 ${newLetter}로 수정하시겠습니까?\n현재 세션 점수도 자동 조정됩니다.`)) return;
   
@@ -1832,8 +1735,6 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   
   await fixQuestionInCloud(q, { explanation: false, taxUpdate: false, examTip: false });
   showToast(`✅ 정답이 ${newLetter}로 수정되었습니다.`);
-  delete q._aiMismatch;  // 수락됐으니 mismatch 정보 제거 (재방문 시 경고 재발 방지)
-  save();
   document.getElementById('correction-box').innerHTML = '';
 };
 
