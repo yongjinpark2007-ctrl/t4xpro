@@ -1274,7 +1274,19 @@ function renderDashboard(){
     <div class="stat-card"><div class="stat-label">정확도</div><div class="stat-value">${acc}%</div><div class="stat-sub">${tc}/${ta} 정답</div></div>
     <div class="stat-card"><div class="stat-label">플래그</div><div class="stat-value">${S.flagged.size}</div><div class="stat-sub">복습 예정</div></div>`;
 
-  const parts=[['Part 1','👤','Part 1 – 개인세'],['Part 2','🏢','Part 2 – 사업세'],['Part 3','⚖️','Part 3 – 대리인']];
+  const allParts=[
+    ['Part 1','👤','Part 1 – 개인세'],
+    ['Part 2','🏢','Part 2 – 사업세'],
+    ['Part 3','⚖️','Part 3 – 대리인'],
+    ['Part A','👤','Part A – 개인세 (테스트)'],
+    ['Part B','🏢','Part B – 사업세 (테스트)'],
+    ['Part C','⚖️','Part C – 대리인 (테스트)'],
+  ];
+  // Part 1/2/3는 항상 표시, Part A/B/C는 해당 Part에 문제가 있을 때만 표시
+  const parts = allParts.filter(([pk])=>{
+    if(pk==='Part 1'||pk==='Part 2'||pk==='Part 3') return true;
+    return S.questions.some(q=>q.part===pk);
+  });
   document.getElementById('unit-list').innerHTML=parts.map(([pk,icon,label])=>{
     const qs=S.questions.filter(q=>q.part===pk);
     const done=qs.filter(q=>S.answered[q.id]).length;
