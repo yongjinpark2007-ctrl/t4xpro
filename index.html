@@ -45,6 +45,11 @@ html, body {
   overflow: hidden;
   width: 100%;
   height: 100%;
+  /* 🔒 iOS Safari가 landscape 회전 시 본문 텍스트를 자동 확대하는 동작 차단.
+     100%로 두면 사용자 핀치 줌(접근성)은 유지됨. */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   background: var(--page-bg);
   color: var(--text-main);
