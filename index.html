@@ -185,7 +185,18 @@ html, body {
 .q-copy-btn.copied{background:#f0fdf4;border-color:#86efac;color:#15803d;}
 
 .q-flag-btn{background:#fff;color:var(--text-muted);border:1.5px solid var(--border-clr);border-radius:8px;height:30px;padding:0 11px;font-family:inherit;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;transition:all .15s;}
-.q-flag-btn:hover,.q-flag-btn.flagged{border-color:var(--flag-color);color:var(--flag-color);background:rgba(234,88,12,.05);}
+@media (hover: hover) {
+  .q-flag-btn:hover {
+    border-color: var(--flag-color);
+    color: var(--flag-color);
+    background: rgba(234,88,12,.05);
+  }
+}
+.q-flag-btn.flagged {
+  border-color: var(--flag-color);
+  color: var(--flag-color);
+  background: rgba(234,88,12,.05);
+}
 .question-text{font-size:19px;line-height:1.75;color:var(--text-main);font-weight:500;}
 .options-list{display:flex;flex-direction:column;gap:10px;margin-top:1.25rem;}
 .option-btn{background:#f8faff;border:1.5px solid var(--border-clr);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:inherit;color:var(--text-main);}
