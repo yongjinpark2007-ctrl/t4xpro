@@ -1450,8 +1450,10 @@ function reviewSession(sessionIndex){
 }
 
 // 백그라운드 AI 사전 생성 (비동기)
+// 백그라운드 AI 사전 생성 (비동기) – Exam Tip 사전 생성 제거됨
 async function pregenerateAIForQueue(questionIds) {
-  if (!AI_SETTINGS.explanation && !AI_SETTINGS.taxUpdate && !AI_SETTINGS.examTip) return;
+  // AI_SETTINGS.taxUpdate, examTip은 무시하고 explanation만 사전 생성
+  if (!AI_SETTINGS.explanation) return;
   
   showToast('🤖 AI 해설 미리 생성 중... (백그라운드)');
   for (const qid of questionIds) {
@@ -1459,16 +1461,11 @@ async function pregenerateAIForQueue(questionIds) {
     if (!q) continue;
     
     const needExp = AI_SETTINGS.explanation && !q.aiEnhanced && (!q.explanation || q.explanation === '—');
-    const needTax = AI_SETTINGS.taxUpdate && (!q.taxUpdate2025 || q.taxUpdate2025 === '—');
-    const needTip = AI_SETTINGS.examTip && (!q.examTip || q.examTip === '—');
-    
-    if (!needExp && !needTax && !needTip) continue;
+    if (!needExp) continue;
     
     try {
       let promptFields = [];
-      if (needExp) promptFields.push('explanation: 한국어 상세 해설 (2025년 미국 세법 기준)');
-      if (needTax) promptFields.push('taxUpdate2025: 2025년 세법 기준 변경사항 또는 확인 사항 (한국어)');
-      if (needTip) promptFields.push('examTip: 반드시 2025년 미국 세법(2026년 EA 시험 적용) 기준으로, 해당 문제와 관련된 구체적인 금액·임계값·세율만 3문장 이내로 간략히 요약 (한국어). 불필요한 설명은 제외하고, 2024년 대비 변경된 수치가 있다면 함께 적어주세요. 답변 시작 시 "📌 2025 기준:" 으로 시작.');
+      promptFields.push('explanation: 한국어 상세 해설 (2025년 미국 세법 기준)');
       
       const raw = await callDeepSeek(
         `당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법(2026년 EA 시험 적용 기준)을 따릅니다. 2024년 이전 세법 기준 정보는 절대 사용하지 마세요. 아래 JSON 형식으로만 응답하세요.`,
@@ -1477,24 +1474,16 @@ async function pregenerateAIForQueue(questionIds) {
       const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
       
       if (needExp) {
-  const aiExpl = parsed.explanation;
-    if (aiExpl && aiExpl.trim().length > 2) {   // 실제 의미 있는 설명인지 확인
-    q.explanation = aiExpl;
-    q.aiEnhanced = true;
-    } else {
-    // 기존 설명 유지, aiEnhanced는 false로 남겨 추후 재시도 가능하게
-    }
-}
-    if (needTax) q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-    if (needTip) {
-    const aiTip = parsed.examTip;
-    if (aiTip && aiTip.trim().length > 1 && aiTip !== '—') {
-    q.examTip = aiTip;
-  }
-}
+        const aiExpl = parsed.explanation;
+        if (aiExpl && aiExpl.trim().length > 2) {
+          q.explanation = aiExpl;
+          q.aiEnhanced = true;
+        }
+        // 실패 시 aiEnhanced는 false로 남아 실시간 생성에서 처리됨
+      }
       
       save();
-      await fixQuestionInCloud(q, { explanation: needExp, taxUpdate: needTax, examTip: needTip });
+      await fixQuestionInCloud(q, { explanation: needExp, taxUpdate: false, examTip: false });
     } catch(e) {
       console.warn(`배치 생성 실패 (${qid}):`, e);
     }
