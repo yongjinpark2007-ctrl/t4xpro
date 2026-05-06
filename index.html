@@ -1476,9 +1476,22 @@ async function pregenerateAIForQueue(questionIds) {
       );
       const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
       
-      if (needExp) { q.explanation = parsed.explanation || q.explanation || '—'; q.aiEnhanced = true; }
-      if (needTax) q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
-      if (needTip) q.examTip = parsed.examTip || '—';
+      if (needExp) {
+  const aiExpl = parsed.explanation;
+    if (aiExpl && aiExpl.trim().length > 2) {   // 실제 의미 있는 설명인지 확인
+    q.explanation = aiExpl;
+    q.aiEnhanced = true;
+    } else {
+    // 기존 설명 유지, aiEnhanced는 false로 남겨 추후 재시도 가능하게
+    }
+}
+    if (needTax) q.taxUpdate2025 = parsed.taxUpdate2025 || '—';
+    if (needTip) {
+    const aiTip = parsed.examTip;
+    if (aiTip && aiTip.trim().length > 1 && aiTip !== '—') {
+    q.examTip = aiTip;
+  }
+}
       
       save();
       await fixQuestionInCloud(q, { explanation: needExp, taxUpdate: needTax, examTip: needTip });
@@ -1643,11 +1656,17 @@ async function showExplanation(q, isOk, timeout){
 }
 
 async function fetchFullExplanation(q, origExp){
-  if (q.aiEnhanced) return;
+  // 👉 이미 AI Enhanced 되어 있다면, 저장된 설명을 바로 표시하고 종료
+  if (q.aiEnhanced) {
+    document.getElementById('exp-body').innerHTML = q.explanation || '—';
+    return;
+  }
   if (!AI_SETTINGS.explanation) {
     document.getElementById('exp-body').innerHTML = origExp || '—';
     return;
   }
+  // ... 나머지 AI 호출 코드 동일 ...
+}
 
   // ── 가드: origExp에 이미 "🤖 AI 추가 분석" 마커가 있으면 = DB에 합본이 저장된 상태
   // → AI 재호출 없이 그대로 표시하고 종료 (중복 방지)
