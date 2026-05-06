@@ -295,7 +295,21 @@ html, body {
 .toast.show{transform:translateY(0);opacity:1;}
 
 /* TIMER */
-.timer-badge{display:none;background:rgba(220,38,38,.1);color:#dc2626;border-radius:8px;padding:5px 12px;font-size:14px;font-weight:700;border:1px solid rgba(220,38,38,.2);}
+.timer-badge {
+  display: none;
+  background: #fef2f2;           /* 아주 연하고 맑은 붉은색 배경 */
+  color: #dc2626;                /* 선명한 붉은색 텍스트 */
+  border: 1.5px solid #fecaca;   /* .btn-ghost와 동일한 테두리 두께 (1.5px) */
+  border-radius: 10px;           /* .btn-ghost와 동일한 모서리 둥글기 (10px) */
+  padding: 12px 16px;            /* .btn-ghost와 동일한 패딩으로 높이 맞춤 */
+  font-family: inherit;
+  font-size: 14px;               /* .btn-ghost와 동일한 텍스트 크기 */
+  font-weight: 700;
+  height: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+}
 
 /* EMPTY */
 .empty{text-align:center;padding:3rem 1rem;}
@@ -1557,15 +1571,28 @@ function loadQuestion(){
   }
 
   const tb=document.getElementById('timer-badge');
-  if(S.mode==='timed' && !S.reviewMode){
-    S.timerSec=90; tb.style.display='block'; tb.textContent='90s'; tb.style.background='rgba(163,45,45,.2)';
-    S.timerInt=setInterval(()=>{
-      S.timerSec--;
-      tb.textContent=S.timerSec+'s';
-      if(S.timerSec<=15) tb.style.background='rgba(163,45,45,.4)';
-      if(S.timerSec<=0){clearInterval(S.timerInt);if(!S.submitted) autoTimeout();}
-    },1000);
-  } else { tb.style.display='none'; }
+if(S.mode==='timed' && !S.reviewMode){
+  S.timerSec=90;
+  tb.style.display='flex';       // CSS에 추가한 align-items를 적용하기 위해 flex로 설정
+  tb.textContent='90s';
+  tb.style.background='#fef2f2'; // 평상시 연한 배경
+  tb.style.color='#dc2626';      // 평상시 붉은 텍스트
+  tb.style.borderColor='#fecaca';
+
+  S.timerInt=setInterval(()=>{
+    S.timerSec--;
+    tb.textContent=S.timerSec+'s';
+    
+    // 15초 이하일 때 가독성 극대화 (배경색과 글자색 반전)
+    if(S.timerSec<=15) {
+      tb.style.background='#dc2626'; // 진한 붉은색 배경
+      tb.style.color='#ffffff';      // 흰색 텍스트
+      tb.style.borderColor='#dc2626';
+    }
+    
+    if(S.timerSec<=0){clearInterval(S.timerInt);if(!S.submitted) autoTimeout();}
+  },1000);
+} else { tb.style.display='none'; }
 }
 
 function selectOption(i,btn){
