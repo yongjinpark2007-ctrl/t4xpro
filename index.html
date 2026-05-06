@@ -1656,7 +1656,7 @@ async function showExplanation(q, isOk, timeout){
 }
 
 async function fetchFullExplanation(q, origExp){
-  // 👉 이미 AI Enhanced 되어 있다면, 저장된 설명을 바로 표시하고 종료
+  // 이미 AI Enhanced 되어 있다면, 저장된 설명을 바로 표시하고 종료
   if (q.aiEnhanced) {
     document.getElementById('exp-body').innerHTML = q.explanation || '—';
     return;
@@ -1665,11 +1665,8 @@ async function fetchFullExplanation(q, origExp){
     document.getElementById('exp-body').innerHTML = origExp || '—';
     return;
   }
-  // ... 나머지 AI 호출 코드 동일 ...
-}
 
-  // ── 가드: origExp에 이미 "🤖 AI 추가 분석" 마커가 있으면 = DB에 합본이 저장된 상태
-  // → AI 재호출 없이 그대로 표시하고 종료 (중복 방지)
+  // 가드: origExp에 이미 "🤖 AI 추가 분석" 마커가 있으면 중복 호출 방지
   if (origExp && origExp.includes('🤖 AI 추가 분석')) {
     document.getElementById('exp-body').innerHTML = origExp;
     q.aiEnhanced = true;
@@ -1687,7 +1684,6 @@ async function fetchFullExplanation(q, origExp){
     const aiCorrectIdx = 'ABCD'.indexOf(aiCorrectLetter);
     const answerMismatch = (aiCorrectIdx >= 0 && aiCorrectIdx !== q.correct);
 
-    // 화면 표시용 합본 (원본 + AI 분석)
     let displayExplanation = origExp;
     if (origExp && parsed.explanation) {
       displayExplanation = origExp + '<br><br><strong style="color:#2563eb;">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
@@ -1708,9 +1704,6 @@ async function fetchFullExplanation(q, origExp){
       `;
     }
 
-    // ── 핵심 수정: q.explanation에는 합본이 아니라 원본 + AI분석 분리해서 저장 ──
-    // 화면용 = displayExplanation (메모리에만)
-    // DB 저장용 = 합본(검색·표시 일관성) BUT 마커가 1번만 나타나도록 보장
     q.explanation = displayExplanation;
     q.aiEnhanced = true;
     save();
@@ -1720,7 +1713,6 @@ async function fetchFullExplanation(q, origExp){
     document.getElementById('exp-body').innerHTML = origExp || 'AI 해설을 불러오지 못했습니다.';
   }
 }
-
 async function fetchAISections(q){
   // wrongReasons 섹션은 UI에서 제거되었으므로 DOM 업데이트 생략
   // taxUpdate 섹션은 deprecated — examTip만 처리
