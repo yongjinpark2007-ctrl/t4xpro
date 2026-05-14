@@ -1350,16 +1350,19 @@ function renderDashboard(){
     </div>`;
   }).join('');
 
-  // Recent Sessions: 최근 5개를 역순으로 (가장 최근이 위)
-  // S.sessions 배열은 추가순(오래된→최신). slice(-5).reverse() 로 최신 5개 표시
-  const recentItems = S.sessions.slice(-5).reverse();
+  // Recent Sessions: created_at 기준 최신 5개 표시 (cross-device 동기화 안전)
+  // - 클라우드 로드 시 desc 정렬되어 들어오고, showResults 는 push로 끝에 추가하므로
+  //   S.sessions 배열 자체는 혼합 순서. 따라서 render 시점에서 정렬 후 slice.
+  const recentItems = [...S.sessions]
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+    .slice(0, 5);
   const recentEl = document.getElementById('activity-log');
   if(recentItems.length === 0){
     recentEl.innerHTML = '<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>';
   } else {
     recentEl.innerHTML = recentItems.map((s)=>{
-      // S.sessions에서의 실제 인덱스 찾기 (slice + reverse 했으므로 역산)
-      const realIdx = S.sessions.length - 1 - recentItems.indexOf(s);
+      // S.sessions 원본 배열에서의 실제 인덱스 (정렬된 view 와 분리)
+      const realIdx = S.sessions.indexOf(s);
       const hasIds = s.question_ids && s.question_ids.length > 0;
       // 날짜+시간 포맷 (created_at이 있으면 사용)
       let label = s.date;
