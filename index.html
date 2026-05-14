@@ -601,9 +601,10 @@ html, body {
   <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;">
     <div class="exp-label" style="color:#1e40af;margin-bottom:10px;">📋 CSV 파일 형식 (이 헤더를 그대로 사용하세요)</div>
     <div style="font-size:13px;color:#1e3a8a;margin-bottom:10px;line-height:1.7;">첫 줄은 반드시 아래 헤더여야 합니다. 각 셀의 내용에 쉼표가 포함될 경우 큰따옴표로 감싸주세요.</div>
-    <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:12px;color:#1e3a8a;line-height:2;overflow-x:auto;white-space:pre;">question_id,text,options_a,options_b,options_c,options_d,correct,explanation,wrong_reasons,tax_update_2025,exam_tip,part,topic
-"Q001","Which filing status...","Single","MFJ","Head of Household","QSS","C","HOH applies when...","A: wrong because... B: wrong because...","2025 변경: 표준공제 $22,500으로 인상","EA Exam Tip...","Part 1","Filing Status"</div>
-    <div style="font-size:13px;color:#1e40af;margin-top:10px;"><strong>correct</strong>: A/B/C/D 또는 0/1/2/3 · <strong>question_id</strong>: 문제번호 (예: Q001) · <strong>part</strong>: "Part 1" / "Part 2" / "Part 3"</div>
+    <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:12px;color:#1e3a8a;line-height:2;overflow-x:auto;white-space:pre;">question_id,text,options_a,options_b,options_c,options_d,correct,explanation,wrong_reasons,tax_update_2025,exam_tip,part,topic,outline_code,difficulty
+"Q001","Which filing status...","Single","MFJ","Head of Household","QSS","C","HOH applies when...","A: wrong because... B: wrong because...","2025 변경: 표준공제 $22,500으로 인상","EA Exam Tip...","Part 1","Filing Status","",""
+"ab001","The taxpayer's 2024...","$9,000 LT loss","$10,000 ST loss","$4,000 ST loss","$4,000 LT loss","C","2024년에 단기 자본손실...","","","","Part A","Capital Loss Carryover","COP1001","3"</div>
+    <div style="font-size:13px;color:#1e40af;margin-top:10px;"><strong>correct</strong>: A/B/C/D 또는 0/1/2/3 · <strong>question_id</strong>: 문제번호 (예: Q001) · <strong>part</strong>: "Part 1/2/3" 또는 "Part A/B/C" · <strong>outline_code</strong>: Part A/B/C 전용 (예: COP1001), Part 1/2/3는 빈 값 · <strong>difficulty</strong>: 1~5 정수 (선택)</div>
   </div>
 
   <div class="upload-zone" id="upload-zone"
@@ -816,6 +817,8 @@ async function loadFromCloud(){
         examTip: r.exam_tip || '',
         part: r.part || 'Part 1',
         topic: r.topic || 'General',
+        outlineCode: r.outline_code || '',
+        difficulty: r.difficulty != null ? r.difficulty : null,
       }));
     } else {
       if(S.questions.length === 0) S.questions = JSON.parse(JSON.stringify(DEMO));
@@ -922,6 +925,8 @@ async function uploadQuestionsToCloud(questions){
     exam_tip:        q.examTip || null,
     part:            q.part || 'Part 1',
     topic:           q.topic || 'General',
+    outline_code:    q.outlineCode || null,
+    difficulty:      (q.difficulty != null && q.difficulty !== '') ? q.difficulty : null,
   }));
 
   let uploaded = 0;
@@ -2170,6 +2175,13 @@ function parseCSV(text, sourceName){
     const wrongReasons= cell(row, col('wrong_reasons'));
     const taxUpdate   = cell(row, col('tax_update_2025'));
     const examTip     = cell(row, col('exam_tip'));
+    const outlineCode = cell(row, col('outline_code'));
+    const diffRaw     = cell(row, col('difficulty'));
+    let   difficulty  = null;
+    if(diffRaw && !isNaN(diffRaw)){
+      const d = parseInt(diffRaw, 10);
+      if(d >= 1 && d <= 5) difficulty = d;
+    }
     if(!text || !optA) continue;
     if(correct<0||correct>3) correct=0;
     const options=[optA,optB,optC,optD].filter(Boolean);
@@ -2182,7 +2194,9 @@ function parseCSV(text, sourceName){
       part, topic,
       wrongReasons: wrongReasons,
       taxUpdate2025: taxUpdate,
-      examTip: examTip
+      examTip: examTip,
+      outlineCode: outlineCode || null,
+      difficulty: difficulty
     });
   }
   return qs;
