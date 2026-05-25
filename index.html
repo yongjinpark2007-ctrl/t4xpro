@@ -1631,7 +1631,7 @@ function renderDashboard(){
       }
       const colorClass = s.pct >= 80 ? '#16a34a' : s.pct >= 60 ? '#ca8a04' : '#dc2626';
       const clickable = hasIds ? `onclick="reviewSession(${realIdx})" style="cursor:pointer;" title="클릭하여 이 세션 복습"` : 'style="opacity:.6;" title="구버전 세션 (다시보기 불가)"';
-      const reviewBtn = hasIds ? '<span style="margin-left:8px;font-size:11px;color:#2563eb;font-weight:600;">🔄 복습</span>' : '';
+      const reviewBtn = hasIds ? '<span style="margin-left:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:11px;color:rgba(255,255,255,.75);font-weight:600;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>복습</span>' : '';
       return `<div class="activity-row" ${clickable}>
         <span style="font-weight:600;">${label}</span>
         <span style="color:var(--text-muted);">${s.count}문제</span>
