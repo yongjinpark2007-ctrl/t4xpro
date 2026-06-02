@@ -1187,6 +1187,33 @@ async function uploadQuestionsToCloud(questions){
     difficulty:      (q.difficulty != null && q.difficulty !== '') ? q.difficulty : null,
   }));
 
+  // outline_code FK 사전 검증 — content_outline 에 없는 코드는 null 처리 (FK 위반 방지)
+  if(rows.some(r => r.outline_code)){
+    try {
+      const { data: validCodes, error: ocErr } = await sb.from('content_outline').select('outline_code');
+      if(ocErr){
+        console.warn('content_outline 조회 실패 (검증 건너뜀):', ocErr);
+      } else {
+        const validSet = new Set((validCodes||[]).map(r => r.outline_code));
+        const invalidCodes = new Set();
+        let nulledCount = 0;
+        rows.forEach(r => {
+          if(r.outline_code && !validSet.has(r.outline_code)){
+            invalidCodes.add(r.outline_code);
+            r.outline_code = null;
+            nulledCount++;
+          }
+        });
+        if(nulledCount > 0){
+          console.warn('미등록 outline_code (' + invalidCodes.size + '개 고유 코드, ' + nulledCount + '개 행):', Array.from(invalidCodes).sort());
+          showToast('⚠️ ' + nulledCount + '개 행의 outline_code 미등록 → null 처리 (콘솔 확인)');
+        }
+      }
+    } catch(err){
+      console.warn('outline_code 검증 중 오류 (계속 진행):', err);
+    }
+  }
+
   let uploaded = 0;
   const errors = [];
   const BATCH_SIZE = 50;  // 100→50 으로 축소: 실패 시 격리 및 손실 최소화
