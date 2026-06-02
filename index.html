@@ -1188,7 +1188,7 @@ async function uploadQuestionsToCloud(questions){
   }));
 
     // outline_code는 DB FK 제약 없음 — question_id upsert 기준으로 그대로 저장
-  t uploaded = 0;
+  let uploaded = 0;
   const errors = [];
   const BATCH_SIZE = 50;  // 100→50 으로 축소: 실패 시 격리 및 손실 최소화
   for(let i = 0; i < rows.length; i += BATCH_SIZE){
