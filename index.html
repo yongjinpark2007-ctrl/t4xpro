@@ -1081,7 +1081,7 @@ async function loadFromCloud(){
           outlineCode: r.outline_code || '',
           difficulty: r.difficulty != null ? r.difficulty : null,
           // ★ FIX: 로드 시점에 aiEnhanced 복원 — AI 마커나 examTip이 있으면 재호출 불필요
-          aiEnhanced: exp.includes('🤖 AI 추가 분석') || exp.includes('AI 추가 분석'),
+          aiEnhanced: exp.includes('<!-- AI_DONE -->') || exp.includes('AI 추가 분석'),
           tipGenerated: tip.length > 2 && tip !== '—',
         };
       });
@@ -1149,15 +1149,34 @@ async function loadFromCloud(){
 async function saveProgressToCloud(questionId, isCorrect, isFlagged){
   if(!SB_USER) return;
   const existing = S.answered[questionId] || { times:0, correct:0, wrong:0 };
-  await sb.from('user_progress').upsert({
-    user_id:      SB_USER.id,
-    question_id:  questionId,
-    times:        existing.times,
+  const payload = {
+    times:         existing.times,
     correct_count: existing.correct,
-    wrong_count:  existing.wrong,
-    flagged:      S.flagged.has(questionId),
-    updated_at:   new Date().toISOString(),
-  }, { onConflict: 'user_id,question_id' });
+    wrong_count:   existing.wrong,
+    flagged:       S.flagged.has(questionId),
+    updated_at:    new Date().toISOString(),
+  };
+
+  // 1단계: UPDATE 시도 (기존 행)
+  const { data: updated, error: updateErr } = await sb
+    .from('user_progress')
+    .update(payload)
+    .eq('user_id', SB_USER.id)
+    .eq('question_id', questionId)
+    .select('question_id');
+
+  if(updateErr){
+    console.error('[Progress Update Error]', questionId, updateErr.message);
+    return;
+  }
+
+  // 2단계: 업데이트된 행 없으면 INSERT (첫 답변)
+  if(!updated || updated.length === 0){
+    const { error: insertErr } = await sb
+      .from('user_progress')
+      .insert({ user_id: SB_USER.id, question_id: questionId, ...payload });
+    if(insertErr) console.error('[Progress Insert Error]', questionId, insertErr.message);
+  }
 }
 
 async function saveSessionToCloud(count, correct, pct, questionIds){
@@ -1822,7 +1841,7 @@ async function pregenerateAIForQueue(questionIds) {
     
     // ★ FIX: 마커 기반 가드 추가 — explanation에 AI 마커가 있으면 사전 생성 스킵
     const expContent = q.explanation || '';
-    const alreadyAI = q.aiEnhanced || expContent.includes('AI 추가 분석');
+    const alreadyAI = q.aiEnhanced || expContent.includes('<!-- AI_DONE -->') || expContent.includes('AI 추가 분석');
     if (alreadyAI) { q.aiEnhanced = true; continue; } // 플래그 복원 후 스킵
     const needExp = AI_SETTINGS.explanation && !alreadyAI && expContent.length < 3;
     if (!needExp) continue;
@@ -1985,6 +2004,7 @@ function submitAnswer(){
 
   if(S.answered[q.id].wrong>=2&&!S.flagged.has(q.id)){
     S.flagged.add(q.id); save(); showToast('Auto-flagged — missed this question twice');
+    saveProgressToCloud(q.id, null);
   }
 
   document.getElementById('btn-submit').disabled=true;
@@ -2013,7 +2033,7 @@ async function showExplanation(q, isOk, timeout){
   const origExp = q.explanation && q.explanation.trim().length > 2 ? q.explanation : '';
 
   // 초기 표시: 이미 AI 처리된 내용이 있으면 바로 표시, 없을 때만 스피너
-  const hasAIExp = q.aiEnhanced || (origExp && origExp.includes('AI 추가 분석'));
+  const hasAIExp = q.aiEnhanced || (origExp && (origExp.includes('<!-- AI_DONE -->') || origExp.includes('AI 추가 분석')));
   const hasAITip = q.tipGenerated || (q.examTip && q.examTip.length > 2 && q.examTip !== '—');
 
   document.getElementById('exp-body').innerHTML = hasAIExp
@@ -2033,7 +2053,7 @@ async function showExplanation(q, isOk, timeout){
 async function fetchFullExplanation(q, origExp){
   // ★ FIX: 가드 순서 재정렬 — 마커 체크를 최우선으로 (aiEnhanced가 세션 간 사라져도 안전)
   // 가드 1: explanation에 AI 마커가 있으면 무조건 재호출 금지
-  if (origExp && (origExp.includes('AI 추가 분석'))) {
+  if (origExp && (origExp.includes('<!-- AI_DONE -->') || origExp.includes('AI 추가 분석'))) {
     document.getElementById('exp-body').innerHTML = origExp;
     q.aiEnhanced = true; // 복원
     return;
@@ -2062,9 +2082,11 @@ async function fetchFullExplanation(q, origExp){
 
     let displayExplanation = origExp;
     if (origExp && parsed.explanation) {
-      displayExplanation = origExp + '<br><br><strong style="color:var(--teal);">AI 추가 분석</strong><br>' + parsed.explanation;
+      displayExplanation = origExp + '<!-- AI_DONE --><br><br><strong style="color:var(--teal);">🤖 AI 추가 분석</strong><br>' + parsed.explanation;
+    } else if (parsed.explanation) {
+      displayExplanation = '<!-- AI_DONE -->' + parsed.explanation;
     } else {
-      displayExplanation = parsed.explanation || '';
+      displayExplanation = origExp || '';
     }
     document.getElementById('exp-body').innerHTML = displayExplanation || '—';
 
