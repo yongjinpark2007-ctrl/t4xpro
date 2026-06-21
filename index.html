@@ -35,6 +35,12 @@
   --text-main:#ddeeff;
   /* Accent glow */
   --teal:#00c4a7;--teal-dim:rgba(0,196,167,.12);--teal-glow:rgba(0,196,167,.25);
+  /* ── Bridge tokens (PracExam 신규 컴포넌트 이식용 — Dark Slate 매핑) ── */
+  --card-shadow:  0 2px 12px rgba(0,0,0,.3);
+  --border-hover: rgba(0,196,167,.2);
+  --sel-bg:       var(--teal-dim);
+  --sel-border:   rgba(0,196,167,.4);
+  --sel-text:     var(--teal);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 
@@ -580,6 +586,337 @@ html, body {
   .header-nav{display:none;}
   .hamburger-btn{display:flex;}
 }
+
+/* ════════════════════════════════════════════════════════
+   PracExam → T4XPro 이식 (2026-06-21)
+   Statistics / Dashboard v2 / Study Setup 아이콘 그리드 /
+   Review 2탭 / Quiz 양방향 네비 — Dark Slate 토큰 매핑판
+   ════════════════════════════════════════════════════════ */
+
+/* ── STATISTICS PAGE ── */
+.sts-section{margin-bottom:2rem;}
+.sts-section-title{font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.85rem;}
+.sts-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.75rem;}
+.sts-card{background:var(--card-bg);border:1px solid var(--border-clr);border-radius:14px;padding:1rem;text-align:center;box-shadow:var(--card-shadow);transition:border-color .2s;}
+.sts-card:hover{border-color:var(--border-hover);}
+.sts-card-val{font-size:26px;font-weight:700;color:var(--text-main);line-height:1;}
+.sts-card-lbl{font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+
+.sts-chart-wrap{background:var(--card-bg);border:1px solid var(--border-clr);border-radius:14px;padding:1.1rem 1rem .8rem;overflow:hidden;box-shadow:var(--card-shadow);}
+.sts-chart-wrap svg{display:block;width:100%;overflow:visible;}
+
+.sts-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sts-bar-label{font-size:13px;color:var(--text-main);font-weight:500;width:56px;flex-shrink:0;}
+.sts-bar-track{flex:1;height:18px;background:rgba(255,255,255,.05);border-radius:9px;overflow:hidden;}
+.sts-bar-fill{height:100%;border-radius:9px;background:var(--teal);transition:width .4s ease;}
+.sts-bar-pct{font-size:13px;font-weight:700;color:var(--text-main);width:36px;text-align:right;flex-shrink:0;}
+
+.sts-topic-table{width:100%;border-collapse:collapse;font-size:13px;}
+.sts-topic-table th{text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-bottom:1.5px solid var(--border-clr);}
+.sts-topic-table td{padding:8px 8px;border-bottom:1px solid var(--border-clr);color:var(--text-main);vertical-align:middle;}
+.sts-topic-table tr:last-child td{border-bottom:none;}
+.sts-topic-pct{display:inline-block;font-weight:700;}
+.sts-topic-bar{display:inline-block;height:6px;border-radius:3px;background:var(--teal);margin-left:6px;vertical-align:middle;}
+
+.sts-sess-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-clr);font-size:13px;}
+.sts-sess-row:last-child{border-bottom:none;}
+.sts-sess-date{color:var(--text-muted);flex:0 0 110px;}
+.sts-sess-meta{color:var(--text-muted);flex:1;}
+.sts-sess-pct{font-weight:700;width:40px;text-align:right;}
+.sts-empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:14px;}
+
+/* ── DASHBOARD V2 — Hero + Parts 목록 + 약점 토픽 + 최근 2개 ── */
+.dash-hero{
+  background:linear-gradient(135deg,var(--card-bg) 0%,var(--navy-light) 100%);
+  border:1px solid var(--border-clr);
+  border-left:3px solid var(--teal);
+  border-radius:16px;padding:1.5rem;margin-bottom:1rem;
+  box-shadow:var(--card-shadow);
+}
+.dash-hero-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:1rem;}
+.dash-hero-label{font-size:14px;font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;}
+.dash-hero-title{font-size:24px;font-weight:700;color:var(--text-main);letter-spacing:-.01em;margin-top:5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.dash-hero-title svg{width:29px;height:29px;stroke:var(--teal);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.dash-hero-status{font-size:14px;font-weight:700;padding:6px 12px;border-radius:8px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;flex-shrink:0;
+  background:rgba(245,158,11,.1);color:var(--flag-color);border:1px solid rgba(245,158,11,.25);}
+.dash-hero-status.ready{background:rgba(34,197,94,.1);color:var(--success-color);border-color:rgba(34,197,94,.3);}
+.dash-hero-metrics{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1rem 0;}
+.dash-metric-label{font-size:13px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.dash-metric-value{font-size:32px;font-weight:700;color:var(--text-main);letter-spacing:-.02em;line-height:1;}
+.dash-metric-value .pct{font-size:18px;color:var(--text-muted);font-weight:600;}
+.dash-metric-sub{font-size:12px;color:var(--text-muted);margin-top:5px;}
+.dash-metric-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:9px;overflow:hidden;}
+.dash-metric-bar-fill{height:100%;border-radius:3px;transition:width .4s,background .3s;}
+.dash-hero-target{
+  background:var(--teal-dim);border:1px solid rgba(0,196,167,.18);
+  border-radius:10px;padding:13px 16px;font-size:16px;color:var(--text-mid);
+  margin:1rem 0;display:flex;align-items:center;gap:9px;
+}
+.dash-hero-target.warning{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25);color:var(--flag-color);}
+.dash-hero-target.ready{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25);color:var(--success-color);}
+.dash-hero-target svg{width:20px;height:20px;flex-shrink:0;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.dash-hero-cta{
+  width:100%;background:linear-gradient(135deg,#00c4a7,#007a8a);color:#0d1520;
+  border:none;border-radius:12px;padding:16px 24px;margin-top:1.5rem;
+  font-family:inherit;font-size:19px;font-weight:800;
+  cursor:pointer;transition:all .18s;letter-spacing:.01em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+}
+.dash-hero-cta:hover{background:linear-gradient(135deg,#00e5c3,#009980);box-shadow:0 0 18px rgba(0,196,167,.3);transform:translateY(-1px);}
+.dash-hero-cta:active{transform:translateY(0);opacity:.85;}
+.dash-hero-cta svg{width:17px;height:17px;fill:currentColor;stroke:none;}
+
+.dash-parts-section-label{font-size:15px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin:1.5rem 4px 10px;}
+.dash-parts-list{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;}
+.dash-part-row{
+  background:var(--card-bg);border:1px solid var(--border-clr);
+  border-radius:14px;padding:16px 18px;cursor:pointer;
+  box-shadow:var(--card-shadow);
+  transition:border-color .2s,transform .15s;
+}
+.dash-part-row:hover{border-color:var(--border-hover);transform:translateX(3px);}
+.dash-part-row:active{opacity:.85;transform:translateX(4px);}
+.dash-part-row.active{border:1.5px solid var(--sel-border);background:var(--sel-bg);}
+.dash-part-row-name{display:flex;align-items:center;gap:11px;font-size:16px;font-weight:600;color:var(--text-main);margin-bottom:6px;}
+.dash-part-row.active .dash-part-row-name{color:var(--sel-text);}
+.dash-part-row-name svg{width:22px;height:22px;stroke:var(--teal);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.dash-part-row-stats{font-size:13px;color:var(--text-mid);margin-bottom:9px;}
+.dash-part-row-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+.dash-part-row-bar-fill{height:100%;border-radius:3px;transition:width .4s,background .3s;}
+
+.weak-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 13px;background:var(--card-bg);
+  border:1px solid var(--border-clr);border-radius:10px;
+  box-shadow:var(--card-shadow);
+  margin-bottom:7px;font-size:14px;
+  transition:border-color .2s;
+}
+.weak-row:hover{border-color:var(--border-hover);}
+.weak-name{color:var(--text-main);}
+.weak-stat{font-size:13px;font-weight:600;}
+.weak-stat.crit{color:var(--danger-color);}
+.weak-stat.warn{color:var(--flag-color);}
+
+.dash-recent-row{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 13px;background:var(--card-bg);
+  border:1px solid var(--border-clr);border-radius:14px;
+  box-shadow:var(--card-shadow);
+  margin-bottom:7px;font-size:13px;
+  cursor:pointer;transition:border-color .15s;
+}
+.dash-recent-row:hover{border-color:var(--border-hover);}
+.dash-recent-date{font-weight:600;color:var(--text-main);font-size:13px;}
+.dash-recent-meta{font-size:12px;color:var(--text-muted);}
+.dash-recent-score{margin-left:auto;font-weight:700;font-size:14px;}
+
+/* ── STUDY SETUP — 원형 아이콘 그리드 ── */
+.setup-banner{
+  background:var(--teal-dim);border:1px solid var(--border-clr);
+  border-radius:14px;padding:16px 20px;
+  display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;
+}
+.setup-banner-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,#00c4a7,#007a8a);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 0 12px rgba(0,196,167,.35);
+}
+.setup-banner-icon svg{width:24px;height:24px;stroke:#0d1520;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.setup-banner-info{flex:1;}
+.setup-banner-title{font-size:16px;font-weight:700;color:var(--text-main);}
+.setup-banner-sub{font-size:13px;color:var(--text-muted);margin-top:2px;}
+.setup-banner-change{font-size:15px;color:var(--teal);font-weight:600;flex-shrink:0;cursor:pointer;padding:4px 0;}
+.setup-section-label{
+  font-size:15px;font-weight:600;color:var(--text-muted);
+  letter-spacing:.06em;text-transform:uppercase;margin:0 2px 14px;
+}
+.setup-divider{height:1px;background:var(--border-clr);margin:1.25rem 0;}
+
+.setup-count-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:0;}
+.setup-count-card{
+  background:var(--card-bg);border:1px solid var(--border-clr);
+  border-radius:16px;padding:20px 8px 16px;text-align:center;
+  cursor:pointer;transition:all .15s;font-family:inherit;
+  box-shadow:var(--card-shadow);
+}
+.setup-count-card:active{transform:scale(.97);}
+@media(hover:hover){.setup-count-card:hover{border-color:var(--border-hover);}}
+.setup-count-card.selected{background:var(--sel-bg);border-color:var(--sel-border);}
+.setup-count-num{font-size:32px;font-weight:800;display:block;color:var(--text-main);}
+.setup-count-card.selected .setup-count-num{color:var(--sel-text);}
+.setup-count-sub{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;margin-top:4px;}
+.setup-count-card.selected .setup-count-sub{color:var(--sel-text);opacity:.75;}
+
+.setup-icon-grid{display:grid;gap:12px;margin-bottom:0;}
+.setup-icon-grid-4{grid-template-columns:repeat(4,1fr);}
+.setup-icon-grid-3{grid-template-columns:repeat(3,1fr);}
+.setup-icon-btn{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;background:none;border:none;font-family:inherit;padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.setup-icon-btn:active .setup-icon-circle{transform:scale(.94);}
+.setup-icon-circle{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--card-bg);border:1px solid var(--border-clr);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;position:relative;
+}
+.setup-icon-circle svg{width:30px;height:30px;stroke:var(--text-muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.setup-icon-btn.selected .setup-icon-circle{background:var(--sel-bg);border-color:var(--sel-border);}
+.setup-icon-btn.selected .setup-icon-circle svg{stroke:var(--sel-text);}
+.setup-icon-btn.selected .setup-icon-circle::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid var(--sel-border);opacity:.4;
+}
+@media(hover:hover){.setup-icon-btn:hover .setup-icon-circle{border-color:var(--sel-border);}}
+.setup-icon-label{font-size:15px;font-weight:600;color:var(--text-muted);text-align:center;line-height:1.2;}
+.setup-icon-btn.selected .setup-icon-label{color:var(--sel-text);font-weight:700;}
+
+.setup-repeat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:0;}
+.setup-repeat-btn{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;background:none;border:none;font-family:inherit;padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.setup-repeat-btn:active .setup-repeat-circle{transform:scale(.94);}
+.setup-repeat-circle{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--card-bg);border:1px solid var(--border-clr);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:800;color:var(--text-muted);
+  transition:all .15s;position:relative;
+}
+.setup-repeat-btn.selected .setup-repeat-circle{background:var(--sel-bg);border-color:var(--sel-border);color:var(--sel-text);}
+.setup-repeat-btn.selected .setup-repeat-circle::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid var(--sel-border);opacity:.4;
+}
+@media(hover:hover){.setup-repeat-btn:hover .setup-repeat-circle{border-color:var(--sel-border);}}
+.setup-repeat-sub{font-size:15px;font-weight:600;color:var(--text-muted);text-align:center;}
+.setup-repeat-btn.selected .setup-repeat-sub{color:var(--sel-text);font-weight:700;}
+
+.setup-saved-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--teal-dim);border:1px solid var(--border-clr);
+  border-radius:20px;padding:4px 12px;
+  font-size:12px;color:var(--teal);font-weight:600;margin-bottom:.75rem;
+}
+
+.setup-cta-btn{
+  width:100%;background:linear-gradient(135deg,#00c4a7,#007a8a);
+  color:#0d1520;border:none;border-radius:14px;padding:17px 24px;
+  font-family:inherit;font-size:16px;font-weight:800;
+  cursor:pointer;transition:all .18s;display:flex;
+  align-items:center;justify-content:center;gap:10px;
+}
+.setup-cta-btn:hover{background:linear-gradient(135deg,#00e5c3,#009980);box-shadow:0 0 18px rgba(0,196,167,.3);transform:translateY(-1px);}
+.setup-cta-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.setup-cta-note{font-size:13px;color:var(--text-muted);text-align:center;margin-top:8px;}
+
+/* ── QUIZ 양방향 네비 — pill ── */
+.q-pills{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0 4px;margin-bottom:2px;}
+.q-pill{width:32px;height:32px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid var(--border-clr);background:rgba(255,255,255,.04);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s;}
+.q-pill.current{border-color:var(--teal);background:var(--teal-dim);color:var(--teal);}
+.q-pill.correct{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35);color:var(--success-color);}
+.q-pill.wrong{background:rgba(244,63,94,.1);border-color:rgba(244,63,94,.35);color:var(--danger-color);}
+.q-pill.flagged{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--flag-color);}
+.q-pill:hover:not(.current){border-color:rgba(0,196,167,.3);}
+
+/* Submit bar — 5버튼 대응 (모바일 2행 배치는 아래 미디어쿼리) */
+.submit-bar{flex-wrap:wrap;padding-bottom:env(safe-area-inset-bottom,0px);}
+
+/* End Session 모달 */
+.end-session-modal .btn-primary{justify-content:center;margin-bottom:2px;}
+.end-session-modal .btn-ghost{justify-content:center;}
+
+/* ── REVIEW 2탭 ── */
+.review-tab-bar{display:flex;border-bottom:1.5px solid var(--border-clr);margin-bottom:1.25rem;}
+.review-tab{
+  flex:1;padding:9px 8px;text-align:center;font-size:14px;font-weight:500;
+  color:var(--text-muted);border:none;background:none;cursor:pointer;
+  border-bottom:2.5px solid transparent;margin-bottom:-1.5px;
+  font-family:inherit;transition:color .15s;
+}
+.review-tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.review-tab-badge{
+  display:inline-block;font-size:11px;font-weight:700;
+  padding:1px 6px;border-radius:5px;margin-left:5px;
+  background:rgba(255,255,255,.06);color:var(--text-muted);
+}
+.review-tab.active .review-tab-badge{background:var(--teal-dim);color:var(--teal);}
+
+.rev-sess-row{
+  background:var(--card-bg);border:1px solid var(--border-clr);
+  border-radius:14px;padding:13px 14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:var(--card-shadow);
+  transition:border-color .2s;
+}
+.rev-sess-row:hover{border-color:var(--border-hover);}
+.rev-sess-info{flex:1;}
+.rev-sess-date{font-size:15px;font-weight:600;color:var(--text-main);}
+.rev-sess-meta{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+@media(max-width:640px){
+  /* ── Dashboard v2 Hero ── */
+  .dash-hero{padding:1.1rem 1.1rem 1rem;}
+  .dash-hero-metrics{gap:.85rem;}
+  .dash-metric-value{font-size:29px;}
+  .dash-metric-label{font-size:13px;}
+  .dash-hero-title{font-size:20px;}
+  .dash-hero-status{font-size:12px;padding:5px 10px;}
+  .dash-hero-cta{font-size:15px;padding:11px 18px;}
+  .dash-hero-target{font-size:13px;padding:8px 12px;}
+
+  /* ── Dashboard v2 Parts list ── */
+  .dash-parts-section-label{font-size:12px;margin:1.2rem 2px 8px;}
+  .dash-part-row{padding:11px 12px;}
+  .dash-part-row-name{font-size:14px;gap:8px;}
+  .dash-part-row-name svg{width:18px;height:18px;}
+  .dash-part-row-stats{font-size:12px;}
+
+  /* ── Dashboard v2 Weak topics & Recent ── */
+  .weak-row{padding:10px 11px;font-size:13px;}
+  .weak-stat{font-size:12px;}
+  .dash-recent-row{padding:10px 11px;}
+  .dash-recent-date{font-size:12px;}
+  .dash-recent-meta{font-size:12px;}
+  .dash-recent-score{font-size:13px;}
+
+  /* ── Study Setup 아이콘 그리드 ── */
+  .setup-icon-circle{width:54px;height:54px;}
+  .setup-icon-circle svg{width:24px;height:24px;}
+  .setup-icon-label{font-size:12px;}
+  .setup-repeat-circle{width:48px;height:48px;font-size:15px;}
+  .setup-repeat-sub{font-size:12px;}
+  .setup-count-num{font-size:26px;}
+  .setup-count-sub{font-size:12px;}
+  .setup-count-card{padding:16px 6px 12px;}
+  .setup-icon-grid{gap:8px;}
+  .setup-repeat-grid{gap:8px;}
+  .setup-section-label{font-size:13px;}
+
+  /* ── Submit bar (5버튼) — 모바일 2행 배치 ── */
+  .submit-bar{gap:6px;padding-top:8px;}
+  .submit-bar .btn-submit{order:1;flex:1 0 100%;}
+  .submit-bar #btn-prev{order:2;flex:1;}
+  .submit-bar #nav-flag{order:3;flex:1;}
+  .submit-bar #btn-skip{order:4;flex:1;}
+  .submit-bar #btn-next{order:5;flex:1;}
+
+  /* ── Review 2탭 ── */
+  .review-tab{font-size:13px;padding:8px 4px;}
+
+  /* ── Statistics ── */
+  .sts-summary-grid{grid-template-columns:repeat(2,1fr);}
+  .sts-card-val{font-size:22px;}
+  .sts-bar-label{width:44px;font-size:12px;}
+  .sts-sess-date{flex:0 0 80px;}
+  .sts-topic-table{font-size:12px;}
+}
 </style>
 </head>
 <body>
@@ -661,6 +998,7 @@ html, body {
     <button class="nav-btn active" onclick="showScreen('dashboard');closeDrawer()">Dashboard</button>
     <button class="nav-btn" onclick="openStudy()">Study</button>
     <button class="nav-btn" onclick="showScreen('bookmarks');closeDrawer()">Review</button>
+    <button class="nav-btn" onclick="showScreen('statistics');closeDrawer()">Statistics</button>
     <button class="nav-btn" onclick="showScreen('upload');closeDrawer()">Upload</button>
     <button class="nav-btn" onclick="showScreen('settings');closeDrawer()">⚙</button>
   </div>
@@ -674,81 +1012,215 @@ html, body {
   <button class="mobile-nav-item active" id="mob-dashboard" onclick="showScreen('dashboard');closeDrawer()">Dashboard</button>
   <button class="mobile-nav-item" id="mob-study" onclick="openStudy()">📚 Study</button>
   <button class="mobile-nav-item" id="mob-review" onclick="showScreen('bookmarks');closeDrawer()">Review</button>
+  <button class="mobile-nav-item" id="mob-statistics" onclick="showScreen('statistics');closeDrawer()">📊 Statistics</button>
   <button class="mobile-nav-item" id="mob-upload" onclick="showScreen('upload');closeDrawer()">📂 Upload</button>
   <button class="mobile-nav-item" id="mob-settings" onclick="showScreen('settings');closeDrawer()">⚙ Settings</button>
 </div>
 
 <div class="content">
 
-<!-- ═══ DASHBOARD ═══ -->
+<!-- ═══ DASHBOARD V2 ═══ -->
 <div id="screen-dashboard" class="screen active">
-  <div class="stats-grid" id="stats-grid"></div>
-  <div class="section-title">Part Progress</div>
-  <div class="unit-list" id="unit-list"></div>
-  <div class="section-title">Recent Sessions</div>
-  <div id="activity-log"></div>
+  <!-- Hero: Current Focus Part -->
+  <div id="dash-hero"></div>
+
+  <!-- All Parts grid -->
+  <div id="dash-parts-grid-wrap"></div>
+
+  <!-- Weak topics widget -->
+  <div id="dash-weak-topics"></div>
+
+  <!-- Recent 2 sessions -->
+  <div id="dash-recent-2"></div>
 </div>
 
 <!-- ═══ QUIZ SETUP ═══ -->
 <div id="screen-quiz-setup" class="screen">
-  <div style="margin-bottom:1.5rem;">
-    <div class="section-title">Start a Study Session</div>
-    <div style="font-size:13px;color:var(--text-muted);">All AI explanations are based on 2025 U.S. tax law.</div>
-  </div>
-  <div class="start-card">
-    <!-- 문제 수 -->
-    <div class="exp-label">🔢 Number of Questions</div>
-    <div class="mode-grid">
-      <button class="mode-btn selected" onclick="selectCount(5,this)"><span class="mode-num">5</span><span class="mode-label">Quick</span></button>
-      <button class="mode-btn" onclick="selectCount(10,this)"><span class="mode-num">10</span><span class="mode-label">Standard</span></button>
-      <button class="mode-btn" onclick="selectCount(15,this)"><span class="mode-num">15</span><span class="mode-label">Extended</span></button>
-      <button class="mode-btn" onclick="selectCount(20,this)"><span class="mode-num">20</span><span class="mode-label">Full</span></button>
+    <div style="margin-bottom:1.25rem;">
+      <div class="section-title">Study Setup</div>
+      <div style="font-size:14px;color:var(--text-muted);">문제 수, 범위, 반복 횟수, 학습 모드를 선택 후 시작하세요.</div>
     </div>
+    <div class="start-card">
 
-    <!-- EA Exam Part -->
-    <div class="exp-label" style="margin-top:1rem;">📌 EA Exam Part</div>
-    <div class="filter-row" id="part-row">
-      <button class="filter-chip selected" onclick="selectPart('all',this)">All Parts</button>
-      <button class="filter-chip" onclick="selectPart('part1',this)">Part 1 – Individuals</button>
-      <button class="filter-chip" onclick="selectPart('part2',this)">Part 2 – Businesses</button>
-      <button class="filter-chip" onclick="selectPart('part3',this)">Part 3 – Representation</button>
-      <button class="filter-chip" onclick="selectPart('partA',this)">Part A</button>
-      <button class="filter-chip" onclick="selectPart('partB',this)">Part B</button>
-      <button class="filter-chip" onclick="selectPart('partC',this)">Part C</button>
+      <!-- 컨텍스트 배너: Dashboard에서 넘어온 Part -->
+      <div class="setup-banner" id="setup-part-banner">
+        <div class="setup-banner-icon" id="setup-banner-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+        </div>
+        <div class="setup-banner-info">
+          <div class="setup-banner-title" id="setup-banner-title">All Parts</div>
+          <div class="setup-banner-sub" id="setup-banner-sub">전체 문제</div>
+        </div>
+        <div class="setup-banner-change" onclick="setupShowPartPicker()">변경 ›</div>
+      </div>
+      <!-- Part 변경 picker (기본 숨김) -->
+      <div id="setup-part-picker" style="display:none;margin-bottom:1.25rem;">
+        <div class="setup-icon-grid" style="grid-template-columns:repeat(4,1fr);gap:12px;" id="part-row">
+          <button class="setup-icon-btn selected" onclick="selectPart('all',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div class="setup-icon-label">All</div>
+          </button>
+          <button class="setup-icon-btn" onclick="selectPart('part1',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div class="setup-icon-label">Part 1</div>
+          </button>
+          <button class="setup-icon-btn" onclick="selectPart('part2',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+            </div>
+            <div class="setup-icon-label">Part 2</div>
+          </button>
+          <button class="setup-icon-btn" onclick="selectPart('part3',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>
+            </div>
+            <div class="setup-icon-label">Part 3</div>
+          </button>
+          <button class="setup-icon-btn" onclick="selectPart('partA',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><text x="18" y="22" font-size="8" font-weight="700" fill="currentColor" stroke="none">A</text></svg>
+            </div>
+            <div class="setup-icon-label">Part A</div>
+          </button>
+          <button class="setup-icon-btn" onclick="selectPart('partB',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/><text x="18" y="22" font-size="8" font-weight="700" fill="currentColor" stroke="none">B</text></svg>
+            </div>
+            <div class="setup-icon-label">Part B</div>
+          </button>
+          <button class="setup-icon-btn" onclick="selectPart('partC',this)">
+            <div class="setup-icon-circle">
+              <svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/><text x="18" y="22" font-size="8" font-weight="700" fill="currentColor" stroke="none">C</text></svg>
+            </div>
+            <div class="setup-icon-label">Part C</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ① 문제 수 -->
+      <div class="setup-section-label">문제 수</div>
+      <div class="setup-count-grid" style="margin-bottom:0;">
+        <button class="setup-count-card selected" onclick="selectCount(5,this)">
+          <span class="setup-count-num">5</span>
+          <div class="setup-count-sub">Quick</div>
+        </button>
+        <button class="setup-count-card" onclick="selectCount(10,this)">
+          <span class="setup-count-num">10</span>
+          <div class="setup-count-sub">Standard</div>
+        </button>
+        <button class="setup-count-card" onclick="selectCount(15,this)">
+          <span class="setup-count-num">15</span>
+          <div class="setup-count-sub">Extended</div>
+        </button>
+        <button class="setup-count-card" onclick="selectCount(20,this)">
+          <span class="setup-count-num">20</span>
+          <div class="setup-count-sub">Full</div>
+        </button>
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <!-- ② 범위 -->
+      <div class="setup-section-label">범위</div>
+      <div class="setup-icon-grid setup-icon-grid-4" id="subset-row">
+        <button class="setup-icon-btn selected" onclick="selectSubset('all',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12h3M19 12h3M12 2v3M12 19v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+          </div>
+          <div class="setup-icon-label">Random</div>
+        </button>
+        <button class="setup-icon-btn" onclick="selectSubset('unseen',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="setup-icon-label">Unseen</div>
+        </button>
+        <button class="setup-icon-btn" onclick="selectSubset('practiced',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.36"/></svg>
+          </div>
+          <div class="setup-icon-label">Practiced</div>
+        </button>
+        <button class="setup-icon-btn" onclick="selectSubset('flagged',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M5 3v18M5 3h14l-3 5 3 5H5"/></svg>
+          </div>
+          <div class="setup-icon-label">Flagged</div>
+        </button>
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <!-- ③ 반복 횟수 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="setup-section-label" style="margin-bottom:0;">반복 횟수</div>
+        <div class="setup-saved-badge" style="margin-bottom:0;">
+          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          기억됨
+        </div>
+      </div>
+      <div class="setup-repeat-grid" id="repeat-row">
+        <button class="setup-repeat-btn selected" onclick="selectRepeatIcon('all',this)">
+          <div class="setup-repeat-circle">∞</div>
+          <div class="setup-repeat-sub">전체</div>
+        </button>
+        <button class="setup-repeat-btn" onclick="selectRepeatIcon('le1',this)">
+          <div class="setup-repeat-circle">≤1</div>
+          <div class="setup-repeat-sub">1회</div>
+        </button>
+        <button class="setup-repeat-btn" onclick="selectRepeatIcon('le2',this)">
+          <div class="setup-repeat-circle">≤2</div>
+          <div class="setup-repeat-sub">2회</div>
+        </button>
+        <button class="setup-repeat-btn" onclick="selectRepeatIcon('le3',this)">
+          <div class="setup-repeat-circle">≤3</div>
+          <div class="setup-repeat-sub">3회</div>
+        </button>
+        <button class="setup-repeat-btn" onclick="selectRepeatIcon('le4',this)">
+          <div class="setup-repeat-circle">≤4</div>
+          <div class="setup-repeat-sub">4회</div>
+        </button>
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <!-- ④ 학습 모드 -->
+      <div class="setup-section-label">학습 모드</div>
+      <div class="setup-icon-grid setup-icon-grid-3" id="mode-row">
+        <button class="setup-icon-btn selected" onclick="selectMode('normal',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div class="setup-icon-label">Normal</div>
+        </button>
+        <button class="setup-icon-btn" onclick="selectMode('review',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="setup-icon-label">Review Wrong</div>
+        </button>
+        <button class="setup-icon-btn" onclick="selectMode('timed',this)">
+          <div class="setup-icon-circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 3"/><path d="M9 2h6M12 2v3"/></svg>
+          </div>
+          <div class="setup-icon-label">Timed 90s</div>
+        </button>
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <!-- CTA -->
+      <button class="setup-cta-btn" id="start-btn" onclick="startQuiz()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start Session
+      </button>
+      <div class="setup-cta-note" id="avail-count"></div>
+
     </div>
-
-    <!-- 문제 범위 -->
-    <div class="exp-label" style="margin-top:1rem;">문제 범위</div>
-    <div class="filter-row" id="subset-row">
-      <button class="filter-chip selected" onclick="selectSubset('all',this)">Random</button>
-      <button class="filter-chip" onclick="selectSubset('unseen',this)">Unseen Only</button>
-      <button class="filter-chip" onclick="selectSubset('practiced',this)">Practiced Only</button>
-      <button class="filter-chip" onclick="selectSubset('flagged',this)">Flagged Only</button>
-    </div>
-
-    <!-- 반복 학습 -->
-    <div class="exp-label" style="margin-top:1rem;">Repeat Round</div>
-    <select class="repeat-select" id="repeat-select" onchange="selectRepeat(this.value)">
-      <option value="all" selected>All (모든 문제)</option>
-      <option value="le1">1회 이하 (0~1회)</option>
-      <option value="le2">2회 이하 (0~2회)</option>
-      <option value="le3">3회 이하 (0~3회)</option>
-      <option value="le4">4회 이하 (0~4회)</option>
-    </select>
-
-    <!-- Study Mode -->
-    <div class="exp-label" style="margin-top:1rem;">⚙️ Study Mode</div>
-    <div class="filter-row" id="mode-row">
-      <button class="filter-chip selected" onclick="selectMode('normal',this)">Normal</button>
-      <button class="filter-chip" onclick="selectMode('review',this)">Review Wrong Answers</button>
-      <button class="filter-chip" onclick="selectMode('timed',this)">Timed (90s/Q)</button>
-    </div>
-
-    <div style="margin-top:1.25rem;">
-      <button class="btn-primary" id="start-btn" onclick="startQuiz()">Start Session →</button>
-      <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;" id="avail-count"></div>
-    </div>
-  </div>
 </div>
 
 <!-- ═══ QUIZ ═══ -->
@@ -764,6 +1236,7 @@ html, body {
     </div>
   </div>
   <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-bar"></div></div>
+  <div id="q-pills" class="q-pills" style="display:none;"></div>
 
   <div class="question-card">
     <div class="question-meta">
@@ -778,9 +1251,11 @@ html, body {
   </div>
 
   <div class="submit-bar">
+    <button class="btn-ghost" id="btn-prev" onclick="gotoQuestion(S.quizIdx-1)" disabled style="min-width:64px;">← Prev</button>
     <button class="btn-ghost" onclick="toggleFlag()" id="nav-flag"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Flag</button>
     <button class="btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>Submit Answer</button>
     <button class="btn-ghost" id="btn-skip" onclick="skipQuestion()">Skip</button>
+    <button class="btn-ghost" id="btn-next" style="display:none;min-width:72px;" onclick="gotoQuestion(S.quizIdx+1)">Next →</button>
   </div>
 
   <div class="explanation-card" id="explanation-card">
@@ -812,8 +1287,21 @@ html, body {
       <div class="ai-answer" id="ai-answer"></div>
     </div>
 
-    <div style="margin-top:1rem;">
+    <div id="exp-next-btn-area">
       <button class="btn-navy" style="width:100%;" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ END SESSION MODAL ═══ -->
+<div class="modal-bg" id="end-session-bg">
+  <div class="modal end-session-modal" style="max-width:360px;text-align:center;">
+    <div style="font-size:20px;font-weight:700;margin-bottom:.75rem;">세션 종료</div>
+    <div style="font-size:15px;color:var(--text-mid);margin-bottom:1.5rem;" id="es-progress"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-primary" onclick="finishSession()">종료하고 결과 보기</button>
+      <button class="btn-ghost" onclick="pauseSession()">이어서 풀기 (나중에 계속)</button>
+      <button class="btn-ghost" style="color:var(--text-muted);border-color:transparent;" onclick="closeEndSessionModal()">취소</button>
     </div>
   </div>
 </div>
@@ -834,19 +1322,80 @@ html, body {
     <div class="rb-card"><div class="rb-num" id="r-total" style="color:var(--text-main);"></div><div class="rb-lab">Answered</div></div>
     <div class="rb-card"><div class="rb-num" id="r-flagged" style="color:var(--text-main);"></div><div class="rb-lab">Flagged</div></div>
   </div>
-  <div class="result-btns">
+  <div class="result-btns" id="result-btns-area">
     <button class="btn-navy" style="flex:1;" onclick="showScreen('dashboard')">Dashboard</button>
     <button class="btn-primary" style="flex:1;" onclick="clearLiveQuiz();showScreen('quiz-setup')">New Session →</button>
   </div>
 </div>
 
-<!-- ═══ BOOKMARKS ═══ -->
+<!-- ═══ BOOKMARKS / REVIEW ═══ -->
 <div id="screen-bookmarks" class="screen">
-  <div style="margin-bottom:1.5rem;">
-    <div class="section-title">Flagged for Review</div>
-    <div style="font-size:13px;color:var(--text-muted);">Questions you marked as important or frequently missed</div>
+  <div style="margin-bottom:1rem;">
+    <div class="section-title">Review</div>
   </div>
-  <div id="bookmarks-list"></div>
+  <!-- Tab bar -->
+  <div class="review-tab-bar">
+    <button class="review-tab active" id="rev-tab-flagged" onclick="switchReviewTab('flagged')">
+      플래그 문제 <span class="review-tab-badge" id="rev-badge-flagged">0</span>
+    </button>
+    <button class="review-tab" id="rev-tab-sessions" onclick="switchReviewTab('sessions')">
+      최근 세션 <span class="review-tab-badge" id="rev-badge-sessions">0</span>
+    </button>
+  </div>
+  <!-- Flagged panel -->
+  <div id="rev-panel-flagged">
+    <div id="bookmarks-list"></div>
+  </div>
+  <!-- Recent Sessions panel -->
+  <div id="rev-panel-sessions" style="display:none;">
+    <div id="review-sessions-list"></div>
+  </div>
+</div>
+
+<!-- ═══ STATISTICS ═══ -->
+<div id="screen-statistics" class="screen">
+  <div style="margin-bottom:1.25rem;">
+    <div class="section-title">Statistics</div>
+    <div style="font-size:13px;color:var(--text-muted);">학습 추세 · Part별 누적 성취도 · 토픽별 분석</div>
+  </div>
+
+  <!-- 요약 카드 4개 -->
+  <div class="sts-summary-grid" id="sts-summary"></div>
+
+  <!-- 점수 추세 라인차트 -->
+  <div class="sts-section">
+    <div class="sts-section-title">점수 추세 (최근 20세션)</div>
+    <div class="sts-chart-wrap" id="sts-trend-wrap">
+      <div class="sts-empty">세션 데이터 로딩 중…</div>
+    </div>
+  </div>
+
+  <!-- Part별 정답률 -->
+  <div class="sts-section">
+    <div class="sts-section-title">Part별 누적 정답률</div>
+    <div id="sts-parts"></div>
+  </div>
+
+  <!-- 토픽별 분포표 -->
+  <div class="sts-section">
+    <div class="sts-section-title">토픽별 정답률 (5회 이상 시도)</div>
+    <div style="background:var(--card-bg);border:1px solid var(--border-clr);border-radius:12px;overflow:hidden;padding:0 .5rem;">
+      <table class="sts-topic-table" id="sts-topics">
+        <thead><tr>
+          <th>토픽</th><th>Part</th><th style="text-align:right;">시도</th><th style="text-align:right;">정답률</th>
+        </tr></thead>
+        <tbody id="sts-topics-body"><tr><td colspan="4" class="sts-empty">로딩 중…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 전체 세션 목록 -->
+  <div class="sts-section">
+    <div class="sts-section-title">세션 기록 <span id="sts-sess-count" style="font-weight:400;text-transform:none;letter-spacing:0;"></span></div>
+    <div style="background:var(--card-bg);border:1px solid var(--border-clr);border-radius:12px;padding:.5rem 1rem;" id="sts-sessions">
+      <div class="sts-empty">로딩 중…</div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ UPLOAD ═══ -->
@@ -1116,7 +1665,7 @@ async function loadFromCloud(){
       .select('*')
       .eq('user_id', SB_USER.id)
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(200); // Statistics 통계 왜곡 방지 (기존 20 → 200)
     S.sessions = (sRows || []).map(r => ({
       id: r.id,
       created_at: r.created_at,
@@ -1134,6 +1683,7 @@ async function loadFromCloud(){
       S.mode = liveCloud.mode || 'normal';
       S.results = liveCloud.results || {correct:0, wrong:0, total:S.quizQueue.length};
       S.reviewMode = liveCloud.review_mode || false;
+      S.sessionAnswers = liveCloud.session_answers || new Array(S.quizQueue.length).fill(null);
     }
 
     renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
@@ -1356,7 +1906,10 @@ const S = {
   quizQueue:[], quizIdx:0, submitted:false, selected:null,
   count:5, filter:'all', part:'all', subset:'all', mode:'normal',
   reviewMode: false,
+  retryFlaggedMode: false,
+  returnTo: null,
   repeatFilter: 'all',
+  sessionAnswers: [],   // 문항별 {selected, submitted, isCorrect}
   results:{correct:0,wrong:0,total:0},
   timerInt:null, timerSec:90,
 };
@@ -1431,7 +1984,9 @@ function init(){
         S.mode = obj.live.mode || 'normal';
         S.results = obj.live.results || {correct:0, wrong:0, total:S.quizQueue.length};
         S.reviewMode = obj.live.reviewMode || false;
+        S.sessionAnswers = obj.live.sessionAnswers || new Array(S.quizQueue.length).fill(null);
       }
+      if(obj.repeatFilter) S.repeatFilter = obj.repeatFilter;
     }
   }catch(e){}
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
@@ -1450,11 +2005,13 @@ function save(){
       idx: S.quizIdx,
       mode: S.mode,
       results: S.results,
-      reviewMode: S.reviewMode || false
+      reviewMode: S.reviewMode || false,
+      sessionAnswers: S.sessionAnswers || []
     } : null;
     localStorage.setItem('ea_prep_v3',JSON.stringify({
       q:S.questions, s:S.sessions, f:[...S.flagged], a:S.answered,
-      live: liveQuiz
+      live: liveQuiz,
+      repeatFilter: S.repeatFilter || 'all'
     }));
   }catch(e){}
   saveLiveSessionToCloud();
@@ -1476,6 +2033,7 @@ function saveLiveSessionToCloud(){
           mode: S.mode,
           results: S.results,
           review_mode: S.reviewMode || false,
+          session_answers: S.sessionAnswers || [],
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       } else {
@@ -1581,6 +2139,24 @@ function resetResumeBadgeDismiss(){
 function resumeQuiz(){
   if(!S.quizQueue || S.quizQueue.length === 0) return;
   if(S.quizIdx >= S.quizQueue.length){ updateResumeBadge(); return; }
+
+  // 고아 question_id 제거 (CSV 삭제 후 세션 재개 시)
+  var validQueue = S.quizQueue.filter(function(id){
+    return S.questions.some(function(q){ return q.id === id; });
+  });
+  var removedCount = S.quizQueue.length - validQueue.length;
+  if(removedCount > 0){
+    S.quizQueue = validQueue;
+    S.quizIdx = Math.min(S.quizIdx, Math.max(0, S.quizQueue.length - 1));
+    if(validQueue.length === 0){ updateResumeBadge(); showToast('⚠️ 저장된 세션 문제를 찾을 수 없습니다'); return; }
+    showToast('⚠️ 삭제된 문제 ' + removedCount + '개 제외됨');
+  }
+
+  // sessionAnswers 크기 동기화
+  if(!S.sessionAnswers || S.sessionAnswers.length !== S.quizQueue.length){
+    S.sessionAnswers = new Array(S.quizQueue.length).fill(null);
+  }
+
   showScreen('quiz');
   loadQuestion();
 }
@@ -1589,6 +2165,8 @@ function clearLiveQuiz(){
   S.quizQueue = []; S.quizIdx = 0;
   S.results = {correct:0, wrong:0, total:0};
   S.reviewMode = false;
+  S.retryFlaggedMode = false;
+  S.returnTo = null;
   save();
 }
 
@@ -1611,7 +2189,7 @@ function exportData(){
 function resetData(){
   localStorage.removeItem('ea_prep_v3');
   S.questions=JSON.parse(JSON.stringify(DEMO)); S.sessions=[]; S.flagged=new Set(); S.answered={};
-  S.quizQueue=[]; S.quizIdx=0; S.reviewMode=false;
+  S.quizQueue=[]; S.quizIdx=0; S.reviewMode=false; S.retryFlaggedMode=false;
   if(SB_USER){ sb.from('live_session').delete().eq('user_id', SB_USER.id); }
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
   updateResumeBadge();
@@ -1625,13 +2203,14 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const map={dashboard:0,'quiz-setup':1,bookmarks:2,upload:3,settings:4};
+  const map={dashboard:0,'quiz-setup':1,bookmarks:2,statistics:3,upload:4,settings:5};
   if(map[name]!==undefined) document.querySelectorAll('.nav-btn')[map[name]].classList.add('active');
-  const mobMap={dashboard:'mob-dashboard','quiz-setup':'mob-study',bookmarks:'mob-review',upload:'mob-upload',settings:'mob-settings'};
+  const mobMap={dashboard:'mob-dashboard','quiz-setup':'mob-study',bookmarks:'mob-review',statistics:'mob-statistics',upload:'mob-upload',settings:'mob-settings'};
   document.querySelectorAll('.mobile-nav-item').forEach(b=>b.classList.remove('active'));
   if(mobMap[name]) { const el=document.getElementById(mobMap[name]); if(el) el.classList.add('active'); }
   if(name==='dashboard') { renderDashboard(); resetResumeBadgeDismiss(); }
   if(name==='bookmarks') renderBookmarks();
+  if(name==='statistics') renderStatistics();
   // 화면 전환 후에도 Resume 배지 상태 갱신
   updateResumeBadge();
 }
@@ -1646,112 +2225,341 @@ function openStudy(){
     } else {
       clearLiveQuiz();
       showScreen('quiz-setup');
+      setTimeout(function(){ updateSetupBanner(); syncRepeatIconUI(); updateAvailCount(); }, 50);
     }
   } else {
     showScreen('quiz-setup');
+    setTimeout(function(){ updateSetupBanner(); syncRepeatIconUI(); updateAvailCount(); }, 50);
   }
 }
 
 // ══════════════════════════════════════════════════════
-// DASHBOARD (Part별 정확도/플래그 추가)
+// DASHBOARD V2 — Hero card + Parts grid + Weak topics + Recent 2
 // ══════════════════════════════════════════════════════
+
+// Statistics 바 그래프와 동일한 progress-aware 컬러 스킴 (≥80%=green, ≥60%=amber, <60%=red)
+function progressColor(pct){
+  if(pct >= 80) return 'var(--success-color)';
+  if(pct >= 60) return 'var(--flag-color)';
+  return 'var(--danger-color)';
+}
+
+// Part 메타데이터 (아이콘 + 라벨) — renderDashboard 와 dashStartFocusPart 공용
+const PART_META = {
+  'Part 1': { label: 'Part 1 — 개인세',         icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>' },
+  'Part 2': { label: 'Part 2 — 사업세',         icon: '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>' },
+  'Part 3': { label: 'Part 3 — 대리인',         icon: '<svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>' },
+  'Part A': { label: 'Part A — 개인세 (테스트)', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>' },
+  'Part B': { label: 'Part B — 사업세 (테스트)', icon: '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>' },
+  'Part C': { label: 'Part C — 대리인 (테스트)', icon: '<svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>' }
+};
+
+// 응시 권장 정답률 임계값
+const EXAM_READY_THRESHOLD = 90;
+
 function renderDashboard(){
-  const total=S.questions.length, seen=Object.keys(S.answered).length, unseen=total-seen;
-  let tc=0,ta=0;
-  for(const k in S.answered){tc+=S.answered[k].correct||0; ta+=S.answered[k].times||0;}
-  const acc=ta>0?Math.round(tc/ta*100):0;
+  if(!S.questions){ S.questions = []; }
 
-  document.getElementById('stats-grid').innerHTML=`
-    <div class="stat-card"><div class="stat-label">총 문제</div><div class="stat-value">${total}</div><div class="stat-sub">${unseen}개 미학습</div></div>
-    <div class="stat-card"><div class="stat-label">학습 완료</div><div class="stat-value">${seen}</div><div class="stat-sub">${S.sessions.length}회 세션</div></div>
-    <div class="stat-card"><div class="stat-label">정확도</div><div class="stat-value">${acc}%</div><div class="stat-sub">${tc}/${ta} 정답</div></div>
-    <div class="stat-card"><div class="stat-label">플래그</div><div class="stat-value">${S.flagged.size}</div><div class="stat-sub">복습 예정</div></div>`;
+  // Current focus part — localStorage 또는 기본 Part 1
+  let focusPart = localStorage.getItem('ea_focus_part') || 'Part 1';
+  // 검증: 해당 Part에 문제 없으면 Part 1로 fallback
+  if(!S.questions.some(q => q.part === focusPart)) focusPart = 'Part 1';
 
-  const allParts=[
-    ['Part 1','<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>','Part 1 – 개인세'],
-    ['Part 2','<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>','Part 2 – 사업세'],
-    ['Part 3','<svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>','Part 3 – 대리인'],
-    ['Part A','<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>','Part A – 개인세 (테스트)'],
-    ['Part B','<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>','Part B – 사업세 (테스트)'],
-    ['Part C','<svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>','Part C – 대리인 (테스트)'],
-  ];
-  // Part 1/2/3는 항상 표시, Part A/B/C는 해당 Part에 문제가 있을 때만 표시
-  const parts = allParts.filter(([pk])=>{
-    if(pk==='Part 1'||pk==='Part 2'||pk==='Part 3') return true;
-    return S.questions.some(q=>q.part===pk);
+  renderDashHero(focusPart);
+  renderDashPartsGrid();
+  renderDashWeakTopics();
+  renderDashRecent2();
+}
+
+function renderDashHero(focusPart){
+  const qs = S.questions.filter(q => q.part === focusPart);
+  const totalQs = qs.length;
+  const done = qs.filter(q => S.answered[q.id]).length;
+  const progressPct = totalQs > 0 ? Math.round(done / totalQs * 100) : 0;
+
+  let tCorrect = 0, tAttempts = 0;
+  qs.forEach(q => {
+    const a = S.answered[q.id];
+    if(a){ tCorrect += (a.correct || 0); tAttempts += (a.times || 0); }
   });
-  document.getElementById('unit-list').innerHTML=parts.map(([pk,icon,label])=>{
-    const qs=S.questions.filter(q=>q.part===pk);
-    const done=qs.filter(q=>S.answered[q.id]).length;
-    const pct=qs.length>0?Math.round(done/qs.length*100):0;
+  const accPct = tAttempts > 0 ? Math.round(tCorrect / tAttempts * 100) : 0;
 
-    // Part별 정확도 계산
+  const info = PART_META[focusPart] || PART_META['Part 1'];
+  const isReady = accPct >= EXAM_READY_THRESHOLD;
+  const statusText = isReady ? '응시 가능' : '준비 중';
+
+  document.getElementById('dash-hero').innerHTML =
+    '<div class="dash-hero">' +
+      '<div class="dash-hero-head">' +
+        '<div>' +
+          '<div class="dash-hero-label">지금 집중 학습 중</div>' +
+          '<div class="dash-hero-title">' + info.icon + ' ' + info.label + '</div>' +
+        '</div>' +
+        '<span class="dash-hero-status ' + (isReady ? 'ready' : '') + '">' + statusText + '</span>' +
+      '</div>' +
+      '<div class="dash-hero-metrics">' +
+        '<div>' +
+          '<div class="dash-metric-label">진도</div>' +
+          '<div class="dash-metric-value">' + progressPct + '<span class="pct">%</span></div>' +
+          '<div class="dash-metric-sub">' + done + ' / ' + totalQs + ' 문제</div>' +
+          '<div class="dash-metric-bar"><div class="dash-metric-bar-fill" style="width:' + progressPct + '%;background:' + progressColor(progressPct) + ';"></div></div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="dash-metric-label">정답률</div>' +
+          '<div class="dash-metric-value">' + accPct + '<span class="pct">%</span></div>' +
+          '<div class="dash-metric-sub">' + tCorrect + ' / ' + tAttempts + ' 정답' +
+            '<span style="font-size:11px;color:var(--text-muted);opacity:.75;"> - 반복 풀이 포함</span>' +
+          '</div>' +
+          '<div class="dash-metric-bar"><div class="dash-metric-bar-fill" style="width:' + accPct + '%;background:' + progressColor(accPct) + ';"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="dash-hero-cta" onclick="dashStartFocusPart(\'' + focusPart + '\')">' +
+        '<svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>' +
+        focusPart + ' 학습 계속하기' +
+      '</button>' +
+    '</div>';
+}
+
+// 6-Part 미니 그리드 (진도/정답률 + 클릭 → 포커스 전환)
+function renderDashPartsGrid(){
+  const allParts = ['Part 1','Part 2','Part 3','Part A','Part B','Part C'];
+  // Part 1/2/3 는 항상, A/B/C 는 해당 Part에 문제 있을 때만
+  const parts = allParts.filter(function(pk){
+    if(pk==='Part 1'||pk==='Part 2'||pk==='Part 3') return true;
+    return S.questions.some(function(q){ return q.part===pk; });
+  });
+
+  let focusPart = localStorage.getItem('ea_focus_part') || 'Part 1';
+  if(!S.questions.some(function(q){ return q.part===focusPart; })) focusPart = 'Part 1';
+
+  const cards = parts.map(function(pk){
+    const qs = S.questions.filter(function(q){ return q.part===pk; });
+    const totalQs = qs.length;
+    const done = qs.filter(function(q){ return S.answered[q.id]; }).length;
+    const progressPct = totalQs>0 ? Math.round(done/totalQs*100) : 0;
     let tCorrect=0, tAttempts=0;
-    qs.forEach(q=>{
+    qs.forEach(function(q){
       const a = S.answered[q.id];
-      if(a){ tCorrect += a.correct; tAttempts += a.times; }
+      if(a){ tCorrect += (a.correct||0); tAttempts += (a.times||0); }
     });
-    const partAcc = tAttempts>0 ? Math.round(tCorrect/tAttempts*100) : 0;
-
-    // Part별 플래그 수
-    const partFlags = qs.filter(q=>S.flagged.has(q.id)).length;
-
-    return`<div class="unit-card">
-      <div class="unit-icon">${icon}</div>
-      <div class="unit-info">
-        <div class="unit-name">${label}</div>
-        <div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div>
-        <div class="unit-stats">${done} / ${qs.length}개 학습 · 정확도 ${partAcc}% · 플래그 ${partFlags}</div>
-      </div>
-      <div class="unit-count">${pct}%</div>
-    </div>`;
+    const accPct = tAttempts>0 ? Math.round(tCorrect/tAttempts*100) : 0;
+    const accLabel = tAttempts>0 ? accPct+'%' : '—';
+    const meta = PART_META[pk] || { label: pk };
+    const shortLabel = meta.label.replace(' — ', ' · ');
+    const isActive = (pk===focusPart);
+    return '<div class="dash-part-row'+(isActive?' active':'')+'" onclick="dashSetFocusPart(\''+pk+'\')">'+
+      '<div class="dash-part-row-name">'+(meta.icon||'')+' '+shortLabel+'</div>'+
+      '<div class="dash-part-row-stats">진도 '+progressPct+'% · 정답률 '+accLabel+'</div>'+
+      '<div class="dash-part-row-bar"><div class="dash-part-row-bar-fill" style="width:'+progressPct+'%;background:'+progressColor(progressPct)+';"></div></div>'+
+    '</div>';
   }).join('');
 
-  // Recent Sessions: created_at 기준 최신 5개 표시 (cross-device 동기화 안전)
-  // - 클라우드 로드 시 desc 정렬되어 들어오고, showResults 는 push로 끝에 추가하므로
-  //   S.sessions 배열 자체는 혼합 순서. 따라서 render 시점에서 정렬 후 slice.
+  document.getElementById('dash-parts-grid-wrap').innerHTML =
+    '<div class="dash-parts-section-label">전체 Part · 클릭하여 학습 시작</div>' +
+    '<div class="dash-parts-list">' + cards + '</div>';
+}
+
+// 약점 토픽 Top 3 (현재 포커스 Part, 최소 5회 이상 학습)
+function renderDashWeakTopics(){
+  var MIN_ATT = 5;
+
+  // 현재 포커스 Part
+  var focusPart = localStorage.getItem('ea_focus_part') || 'Part 1';
+  if(!S.questions.some(function(q){ return q.part === focusPart; })) focusPart = 'Part 1';
+
+  // 포커스 Part 의 문제만 → 토픽별 times/correct 집계
+  var topicMap = {};
+  S.questions.forEach(function(q){
+    if(q.part !== focusPart) return;
+    var a = S.answered[q.id];
+    if(!a || !(a.times)) return;
+    var t = q.topic || '기타';
+    if(!topicMap[t]) topicMap[t] = { correct: 0, times: 0 };
+    topicMap[t].correct += (a.correct || 0);
+    topicMap[t].times   += (a.times   || 0);
+  });
+
+  // 최소 MIN_ATT 회 이상 + 정답률 계산
+  var topics = Object.keys(topicMap)
+    .filter(function(t){ return topicMap[t].times >= MIN_ATT; })
+    .map(function(t){
+      var d = topicMap[t];
+      return { name: t, correct: d.correct, times: d.times,
+               pct: Math.round(d.correct / d.times * 100) };
+    });
+
+  // 정답률 오름차순 → Top 3
+  var weak = topics.sort(function(a, b){ return a.pct - b.pct; }).slice(0, 3);
+
+  var el = document.getElementById('dash-weak-topics');
+  if(!el) return;
+
+  var label = '<div class="dash-parts-section-label">약점 보강 · ' + focusPart + ' Top 3</div>';
+
+  if(weak.length === 0){
+    var reason = Object.keys(topicMap).length === 0
+      ? '학습을 시작하면 토픽별 약점이 분석됩니다'
+      : focusPart + ' 토픽을 ' + MIN_ATT + '회 이상 학습한 후 표시됩니다';
+    el.innerHTML = label +
+      '<div class="empty" style="padding:1.25rem 1rem;background:var(--card-bg);' +
+      'border:1px solid var(--border-clr);border-radius:10px;margin-bottom:1.5rem;">' +
+        '<div class="empty-sub">' + reason + '</div>' +
+      '</div>';
+    return;
+  }
+
+  var rows = weak.map(function(item){
+    var cls = item.pct < 60 ? 'crit' : 'warn';
+    return '<div class="weak-row">' +
+      '<span class="weak-name">' + item.name + '</span>' +
+      '<span class="weak-stat ' + cls + '">' + item.pct + '%' +
+        '<span style="font-weight:400;font-size:13px;opacity:.7;"> (' + item.correct + '/' + item.times + ')</span>' +
+      '</span>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML = label + rows;
+}
+
+// 최근 2개 세션
+function renderDashRecent2(){
   const recentItems = [...S.sessions]
     .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
-    .slice(0, 5);
-  const recentEl = document.getElementById('activity-log');
+    .slice(0, 2);
+  const el = document.getElementById('dash-recent-2');
+  if(!el) return;
+
   if(recentItems.length === 0){
-    recentEl.innerHTML = '<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">아직 세션 없음</div><div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div></div>';
-  } else {
-    recentEl.innerHTML = recentItems.map((s)=>{
-      // S.sessions 원본 배열에서의 실제 인덱스 (정렬된 view 와 분리)
-      const realIdx = S.sessions.indexOf(s);
-      const hasIds = s.question_ids && s.question_ids.length > 0;
-      // 날짜+시간 포맷 (created_at이 있으면 사용)
-      let label = s.date;
-      if(s.created_at){
-        const d = new Date(s.created_at);
-        label = d.toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) + ' ' +
-                d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
-      }
-      const colorClass = s.pct >= 80 ? '#16a34a' : s.pct >= 60 ? '#ca8a04' : '#dc2626';
-      const clickable = hasIds ? `onclick="reviewSession(${realIdx})" style="cursor:pointer;" title="클릭하여 이 세션 복습"` : 'style="opacity:.6;" title="구버전 세션 (다시보기 불가)"';
-      const reviewBtn = hasIds ? '<span style="margin-left:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:11px;color:rgba(255,255,255,.75);font-weight:600;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>복습</span>' : '';
-      return `<div class="activity-row" ${clickable}>
-        <span style="font-weight:600;">${label}</span>
-        <span style="color:var(--text-muted);">${s.count}문제</span>
-        <span style="color:${colorClass};font-weight:600;margin-left:auto;">${s.correct}정답 · ${s.pct}%</span>
-        ${reviewBtn}
-      </div>`;
-    }).join('');
+    el.innerHTML =
+      '<div class="dash-parts-section-label">최근 학습</div>' +
+      '<div class="empty" style="padding:1.5rem 1rem;background:var(--card-bg);border:1px solid var(--border-clr);border-radius:10px;">' +
+        '<div class="empty-icon">📖</div>' +
+        '<div class="empty-title">아직 세션 없음</div>' +
+        '<div class="empty-sub">Study 탭에서 학습을 시작하면 여기에 기록됩니다</div>' +
+      '</div>';
+    return;
   }
+
+  const rowsHtml = recentItems.map(function(s){
+    let label = s.date;
+    if(s.created_at){
+      const d = new Date(s.created_at);
+      label = d.toLocaleDateString('ko-KR', { month:'short', day:'numeric' }) + ' ' +
+              d.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', hour12:false });
+    }
+    const scoreColor = s.pct >= 80 ? 'var(--success-color)' : s.pct >= 60 ? 'var(--flag-color)' : 'var(--danger-color)';
+    return '<div class="dash-recent-row">' +
+             '<span class="dash-recent-date">' + label + '</span>' +
+             '<span class="dash-recent-meta">' + s.count + '문제</span>' +
+             '<span class="dash-recent-score" style="color:' + scoreColor + ';">' + s.pct + '%</span>' +
+           '</div>';
+  }).join('');
+
+  el.innerHTML = '<div class="dash-parts-section-label">최근 학습</div>' + rowsHtml;
+}
+
+// Part 카드 클릭 → Hero 포커스만 변경 (Study 진입 안 함, Dashboard 유지)
+function dashSetFocusPart(part){
+  localStorage.setItem('ea_focus_part', part);
+  renderDashboard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Hero CTA 클릭 → Study 진입 (focus part 저장 + 해당 chip 자동 선택)
+function dashStartFocusPart(part){
+  localStorage.setItem('ea_focus_part', part);
+  const partVal = {
+    'Part 1':'part1','Part 2':'part2','Part 3':'part3',
+    'Part A':'partA','Part B':'partB','Part C':'partC'
+  }[part] || 'all';
+  S.part = partVal;
+  showScreen('quiz-setup');
+  setTimeout(function(){
+    updateSetupBanner();
+    syncRepeatIconUI();
+    if(typeof updateAvailCount === 'function') updateAvailCount();
+  }, 50);
 }
 
 // ══════════════════════════════════════════════════════
 // QUIZ SETUP
 // ══════════════════════════════════════════════════════
-function selectCount(n,btn){S.count=n;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
-function selectPart(p,btn){S.part=p;document.querySelectorAll('#part-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
-function selectSubset(s,btn){S.subset=s;document.querySelectorAll('#subset-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
-function selectMode(m,btn){S.mode=m;document.querySelectorAll('#mode-row .filter-chip').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
-
-function selectRepeat(val){
-  S.repeatFilter = val;
+function selectCount(n,btn){S.count=n;document.querySelectorAll('.setup-count-card').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');updateAvailCount();}
+function selectPart(p,btn){
+  S.part=p;
+  document.querySelectorAll('#part-row .setup-icon-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateSetupBanner();
   updateAvailCount();
+}
+function selectSubset(s,btn){
+  S.subset=s;save();
+  document.querySelectorAll('#subset-row .setup-icon-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateAvailCount();
+}
+function selectMode(m,btn){
+  S.mode=m;
+  document.querySelectorAll('#mode-row .setup-icon-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function selectRepeatIcon(val,btn){
+  S.repeatFilter=val;save();
+  document.querySelectorAll('#repeat-row .setup-repeat-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateAvailCount();
+}
+// 기존 selectRepeat — 호환 유지
+function selectRepeat(val){S.repeatFilter=val;save();updateAvailCount();}
+
+// 배너 업데이트 (Part 변경 시)
+function updateSetupBanner(){
+  var ICONS={
+    all:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+    part1:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+    part2:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>',
+    part3:'<svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>',
+    partA:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+    partB:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>',
+    partC:'<svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V7l7-4z"/></svg>'
+  };
+  var LABELS={
+    all:'All Parts',part1:'Part 1 — 개인세',part2:'Part 2 — 사업세',part3:'Part 3 — 대리인',
+    partA:'Part A — 개인세',partB:'Part B — 사업세',partC:'Part C — 대리인'
+  };
+  var p=S.part||'all';
+  var iconEl=document.getElementById('setup-banner-icon');
+  var titleEl=document.getElementById('setup-banner-title');
+  var subEl=document.getElementById('setup-banner-sub');
+  if(iconEl) iconEl.innerHTML=ICONS[p]||ICONS['all'];
+  if(titleEl) titleEl.textContent=LABELS[p]||'All Parts';
+  if(subEl){
+    var pool=S.questions||[];
+    var filtered=p==='all'?pool:pool.filter(function(q){
+      var map={part1:'Part 1',part2:'Part 2',part3:'Part 3',partA:'Part A',partB:'Part B',partC:'Part C'};
+      return q.part===(map[p]||'');
+    });
+    var total=filtered.length;
+    var correct=0,attempts=0;
+    filtered.forEach(function(q){var a=S.answered[q.id];if(a){correct+=(a.correct||0);attempts+=(a.times||0);}});
+    var acc=attempts>0?Math.round(correct/attempts*100):0;
+    subEl.textContent=total+'문제'+(attempts>0?' · 정답률 '+acc+'%':'');
+  }
+  // picker 숨기기
+  var picker=document.getElementById('setup-part-picker');
+  if(picker) picker.style.display='none';
+}
+function setupShowPartPicker(){
+  var picker=document.getElementById('setup-part-picker');
+  if(picker) picker.style.display=picker.style.display==='none'?'block':'none';
+}
+
+// repeat-row UI 동기화 (화면 진입 시)
+function syncRepeatIconUI(){
+  var val=S.repeatFilter||'all';
+  var btns=document.querySelectorAll('#repeat-row .setup-repeat-btn');
+  var vals=['all','le1','le2','le3','le4'];
+  btns.forEach(function(b,i){b.classList.toggle('selected',vals[i]===val);});
 }
 
 function getPool(){
@@ -1779,8 +2587,10 @@ function getPool(){
 function updateAvailCount(){
   const p=getPool(),avail=p.length,take=Math.min(S.count,avail);
   const el=document.getElementById('avail-count');
-  el.textContent=avail===0?'No questions match this filter':`${avail} questions available · session will use ${take}`;
-  document.getElementById('start-btn').disabled=avail===0;
+  if(!el) return;
+  el.textContent=avail===0?'No questions match this filter':`${avail} questions available · ${take} will be used`;
+  const btn=document.getElementById('start-btn');
+  if(btn) btn.disabled=avail===0;
 }
 
 // ══════════════════════════════════════════════════════
@@ -1791,14 +2601,15 @@ async function startQuiz(){
   let pool=getPool(); if(!pool.length) return;
   pool.sort((a,b)=>{const ta=S.answered[a.id]?.times||0,tb=S.answered[b.id]?.times||0;return ta-tb||Math.random()-.5;});
   S.quizQueue=pool.slice(0,S.count).map(q=>q.id);
-  
+
   // Unseen Only 세션이면 백그라운드 사전 생성 실행
   if (S.subset === 'unseen') {
     pregenerateAIForQueue(S.quizQueue);
   }
-  
+
   S.quizIdx=0; S.submitted=false; S.selected=null;
   S.reviewMode = false;
+  S.sessionAnswers = new Array(S.quizQueue.length).fill(null);
   S.results={correct:0,wrong:0,total:S.quizQueue.length};
   save();
   showScreen('quiz'); loadQuestion();
@@ -1819,13 +2630,16 @@ function reviewSession(sessionIndex){
   }
   S.quizQueue = validIds;
   S.quizIdx = 0; S.submitted = false; S.selected = null;
-  S.reviewMode = true;
+  S.reviewMode = false;
+  S.retryFlaggedMode = false;
+  S.returnTo = 'bookmarks';   // Score 후 Review 탭으로 복귀
   S.mode = 'normal';
+  S.sessionAnswers = new Array(validIds.length).fill(null);
   S.results = {correct:0, wrong:0, total:validIds.length};
   save();
   showScreen('quiz');
   loadQuestion();
-  showToast(`${s.date} 세션 복습 시작 (${validIds.length}문제)`);
+  showToast(`${s.date} 세션 다시 풀기 (${validIds.length}문제)`);
 }
 
 // 백그라운드 AI 사전 생성 (비동기)
@@ -1915,16 +2729,32 @@ function loadQuestion(){
     ol.appendChild(btn);
   });
 
-  S.selected=null; S.submitted=false;
-  document.getElementById('btn-submit').disabled=true;
-  document.getElementById('btn-submit').textContent='Submit Answer';
-  document.getElementById('btn-skip').style.display='';
   document.getElementById('explanation-card').classList.remove('visible');
   document.getElementById('ai-answer').classList.remove('visible');
   document.getElementById('ask-input').value='';
 
-  // ── Review 모드: 정답을 즉시 공개 (과거 세션 다시보기) ──
-  if(S.reviewMode){
+  // sessionAnswers 기반 잠금 상태(이미 제출된 문제) vs Review 모드 vs 일반 상태 분기
+  const sa = S.sessionAnswers && S.sessionAnswers[S.quizIdx];
+  const isLocked = !!(sa && sa.submitted);
+
+  if(isLocked){
+    // 이미 제출된 문제 — pill/Prev로 다시 들어온 경우 잠금 렌더링
+    S.submitted = true;
+    S.selected = sa.selected;
+    document.querySelectorAll('.option-btn').forEach(function(b, i){
+      b.disabled = true;
+      b.classList.remove('sel','correct-ans','wrong-ans','reveal');
+      if(i === q.correct){
+        b.classList.add(sa.selected === q.correct ? 'correct-ans' : 'reveal');
+      } else if(i === sa.selected && !sa.isCorrect){
+        b.classList.add('wrong-ans');
+      }
+    });
+    showExplanation(q, sa.isCorrect, false);
+    document.getElementById('timer-badge').style.display = 'none';
+  } else if(S.reviewMode){
+    // Review 모드 — 정답을 즉시 공개 (과거 세션 다시보기)
+    S.selected=null; S.submitted=false;
     document.querySelectorAll('.option-btn').forEach((b,i)=>{
       b.disabled = true;
       if(i === q.correct) b.classList.add('reveal');
@@ -1932,36 +2762,44 @@ function loadQuestion(){
     document.getElementById('btn-submit').style.display = 'none';
     document.getElementById('btn-skip').style.display = 'none';
     showExplanation(q, true, false);
-    // 진행 표시: 'Review n of N'
     document.getElementById('q-progress-text').textContent = `Review ${S.quizIdx+1} of ${S.quizQueue.length}`;
     document.getElementById('q-session-label').textContent = 'REVIEW · 과거 세션 다시보기';
+    document.getElementById('timer-badge').style.display = 'none';
   } else {
-    document.getElementById('btn-submit').style.display = '';
+    // 일반 미제출 상태
+    S.selected=null; S.submitted=false;
+    document.getElementById('btn-submit').disabled=true;
+    document.getElementById('btn-submit').textContent='Submit Answer';
+    document.getElementById('btn-submit').style.display='';
+    document.getElementById('btn-skip').style.display='';
+
+    const tb=document.getElementById('timer-badge');
+    if(S.mode==='timed'){
+      S.timerSec=90;
+      tb.style.display='flex';       // CSS에 추가한 align-items를 적용하기 위해 flex로 설정
+      tb.textContent='90s';
+      tb.style.background='#fef2f2'; // 평상시 연한 배경
+      tb.style.color='#dc2626';      // 평상시 붉은 텍스트
+      tb.style.borderColor='#fecaca';
+
+      S.timerInt=setInterval(()=>{
+        S.timerSec--;
+        tb.textContent=S.timerSec+'s';
+
+        // 15초 이하일 때 가독성 극대화 (배경색과 글자색 반전)
+        if(S.timerSec<=15) {
+          tb.style.background='#dc2626'; // 진한 붉은색 배경
+          tb.style.color='#ffffff';      // 흰색 텍스트
+          tb.style.borderColor='rgba(255,255,255,.2)';
+        }
+
+        if(S.timerSec<=0){clearInterval(S.timerInt);if(!S.submitted) autoTimeout();}
+      },1000);
+    } else { tb.style.display='none'; }
   }
 
-  const tb=document.getElementById('timer-badge');
-if(S.mode==='timed' && !S.reviewMode){
-  S.timerSec=90;
-  tb.style.display='flex';       // CSS에 추가한 align-items를 적용하기 위해 flex로 설정
-  tb.textContent='90s';
-  tb.style.background='#fef2f2'; // 평상시 연한 배경
-  tb.style.color='#dc2626';      // 평상시 붉은 텍스트
-  tb.style.borderColor='#fecaca';
-
-  S.timerInt=setInterval(()=>{
-    S.timerSec--;
-    tb.textContent=S.timerSec+'s';
-    
-    // 15초 이하일 때 가독성 극대화 (배경색과 글자색 반전)
-    if(S.timerSec<=15) {
-      tb.style.background='#dc2626'; // 진한 붉은색 배경
-      tb.style.color='#ffffff';      // 흰색 텍스트
-      tb.style.borderColor='rgba(255,255,255,.2)';
-    }
-    
-    if(S.timerSec<=0){clearInterval(S.timerInt);if(!S.submitted) autoTimeout();}
-  },1000);
-} else { tb.style.display='none'; }
+  renderQuestionPills();
+  renderQuizNavButtons();
 }
 
 function selectOption(i,btn){
@@ -1977,9 +2815,13 @@ function autoTimeout(){
   const q=curQ(); if(!q) return;
   if(!S.answered[q.id]) S.answered[q.id]={times:0,correct:0,wrong:0};
   S.answered[q.id].times++; S.answered[q.id].wrong++; S.results.wrong++;
+  if(!S.sessionAnswers) S.sessionAnswers = new Array(S.quizQueue.length).fill(null);
+  S.sessionAnswers[S.quizIdx] = {selected: -1, submitted: true, isCorrect: false};
   save();
   saveProgressToCloud(q.id, false);
   document.querySelectorAll('.option-btn').forEach((b,i)=>{b.disabled=true;if(i===q.correct) b.classList.add('reveal');});
+  renderQuestionPills();
+  renderQuizNavButtons();
   showExplanation(q,false,true);
 }
 
@@ -2007,18 +2849,20 @@ function submitAnswer(){
     saveProgressToCloud(q.id, null);
   }
 
+  // sessionAnswers 기록 + nav/pills 갱신
+  if(!S.sessionAnswers) S.sessionAnswers = new Array(S.quizQueue.length).fill(null);
+  S.sessionAnswers[S.quizIdx] = {selected: chosen, submitted: true, isCorrect: isOk};
+
   document.getElementById('btn-submit').disabled=true;
   document.getElementById('btn-submit').textContent='Submitted ✓';
   document.getElementById('btn-skip').style.display='none';
+  renderQuestionPills();
+  renderQuizNavButtons();
   showExplanation(q,isOk,false);
 }
 
 function skipQuestion(){
-  clearInterval(S.timerInt);
-  S.quizIdx++;
-  save();
-  if(S.quizIdx>=S.quizQueue.length) showResults();
-  else loadQuestion();
+  gotoQuestion(S.quizIdx + 1);
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -2045,6 +2889,23 @@ async function showExplanation(q, isOk, timeout){
     : (AI_SETTINGS.examTip ? '<span class="loading">Generating exam tip…</span>' : '—');
 
   document.getElementById('correction-box').innerHTML = '';
+
+  // retryFlaggedMode: 하단 버튼 교체
+  const btnArea = document.getElementById('exp-next-btn-area');
+  if(btnArea){
+    if(S.retryFlaggedMode){
+      const hasNext = (S.quizIdx + 1) < S.quizQueue.length;
+      btnArea.innerHTML =
+        '<div style="display:flex;gap:8px;margin-top:1rem;">' +
+          (hasNext
+            ? '<button class="btn-navy" style="flex:1;" onclick="nextRetryFlagged()">다음 Flagged →</button>'
+            : '') +
+          '<button class="btn-ghost" style="flex:1;" onclick="exitRetryFlagged()">Review로 돌아가기</button>' +
+        '</div>';
+    } else {
+      btnArea.innerHTML = '<button class="btn-navy" style="width:100%;margin-top:1rem;" onclick="nextQuestion()">Next Question →</button>';
+    }
+  }
 
   await fetchFullExplanation(q, origExp);
   await fetchAISections(q);
@@ -2180,27 +3041,134 @@ window.acceptAICorrection = async function(qid, newCorrectIdx, newLetter){
   document.getElementById('correction-box').innerHTML = '';
 };
 
-function nextQuestion(){
+function nextRetryFlagged(){
+  gotoQuestion(S.quizIdx + 1);
+}
+
+function exitRetryFlagged(){
+  S.retryFlaggedMode = false;
+  clearLiveQuiz();
+  showScreen('bookmarks');
+  switchReviewTab('flagged');
+}
+
+// 양방향 네비게이션 핵심 함수
+function gotoQuestion(idx){
   clearInterval(S.timerInt);
-  S.quizIdx++;
-  save();
-  if(S.quizIdx>=S.quizQueue.length){
-    if(S.reviewMode){
-      // Review 모드 종료 — 결과 화면 없이 대시보드로
+  if(idx < 0) return;
+  if(idx >= S.quizQueue.length){
+    if(S.retryFlaggedMode){
+      // Flagged 모드 종료 — Score Page 스킵, Review로 바로 이동
+      S.retryFlaggedMode = false;
       clearLiveQuiz();
-      showToast('✅ 복습 완료');
-      showScreen('dashboard');
+      showToast('✅ Flagged 문제 완료!');
+      showScreen('bookmarks');
+      switchReviewTab('flagged');
+    } else if(S.reviewMode){
+      clearLiveQuiz(); showToast('✅ 복습 완료'); showScreen('dashboard');
     } else {
-      showResults();
+      finishSession();
+    }
+    return;
+  }
+  S.quizIdx = idx;
+  save();
+  loadQuestion();
+}
+
+function nextQuestion(){
+  gotoQuestion(S.quizIdx + 1);
+}
+
+function renderQuestionPills(){
+  var container = document.getElementById('q-pills');
+  if(!container) return;
+  if(S.retryFlaggedMode){ container.style.display='none'; return; }
+  if(!S.quizQueue || S.quizQueue.length <= 1){ container.style.display='none'; return; }
+  container.style.display = 'flex';
+  var html = '';
+  for(var i=0; i<S.quizQueue.length; i++){
+    var sa = S.sessionAnswers && S.sessionAnswers[i];
+    var qid = S.quizQueue[i];
+    var cls = 'q-pill';
+    if(i === S.quizIdx){ cls += ' current'; }
+    else if(sa && sa.submitted){ cls += sa.isCorrect ? ' correct' : ' wrong'; }
+    else if(S.flagged.has(qid)){ cls += ' flagged'; }
+    html += '<button class="'+cls+'" onclick="gotoQuestion('+i+')">'+(i+1)+'</button>';
+  }
+  container.innerHTML = html;
+}
+
+function renderQuizNavButtons(){
+  var sa = S.sessionAnswers && S.sessionAnswers[S.quizIdx];
+  var isSubmitted = !!(sa && sa.submitted);
+  var isFirst = (S.quizIdx === 0);
+  var isLast = (S.quizIdx >= S.quizQueue.length - 1);
+
+  var prev = document.getElementById('btn-prev');
+  var submit = document.getElementById('btn-submit');
+  var skip = document.getElementById('btn-skip');
+  var next = document.getElementById('btn-next');
+
+  if(prev) prev.disabled = isFirst;
+
+  if(isSubmitted){
+    if(submit) submit.style.display = 'none';
+    if(skip) skip.style.display = 'none';
+    if(next){
+      next.style.display = '';
+      if(isLast){
+        next.textContent = 'Finish ✓';
+        next.onclick = finishSession;
+      } else {
+        next.textContent = 'Next →';
+        next.onclick = function(){ gotoQuestion(S.quizIdx+1); };
+      }
     }
   } else {
-    loadQuestion();
+    if(submit) submit.style.display = '';
+    if(skip) skip.style.display = '';
+    if(next) next.style.display = 'none';
   }
 }
 
 function endSession(){
   clearInterval(S.timerInt);
+  var done = (S.results.correct||0) + (S.results.wrong||0);
+  document.getElementById('es-progress').textContent =
+    S.quizQueue.length + '문제 · ' + done + '개 완료 · 정답 ' + (S.results.correct||0) + '개';
+  document.getElementById('end-session-bg').classList.add('open');
+}
+
+function finishSession(){
+  var bg = document.getElementById('end-session-bg');
+  if(bg) bg.classList.remove('open');
   showResults();
+}
+
+function pauseSession(){
+  document.getElementById('end-session-bg').classList.remove('open');
+  save();
+  showScreen('dashboard');
+  showToast('일시 정지 — 이어 풀기 배지를 누르면 재개됩니다');
+}
+
+function closeEndSessionModal(){
+  document.getElementById('end-session-bg').classList.remove('open');
+  // 타이머 모드 + 미제출 상태면 타이머 재시작
+  if(S.mode === 'timed' && !S.submitted){
+    var tb = document.getElementById('timer-badge');
+    if(tb && S.timerSec > 0){
+      S.timerInt = setInterval(function(){
+        S.timerSec--;
+        tb.textContent = S.timerSec + 's';
+        if(S.timerSec <= 15){
+          tb.style.background = '#dc2626'; tb.style.color = '#ffffff';
+        }
+        if(S.timerSec <= 0){ clearInterval(S.timerInt); if(!S.submitted) autoTimeout(); }
+      }, 1000);
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -2270,6 +3238,7 @@ function showResults(){
   };
   S.sessions.push(sessionRecord);
   // 진행 중 세션 정리
+  const returnDest = S.returnTo || null;
   clearLiveQuiz();
   saveSessionToCloud(answered, correct, pct, completedQueue).then(saved=>{
     if(saved && saved.id){
@@ -2285,38 +3254,337 @@ function showResults(){
   document.getElementById('r-flagged').textContent=S.flagged.size;
   document.getElementById('r-title').textContent=pct>=80?'훌륭합니다! 🎉':pct>=60?'잘 하고 있어요 👍':'계속 학습하세요 📖';
   document.getElementById('r-sub').textContent=`${answered}문제 중 ${correct}개 정답`;
+
+  // 결과 버튼: returnTo에 따라 교체 (Flagged/세션 다시풀기 종료 후 Review 탭으로)
+  const btns = document.getElementById('result-btns-area');
+  if(btns){
+    if(returnDest === 'bookmarks'){
+      btns.innerHTML =
+        '<button class="btn-navy" style="flex:1;" onclick="showScreen(\'bookmarks\');switchReviewTab(\'sessions\')">Review로 돌아가기</button>' +
+        '<button class="btn-primary" style="flex:1;" onclick="clearLiveQuiz();showScreen(\'quiz-setup\')">New Session →</button>';
+    } else {
+      btns.innerHTML =
+        '<button class="btn-navy" style="flex:1;" onclick="showScreen(\'dashboard\')">Dashboard</button>' +
+        '<button class="btn-primary" style="flex:1;" onclick="clearLiveQuiz();showScreen(\'quiz-setup\')">New Session →</button>';
+    }
+  }
   showScreen('results');
 }
 
 // ══════════════════════════════════════════════════════
 // BOOKMARKS
 // ══════════════════════════════════════════════════════
-function renderBookmarks(){
-  const el=document.getElementById('bookmarks-list');
-  const fqs=S.questions.filter(q=>S.flagged.has(q.id));
-  if(!fqs.length){ el.innerHTML='<div class="empty"><div class="empty-icon">⚑</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 ⚑ 플래그를 달면 여기서 복습할 수 있습니다</div></div>'; return; }
-  el.innerHTML=fqs.map(q=>{
-    const a=S.answered[q.id]||{times:0,wrong:0};
-    return`<div class="bookmark-card" onclick="openModal('${q.id}')">
-      <div class="bm-q">${q.text.length>110?q.text.slice(0,110)+'…':q.text}</div>
-      <div class="bm-meta"><span class="bm-tag">${q.part}</span><span class="bm-tag">${q.topic||'General'}</span><span style="font-size:12px;color:var(--text-muted);font-weight:600;">${a.wrong}회 오답</span><span style="font-size:12px;color:var(--text-muted);margin-left:auto;">${a.times}회 학습</span></div>
-    </div>`;
+// ══════════════════════════════════════════════════════
+// STATISTICS
+// ══════════════════════════════════════════════════════
+const STS_SESS_PAGE = 20;
+let stsSessionsShown = STS_SESS_PAGE;
+function renderStatistics(){
+  stsSessionsShown = STS_SESS_PAGE;
+  renderStsSummary();
+  renderStsTrend();
+  renderStsParts();
+  renderStsTopics();
+  renderStsSessions();
+}
+
+function renderStsSummary(){
+  var el = document.getElementById('sts-summary');
+  if(!el) return;
+  var totalSessions = S.sessions.length;
+  var totalAnswered = S.sessions.reduce(function(a,s){ return a + (s.count||0); }, 0);
+  var allPcts = S.sessions.filter(function(s){ return s.count > 0; }).map(function(s){ return s.pct||0; });
+  var avgPct = allPcts.length ? Math.round(allPcts.reduce(function(a,v){ return a+v; },0) / allPcts.length) : 0;
+  var bestPct = allPcts.length ? Math.max.apply(null, allPcts) : 0;
+
+  el.innerHTML = [
+    {val: totalSessions, lbl: '총 세션'},
+    {val: totalAnswered, lbl: '총 풀이'},
+    {val: avgPct + '%', lbl: '평균 정답률'},
+    {val: bestPct + '%', lbl: '최고 점수'},
+  ].map(function(c){
+    return '<div class="sts-card">' +
+      '<div class="sts-card-val">' + c.val + '</div>' +
+      '<div class="sts-card-lbl">' + c.lbl + '</div>' +
+    '</div>';
   }).join('');
 }
 
-function openModal(id){
-  const q=S.questions.find(x=>x.id===id); if(!q) return;
-  const a=S.answered[id]||{times:0,correct:0,wrong:0};
-  document.getElementById('modal-content').innerHTML=`
-    <div style="margin-bottom:.75rem;"><span class="q-badge">${q.part}</span><span class="q-badge-gray" style="margin-left:6px;">${q.topic||'General'}</span></div>
-    <div style="font-size:16px;line-height:1.75;margin-bottom:1rem;color:var(--text-main);">${q.text}</div>
-    ${q.options.map((o,i)=>`<div style="padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:8px;border:1.5px solid ${i===q.correct?'#16a34a':'var(--border-clr)'};background:${i===q.correct?'rgba(22,163,74,.08)':'#f8faff'};color:${i===q.correct?'#15803d':'var(--text-muted)'};">${String.fromCharCode(65+i)}) ${o}</div>`).join('')}
-    ${q.explanation?`<div style="margin-top:1rem;"><div class="exp-label">해설</div><div style="font-size:15px;line-height:1.8;color:var(--text-muted);">${q.explanation}</div></div>`:''}
+function renderStsTrend(){
+  var wrap = document.getElementById('sts-trend-wrap');
+  if(!wrap) return;
+  var sessions = S.sessions.filter(function(s){ return s.count > 0; });
+  // 최신순 정렬 후 최근 20개, 차트는 오래된 것부터
+  var sorted = sessions.slice().sort(function(a,b){
+    return new Date(b.created_at||0) - new Date(a.created_at||0);
+  }).slice(0,20).reverse();
 
-    ${q.examTip?`<div class="tip-box" style="margin-top:.75rem;"><div class="tip-label">EA Exam Tip</div><div class="tip-body" style="font-size:15px; line-height:1.8; color:var(--text-muted);">${q.examTip}</div></div>`:''}
-    <div style="display:flex;gap:12px;font-size:13px;color:var(--text-muted);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-clr);"><span>학습 횟수: ${a.times}×</span><span style="color:#16a34a;font-weight:600;">✓ ${a.correct}</span><span style="color:#dc2626;font-weight:600;">✗ ${a.wrong}</span></div>`;
-  document.getElementById('modal-bg').classList.add('open');
+  if(sorted.length < 2){
+    wrap.innerHTML = '<div class="sts-empty">세션이 2개 이상 있어야 추세 차트를 볼 수 있습니다</div>';
+    return;
+  }
+
+  var W = 560, H = 160, PL = 32, PR = 12, PT = 16, PB = 28;
+  var cW = W - PL - PR, cH = H - PT - PB;
+  var pts = sorted.map(function(s){ return s.pct||0; });
+  var minV = Math.max(0, Math.min.apply(null,pts) - 10);
+  var maxV = Math.min(100, Math.max.apply(null,pts) + 10);
+  if(maxV - minV < 20){ minV = Math.max(0,minV-10); maxV = Math.min(100,maxV+10); }
+
+  function xPos(i){ return PL + (i/(sorted.length-1)) * cW; }
+  function yPos(v){ return PT + (1-(v-minV)/(maxV-minV)) * cH; }
+
+  // 폴리라인 포인트
+  var polyline = sorted.map(function(s,i){ return xPos(i)+','+yPos(s.pct||0); }).join(' ');
+  // 영역 채우기 경로
+  var fillPath = 'M'+xPos(0)+','+yPos(sorted[0].pct||0)+' ' +
+    sorted.map(function(s,i){ return 'L'+xPos(i)+','+yPos(s.pct||0); }).join(' ') +
+    ' L'+xPos(sorted.length-1)+','+(PT+cH)+' L'+xPos(0)+','+(PT+cH)+' Z';
+
+  // Y축 라벨 (0,50,100 중 범위에 있는 것)
+  var yLabels = [0,25,50,75,100].filter(function(v){ return v>=minV-5 && v<=maxV+5; });
+  var yLabelsSvg = yLabels.map(function(v){
+    var y = yPos(v);
+    return '<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y+'" y2="'+y+'" stroke="rgba(255,255,255,.08)" stroke-width="1"/>' +
+           '<text x="'+(PL-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="rgba(255,255,255,.4)">'+v+'</text>';
+  }).join('');
+
+  // X축 날짜 라벨 (최대 5개)
+  var xStep = Math.max(1, Math.floor(sorted.length/5));
+  var xLabelsSvg = sorted.filter(function(_,i){ return i%xStep===0 || i===sorted.length-1; }).map(function(s,_,arr){
+    var i = sorted.indexOf(s);
+    var lbl = '';
+    if(s.created_at){ var d=new Date(s.created_at); lbl=(d.getMonth()+1)+'/'+(d.getDate()); }
+    else if(s.date){ lbl=s.date.slice(0,5); }
+    return '<text x="'+xPos(i)+'" y="'+(H-4)+'" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.4)">'+lbl+'</text>';
+  }).join('');
+
+  // 데이터 포인트 (최신 점 강조)
+  var dotsSvg = sorted.map(function(s,i){
+    var isLast = i===sorted.length-1;
+    var col = (s.pct||0)>=80?'var(--success-color)':(s.pct||0)>=60?'var(--flag-color)':'var(--danger-color)';
+    return '<circle cx="'+xPos(i)+'" cy="'+yPos(s.pct||0)+'" r="'+(isLast?4:3)+'" fill="'+col+'" stroke="#0d1520" stroke-width="1.5"/>';
+  }).join('');
+
+  wrap.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="rgba(0,196,167,.18)"/>' +
+    '<stop offset="100%" stop-color="rgba(0,196,167,0)"/>' +
+    '</linearGradient></defs>' +
+    yLabelsSvg +
+    '<path d="'+fillPath+'" fill="url(#trendGrad)"/>' +
+    '<polyline points="'+polyline+'" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+    dotsSvg +
+    xLabelsSvg +
+  '</svg>';
 }
+
+function renderStsParts(){
+  var el = document.getElementById('sts-parts');
+  if(!el) return;
+  var parts = ['Part 1','Part 2','Part 3','Part A','Part B','Part C'];
+  var rows = parts.map(function(part){
+    var qs = S.questions.filter(function(q){ return q.part === part; });
+    if(!qs.length) return null;
+    var total=0, correct=0;
+    qs.forEach(function(q){
+      var a = S.answered[q.id];
+      if(a && a.times){ total += a.times; correct += (a.correct||0); }
+    });
+    var pct = total>0 ? Math.round(correct/total*100) : 0;
+    var color = pct>=80?'var(--success-color)':pct>=60?'var(--flag-color)':'var(--danger-color)';
+    return {part:part, pct:pct, total:total, color:color};
+  }).filter(Boolean).filter(function(r){ return r.total > 0; });
+
+  if(!rows.length){
+    el.innerHTML = '<div class="sts-empty">학습 데이터가 없습니다</div>';
+    return;
+  }
+  el.innerHTML = rows.map(function(r){
+    return '<div class="sts-bar-row">' +
+      '<div class="sts-bar-label">'+r.part+'</div>' +
+      '<div class="sts-bar-track"><div class="sts-bar-fill" style="width:'+r.pct+'%;background:'+r.color+';"></div></div>' +
+      '<div class="sts-bar-pct">'+r.pct+'%</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderStsTopics(){
+  var tbody = document.getElementById('sts-topics-body');
+  if(!tbody) return;
+  // 토픽별 집계
+  var map = {};
+  S.questions.forEach(function(q){
+    var topic = q.topic || 'General';
+    var a = S.answered[q.id];
+    if(!a || !a.times) return;
+    if(!map[topic]) map[topic] = {topic:topic, part:q.part, times:0, correct:0};
+    map[topic].times += a.times;
+    map[topic].correct += (a.correct||0);
+  });
+  var rows = Object.values(map)
+    .filter(function(r){ return r.times >= 5; })
+    .map(function(r){ r.pct = Math.round(r.correct/r.times*100); return r; })
+    .sort(function(a,b){ return a.pct - b.pct; }); // 정답률 낮은 순 (약점 우선)
+
+  if(!rows.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="sts-empty">5회 이상 시도한 토픽이 없습니다</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(r){
+    var color = r.pct>=80?'var(--success-color)':r.pct>=60?'var(--flag-color)':'var(--danger-color)';
+    var barW = Math.round(r.pct * 0.6); // max 60px
+    return '<tr>' +
+      '<td>'+r.topic+'</td>' +
+      '<td style="color:var(--text-muted);">'+r.part+'</td>' +
+      '<td style="text-align:right;color:var(--text-muted);">'+r.times+'</td>' +
+      '<td style="text-align:right;">' +
+        '<span class="sts-topic-pct" style="color:'+color+';">'+r.pct+'%</span>' +
+        '<span class="sts-topic-bar" style="width:'+barW+'px;background:'+color+';"></span>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderStsSessions(){
+  var el = document.getElementById('sts-sessions');
+  var cnt = document.getElementById('sts-sess-count');
+  if(!el) return;
+  var sessions = S.sessions.filter(function(s){ return s.count > 0; }).slice().sort(function(a,b){
+    return new Date(b.created_at||0) - new Date(a.created_at||0);
+  });
+  if(cnt) cnt.textContent = '(' + sessions.length + '개)';
+  if(!sessions.length){
+    el.innerHTML = '<div class="sts-empty">세션 기록이 없습니다</div>';
+    return;
+  }
+  var shown = sessions.slice(0, stsSessionsShown);
+  var html = shown.map(function(s){
+    var label = s.date || '';
+    if(s.created_at){
+      var d = new Date(s.created_at);
+      label = d.toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) + ' ' +
+              d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
+    }
+    var color = (s.pct||0)>=80?'var(--success-color)':(s.pct||0)>=60?'var(--flag-color)':'var(--danger-color)';
+    return '<div class="sts-sess-row">' +
+      '<span class="sts-sess-date">'+label+'</span>' +
+      '<span class="sts-sess-meta">'+(s.part||'All')+' · '+s.count+'문제</span>' +
+      '<span class="sts-sess-pct" style="color:'+color+';">'+(s.pct||0)+'%</span>' +
+    '</div>';
+  }).join('');
+  if(sessions.length > shown.length){
+    html += '<div style="text-align:center;padding-top:12px;">' +
+      '<button class="btn-ghost" style="font-size:13px;padding:8px 18px;" onclick="loadMoreStsSessions()">' +
+        '더 보기 (' + shown.length + ' / ' + sessions.length + ')' +
+      '</button>' +
+    '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function loadMoreStsSessions(){
+  stsSessionsShown += STS_SESS_PAGE;
+  renderStsSessions();
+}
+
+function switchReviewTab(tab){
+  var isFlagged = tab === 'flagged';
+  document.getElementById('rev-tab-flagged').classList.toggle('active', isFlagged);
+  document.getElementById('rev-tab-sessions').classList.toggle('active', !isFlagged);
+  document.getElementById('rev-panel-flagged').style.display = isFlagged ? '' : 'none';
+  document.getElementById('rev-panel-sessions').style.display = isFlagged ? 'none' : '';
+}
+
+function renderBookmarks(){
+  var el = document.getElementById('bookmarks-list');
+  var badge = document.getElementById('rev-badge-flagged');
+  var fqs = S.questions.filter(function(q){ return S.flagged.has(q.id); });
+  if(badge) badge.textContent = fqs.length;
+
+  if(!fqs.length){
+    el.innerHTML = '<div class="empty"><div class="empty-icon">⚑</div><div class="empty-title">플래그된 문제 없음</div><div class="empty-sub">학습 중 어려운 문제에 ⚑ 플래그를 달면 여기서 복습할 수 있습니다</div></div>';
+  } else {
+    el.innerHTML = fqs.map(function(q){
+      var a = S.answered[q.id] || {times:0, correct:0, wrong:0};
+      var qText = q.text.length > 120 ? q.text.slice(0, 120) + '…' : q.text;
+      return '<div class="bookmark-card">' +
+        '<div class="bm-q">' + qText + '</div>' +
+        '<div class="bm-meta">' +
+          '<span class="bm-tag">' + q.part + '</span>' +
+          '<span class="bm-tag">' + (q.topic || 'General') + '</span>' +
+        '</div>' +
+        '<div class="bm-footer">' +
+          '<div class="bm-stats">' + a.times + '회 학습 · ' +
+            '<span class="bm-ok">✓ ' + a.correct + '</span> ' +
+            '<span class="bm-ng">✗ ' + a.wrong + '</span>' +
+          '</div>' +
+          '<button class="btn-navy" style="margin-left:auto;padding:7px 16px;font-size:13px;" onclick="retryFlagged(\'' + q.id + '\')">다시 풀기 →</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  renderReviewSessions();
+}
+
+function renderReviewSessions(){
+  var el = document.getElementById('review-sessions-list');
+  var badge = document.getElementById('rev-badge-sessions');
+  if(!el) return;
+
+  var validSessions = S.sessions.filter(function(s){ return s.question_ids && s.question_ids.length > 0; });
+  if(badge) badge.textContent = validSessions.length;
+
+  if(!validSessions.length){
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">세션 기록 없음</div><div class="empty-sub">Study 탭에서 학습을 완료하면 여기에 기록됩니다</div></div>';
+    return;
+  }
+
+  el.innerHTML = validSessions.slice(0, 20).map(function(s){
+    var realIdx = S.sessions.indexOf(s);
+    var label = s.date || '';
+    if(s.created_at){
+      var d = new Date(s.created_at);
+      label = d.toLocaleDateString('ko-KR', {month:'short', day:'numeric'}) + ' ' +
+              d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', hour12:false});
+    }
+    var scoreColor = s.pct >= 80 ? 'var(--success-color)' : s.pct >= 60 ? 'var(--flag-color)' : 'var(--danger-color)';
+    var partLabel = s.part ? ' · ' + s.part : '';
+    return '<div class="rev-sess-row">' +
+      '<div class="rev-sess-info">' +
+        '<div class="rev-sess-date">' + label + '</div>' +
+        '<div class="rev-sess-meta">' + s.count + '문제' + partLabel + '</div>' +
+      '</div>' +
+      '<div style="font-size:18px;font-weight:700;color:' + scoreColor + ';margin-right:8px;">' + s.pct + '%</div>' +
+      '<button class="btn-navy" style="padding:7px 14px;font-size:13px;white-space:nowrap;" onclick="reviewSession(' + realIdx + ')">다시 풀기 →</button>' +
+    '</div>';
+  }).join('');
+}
+
+function retryFlagged(id){
+  // Flagged 문제 전체를 큐로 — 선택한 문제부터 시작
+  var allFlagged = S.questions.filter(function(q){ return S.flagged.has(q.id); });
+  if(!allFlagged.length){ showToast('플래그된 문제가 없습니다'); return; }
+  var startIdx = allFlagged.findIndex(function(q){ return q.id === id; });
+  if(startIdx < 0) startIdx = 0;
+  // 선택 문제를 앞으로 재정렬
+  var queue = allFlagged.slice(startIdx).concat(allFlagged.slice(0, startIdx));
+  S.quizQueue = queue.map(function(q){ return q.id; });
+  S.quizIdx = 0; S.submitted = false; S.selected = null;
+  S.reviewMode = false;
+  S.retryFlaggedMode = true;
+  S.returnTo = 'bookmarks';
+  S.mode = 'normal';
+  S.sessionAnswers = new Array(S.quizQueue.length).fill(null);
+  S.results = {correct:0, wrong:0, total:S.quizQueue.length};
+  save();
+  showScreen('quiz');
+  loadQuestion();
+  showToast('플래그 문제 다시 풀기 시작 (' + S.quizQueue.length + '문제)');
+}
+
+function openModal(id){ /* 미사용 — retryFlagged로 대체됨 */ }
 function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
 // ══════════════════════════════════════════════════════
