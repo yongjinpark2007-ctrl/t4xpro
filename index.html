@@ -407,32 +407,33 @@ html, body {
 .tip-label{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase;}
 .tip-body{font-size:18px;line-height:1.8;color:var(--text-mid);word-break:break-word;overflow-wrap:break-word;}
 
-/* FOLLOW-UP */
-.ask-box{
-  background:rgba(255,255,255,.03);
-  border:1px solid var(--border-clr);
-  border-radius:12px;padding:12px 14px;
-  display:flex;gap:8px;margin-top:1rem;
+/* QUESTION FEEDBACK — 해설 카드 하단 "Feedback to PracExam" 버튼 (2026-09-19) */
+.fb-btn{
+  background:rgba(255,255,255,.04);color:var(--text-muted);
+  border:1px solid var(--border-clr);border-radius:10px;
+  padding:12px 13px;font-family:inherit;font-size:13px;font-weight:500;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  cursor:pointer;transition:all .15s;flex:none;
 }
-.ask-input{flex:1;background:none;border:none;outline:none;color:var(--text-main);font-family:inherit;font-size:15px;min-width:0;}
-.ask-input::placeholder{color:rgba(122,147,173,.5);}
-.ask-btn{
-  background:linear-gradient(135deg,#00c4a7,#007a8a);
-  border:none;border-radius:8px;padding:8px 14px;
-  color:#0d1520;cursor:pointer;font-family:inherit;
-  font-size:13px;font-weight:700;transition:all .15s;
-  white-space:nowrap;flex-shrink:0;
+.fb-btn:hover{color:var(--teal);border-color:rgba(0,196,167,.3);}
+.fb-btn:active{opacity:.75;}
+.fb-btn svg{flex:none;}
+/* 좁은 화면에서는 라벨을 'Feedback'으로 줄여 Next 버튼 폭을 지킨다 */
+@media(max-width:560px){ .fb-btn .fb-btn-long{display:none;} }
+.fb-row{display:flex;gap:8px;margin-top:1rem;align-items:stretch;flex-wrap:wrap;}
+.fb-row .btn-navy{flex:1;}
+.fb-qbox{
+  background:rgba(255,255,255,.03);border:1px solid var(--border-clr);
+  border-radius:10px;padding:10px 12px;margin-bottom:14px;
 }
-.ask-btn:hover{background:linear-gradient(135deg,#00e5c3,#009980);}
-.ai-answer{
-  background:rgba(0,196,167,.05);
-  border-left:2px solid var(--teal);
-  border-radius:0 10px 10px 0;
-  padding:14px 16px;margin-top:10px;
-  font-size:18px;line-height:1.85;color:var(--text-mid);
-  display:none;word-break:break-word;overflow-wrap:break-word;
+.fb-textarea{
+  width:100%;box-sizing:border-box;resize:vertical;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-clr);
+  border-radius:10px;padding:12px 14px;min-height:110px;
+  color:var(--text-main);font-family:inherit;font-size:15px;line-height:1.7;
 }
-.ai-answer.visible{display:block;}
+.fb-textarea:focus{outline:none;border-color:rgba(0,196,167,.4);}
+.fb-textarea::placeholder{color:rgba(122,147,173,.5);}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .loading{color:var(--teal);font-size:14px;animation:pulse 1s infinite;}
 
@@ -574,11 +575,10 @@ html, body {
   .exp-body{font-size:19px;line-height:1.65;}
   .update-body{font-size:19px;line-height:1.65;}
   .tip-body{font-size:19px;line-height:1.65;}
-  .ai-answer{font-size:19px;line-height:1.65;}
   .result-banner{font-size:17px;}
   .exp-label{font-size:12px;letter-spacing:.06em;}
   .update-label,.tip-label{font-size:12px;letter-spacing:.06em;}
-  .ask-input,.ask-btn{font-size:17px;}
+  .fb-textarea{font-size:17px;}
   .exp-section{margin-bottom:.7rem;}
   .update-box,.tip-box{margin:8px 0;}
   .unit-name{font-size:16px;}
@@ -1136,13 +1136,13 @@ html, body {
       <!-- ② 범위 -->
       <div class="setup-section-label">범위</div>
       <div class="setup-icon-grid setup-icon-grid-4" id="subset-row">
-        <button class="setup-icon-btn selected" onclick="selectSubset('all',this)">
+        <button class="setup-icon-btn" onclick="selectSubset('all',this)">
           <div class="setup-icon-circle">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12h3M19 12h3M12 2v3M12 19v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
           </div>
           <div class="setup-icon-label">Random</div>
         </button>
-        <button class="setup-icon-btn" onclick="selectSubset('unseen',this)">
+        <button class="setup-icon-btn selected" onclick="selectSubset('unseen',this)">
           <div class="setup-icon-circle">
             <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </div>
@@ -1287,17 +1287,12 @@ html, body {
       <div class="tip-body" id="tip-body"></div>
     </div>
 
-    <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;margin-top:1rem;">
-      <div class="exp-label">Ask a Follow-up Question</div>
-      <div class="ask-box">
-        <input class="ask-input" id="ask-input" placeholder="e.g. What is the 2025 standard deduction for MFJ?" onkeydown="if(event.key==='Enter')sendFollowUp()"/>
-        <button class="ask-btn" onclick="sendFollowUp()">Ask ↗</button>
-      </div>
-      <div class="ai-answer" id="ai-answer"></div>
-    </div>
 
     <div id="exp-next-btn-area">
-      <button class="btn-navy" style="width:100%;" onclick="nextQuestion()">Next Question →</button>
+      <div class="fb-row">
+        <button class="fb-btn" onclick="openFeedbackModal()" title="이 문제에 대한 의견 보내기"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Feedback<span class="fb-btn-long">&nbsp;to PracExam</span></span></button>
+        <button class="btn-navy" onclick="nextQuestion()">Next Question →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1913,7 +1908,7 @@ async function callDeepSeek(systemPrompt, userPrompt){
 const S = {
   questions:[], sessions:[], flagged:new Set(), answered:{},
   quizQueue:[], quizIdx:0, submitted:false, selected:null,
-  count:5, filter:'all', part:'all', subset:'all', mode:'normal',
+  count:5, filter:'all', part:'all', subset:'unseen', mode:'normal',
   reviewMode: false,
   retryFlaggedMode: false,
   returnTo: null,
@@ -2739,8 +2734,6 @@ function loadQuestion(){
   });
 
   document.getElementById('explanation-card').classList.remove('visible');
-  document.getElementById('ai-answer').classList.remove('visible');
-  document.getElementById('ask-input').value='';
 
   // sessionAnswers 기반 잠금 상태(이미 제출된 문제) vs Review 모드 vs 일반 상태 분기
   const sa = S.sessionAnswers && S.sessionAnswers[S.quizIdx];
@@ -2905,14 +2898,19 @@ async function showExplanation(q, isOk, timeout){
     if(S.retryFlaggedMode){
       const hasNext = (S.quizIdx + 1) < S.quizQueue.length;
       btnArea.innerHTML =
-        '<div style="display:flex;gap:8px;margin-top:1rem;">' +
+        '<div class="fb-row">' +
+          feedbackBtnHtml() +
           (hasNext
-            ? '<button class="btn-navy" style="flex:1;" onclick="nextRetryFlagged()">다음 Flagged →</button>'
+            ? '<button class="btn-navy" onclick="nextRetryFlagged()">다음 Flagged →</button>'
             : '') +
           '<button class="btn-ghost" style="flex:1;" onclick="exitRetryFlagged()">Review로 돌아가기</button>' +
         '</div>';
     } else {
-      btnArea.innerHTML = '<button class="btn-navy" style="width:100%;margin-top:1rem;" onclick="nextQuestion()">Next Question →</button>';
+      btnArea.innerHTML =
+        '<div class="fb-row">' +
+          feedbackBtnHtml() +
+          '<button class="btn-navy" onclick="nextQuestion()">Next Question →</button>' +
+        '</div>';
     }
   }
 
@@ -3216,18 +3214,127 @@ function toggleFlag(){
   showToast(fl?'Question flagged for review':'Flag removed');
 }
 
-async function sendFollowUp(){
-  const q=curQ(), userQ=document.getElementById('ask-input').value.trim();
-  if(!userQ) return;
-  const box=document.getElementById('ai-answer');
-  box.innerHTML='<span class="loading">Thinking…</span>'; box.classList.add('visible');
+
+// ══════════════════════════════════════════════════════
+// QUESTION FEEDBACK  (PracExam app.html 의 동일 기능 이식 — 2026-09-19)
+// ══════════════════════════════════════════════════════
+// 사용자가 현재 문제에 대한 의견을 적어 보내면 Edge Function(send-question-feedback)이
+// hello@pracexam.com 으로 메일을 보낸다. 문제 본문·보기·정답·해설은 클라이언트가 아니라
+// 서버가 question_id 로 DB에서 다시 읽어 붙이므로 위·변조가 불가능하다.
+// 배포 필요: supabase/functions/send-question-feedback (프로젝트 azninzbyhassthztvjuv)
+
+var FB_COOLDOWN_MS = 30000;   // 연타 방지 (같은 브라우저 기준)
+var FB_CTX = null;
+
+function _escHtml(s){
+  var v = (s === null || s === undefined) ? '' : String(s);
+  return v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// 해설 카드 하단(Next 버튼 왼쪽)에 들어가는 피드백 버튼
+function feedbackBtnHtml(){
+  return '<button class="fb-btn" onclick="openFeedbackModal()" title="이 문제에 대한 의견 보내기">' +
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
+    '<span>Feedback<span class="fb-btn-long">&nbsp;to PracExam</span></span>' +
+  '</button>';
+}
+
+function openFeedbackModal(){
+  var q = (typeof curQ === 'function') ? curQ() : null;
+  if(!q){ showToast('현재 문제를 찾을 수 없습니다.'); return; }
+  var mc = document.getElementById('modal-content');
+  if(!mc) return;
+
+  var code = String(q.question_id || q.id || '').trim();
+  var meta = [];
+  if(q.part) meta.push(String(q.part));
+  if(q.topic) meta.push(q.topic);
+  var excerpt = String(q.text || '');
+  if(excerpt.length > 140) excerpt = excerpt.slice(0, 140) + '…';
+
+  mc.innerHTML =
+    '<div style="padding:.25rem 0;">' +
+      '<div style="font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;">💬 Feedback to PracExam</div>' +
+      '<div style="font-size:13.5px;line-height:1.7;color:var(--text-mid);margin-bottom:14px;">이 문제에 대한 의견을 들려주세요. 보내 주신 소중한 의견은 학습 개선에 반영하겠습니다.</div>' +
+      '<div class="fb-qbox">' +
+        '<div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:4px;">문제 코드</div>' +
+        '<div style="font-family:ui-monospace,Consolas,monospace;font-size:14px;font-weight:700;color:var(--text-main);letter-spacing:.02em;">' + _escHtml(code || '—') + '</div>' +
+        (meta.length ? '<div style="font-size:12px;color:var(--text-muted);margin-top:3px;">' + _escHtml(meta.join(' · ')) + '</div>' : '') +
+        (excerpt ? '<div style="font-size:12.5px;line-height:1.6;color:var(--text-mid);margin-top:6px;">' + _escHtml(excerpt) + '</div>' : '') +
+      '</div>' +
+      '<textarea class="fb-textarea" id="fb-text" maxlength="2000" placeholder="의견을 적어주세요"></textarea>' +
+      '<div style="font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px;" id="fb-count">0 / 2000</div>' +
+      '<div style="display:flex;gap:8px;margin-top:12px;">' +
+        '<button class="btn-ghost" style="flex:1;" onclick="closeModal()">취소</button>' +
+        '<button class="btn-navy" style="flex:1;" id="fb-send" onclick="submitQuestionFeedback()">보내기</button>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById('modal-bg').classList.add('open');
+  var ta = document.getElementById('fb-text');
+  if(ta){
+    ta.oninput = function(){
+      var el = document.getElementById('fb-count');
+      if(el) el.textContent = ta.value.length + ' / 2000';
+    };
+    try{ ta.focus(); }catch(e){}
+  }
+  FB_CTX = { code: code, qid: (q.question_id || q.id || null) };
+}
+
+async function submitQuestionFeedback(){
+  var ta = document.getElementById('fb-text');
+  var btn = document.getElementById('fb-send');
+  if(!ta || !FB_CTX) return;
+
+  var msg = String(ta.value || '').trim();
+  if(msg.length < 5){ showToast('의견을 조금 더 자세히 적어주세요 (5자 이상).'); try{ ta.focus(); }catch(e){} return; }
+  if(msg.length > 2000){ showToast('2000자까지 입력할 수 있습니다.'); return; }
+
+  if(!SB_USER){ showToast('로그인 후 이용할 수 있습니다.'); return; }
+
+  // 연타 방지
   try{
-    const text=await callDeepSeek(
-      '당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 중요사항: (1) 반드시 2025년 미국 세법 기준으로 2026년 EA 시험에 맞게 답변하세요. (2) 문제은행 정답이 틀릴 수 있으니 본인 지식으로 문제은행 정답과 다르더라도 당신 답을 제시하세요. (3) 달러 금액, 임계값, 세율을 구체적으로 명시하세요. (4) 300단어 이내로 답변하되 절대 문장 중간에 끊지 마세요. (5) 구체적인 수치가 포함된 경우 "📌 2025 세법 기준:"으로 시작하세요. 모든 답변은 한국어로 하되, 세법 용어(IRC 조항, 양식 번호, 세금 명칭 등)는 영어를 괄호에 병기하세요.',
-      `EA 시험 문제:\n"${q?.text}"\n\n보기:\n${q?.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n\n문제은행 정답: ${q?String.fromCharCode(65+q.correct)+') '+q.options[q.correct]:''}\n\n수강생 질문: ${userQ}`
-    );
-    box.innerHTML=text.replace(/\n/g,'<br>');
-  }catch(e){ box.innerHTML='<em>'+e.message+'</em>'; }
+    var last = Number(localStorage.getItem('t4x_fb_last') || 0);
+    if(last && (Date.now() - last) < FB_COOLDOWN_MS){ showToast('방금 보내셨습니다. 잠시 후 다시 시도해주세요.'); return; }
+  }catch(e){}
+
+  if(btn){ btn.disabled = true; btn.textContent = '보내는 중…'; }
+
+  var ok = false;
+  try{
+    var res = await sb.functions.invoke('send-question-feedback', {
+      body: {
+        question_id: FB_CTX.qid,
+        message: msg,
+        lang: 'ko',
+        page_url: (location && location.href) ? location.href : ''
+      }
+    });
+    if(!res.error && res.data && res.data.status === 'sent') ok = true;
+    else console.warn('question feedback failed:', res.error || res.data);
+  }catch(e){
+    console.warn('question feedback exception:', e);
+  }
+
+  if(!ok){
+    if(btn){ btn.disabled = false; btn.textContent = '보내기'; }
+    showToast('전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+
+  try{ localStorage.setItem('t4x_fb_last', String(Date.now())); }catch(e){}
+
+  var mc = document.getElementById('modal-content');
+  if(mc){
+    mc.innerHTML =
+      '<div style="text-align:center;padding:1rem 0 .25rem;">' +
+        '<div style="font-size:34px;line-height:1;margin-bottom:10px;">✅</div>' +
+        '<div style="font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;">피드백 감사합니다</div>' +
+        '<div style="font-size:13.5px;line-height:1.7;color:var(--text-mid);margin-bottom:16px;">의견이 잘 전달되었습니다. 시간 내어 알려주셔서 감사합니다.</div>' +
+        '<button class="btn-navy" style="width:100%;" onclick="closeModal()">닫기</button>' +
+      '</div>';
+  }
 }
 
 // ══════════════════════════════════════════════════════
