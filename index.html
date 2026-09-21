@@ -36,9 +36,15 @@
      ⛔ 초록 «또는 청록(cyan)» 계열로 되돌리지 말 것 — 고른 보기(.sel)가 틸이라 겹쳐 보인다.
      실측(2026-09-20) dE00 vs 틸 — 옛 초록 15.8 · 순수 cyan #00FFFF 17.0 · #22d3ee 19.7
      · #38bdf8 28.5 · 이 파랑 31.6 · #3b9dff 36.6. ***20 아래는 가려내기 어렵다.***
-     🔑 브랜드 틸 자체가 «청록»이라 cyan 을 밝힐수록 오히려 가까워진다. 밝기를 원하면
-        채도를 올리지 말고 «명도»를 올린다 — 그래서 #3b9dff → #5ab8ff 로 밝혔다(2026-09-20). */
-  --correct-color:#5ab8ff;
+     🔑 브랜드 틸 자체가 «청록»이라 cyan 을 밝힐수록 오히려 가까워진다.
+     🔴 2026-09-20 최종 — **진한 파랑 + «흰» 글자** (사장님 지시). 둘은 한 짝이다:
+        흰 글자가 4.5:1 을 넘으려면 배지가 어두워야 하고, 밝은 파랑에서는 못 넘는다.
+          #5ab8ff 흰글자 2.16:1 ✗ · #3b9dff 2.82:1 ✗ · #2f8fff 3.23:1 ✗
+          #2563eb 흰글자 **5.17:1 ✓** · 카드 대비 3.21:1 ✓ · dE00 vs 틸 **47.7**
+        ⛔ 더 어둡게 하지 말 것 — #1d4ed8 은 카드(#151f2e)에 2.47:1 로 «묻힌다».
+     🟡 옅은 판(.reveal)의 «글자»에는 이 색을 쓰지 않는다 — 어두운 카드 위 글자로는
+        3.21:1 이라 모자란다. 그래서 .reveal 글자도 흰색으로 둔다. */
+  --correct-color:#2563eb;
   --page-bg:#0d1520;--card-bg:#151f2e;--border-clr:#1e2d42;
   --text-main:#ddeeff;
   /* Accent glow */
@@ -360,12 +366,12 @@ html, body {
 }
 .option-btn.sel{border-color:rgba(0,196,167,.4);background:rgba(0,196,167,.1);}
 .option-btn.sel .opt-letter{background:var(--teal);color:#0d1520;}
-.option-btn.correct-ans{border-color:rgba(90,184,255,.45);background:rgba(90,184,255,.10);}
-.option-btn.correct-ans .opt-letter{background:var(--correct-color);color:#0d1520;}
+.option-btn.correct-ans{border-color:rgba(37,99,235,.65);background:rgba(37,99,235,.16);}
+.option-btn.correct-ans .opt-letter{background:var(--correct-color);color:#fff;}
 .option-btn.wrong-ans{border-color:rgba(244,63,94,.35);background:rgba(244,63,94,.06);}
 .option-btn.wrong-ans .opt-letter{background:#f43f5e;color:#fff;}
-.option-btn.reveal{border-color:rgba(90,184,255,.32);background:rgba(90,184,255,.06);}
-.option-btn.reveal .opt-letter{background:rgba(90,184,255,.16);color:var(--correct-color);}
+.option-btn.reveal{border-color:rgba(37,99,235,.45);background:rgba(37,99,235,.10);}
+.option-btn.reveal .opt-letter{background:rgba(37,99,235,.55);color:#fff;}
 .opt-letter{
   width:30px;height:30px;border-radius:7px;
   background:rgba(255,255,255,.07);
