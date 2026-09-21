@@ -45,6 +45,9 @@
      🟡 옅은 판(.reveal)의 «글자»에는 이 색을 쓰지 않는다 — 어두운 카드 위 글자로는
         3.21:1 이라 모자란다. 그래서 .reveal 글자도 흰색으로 둔다. */
   --correct-color:#2563eb;
+  /* 같은 파랑이라도 «채움»과 «글자»는 다른 값을 쓴다 — #2563eb 는 어두운 바탕 위
+     «글자»로는 3.01:1 이라 못 읽는다(핍 배경 위 실측). 글자용은 이 밝은 쪽. */
+  --correct-text:#5ab8ff;
   --page-bg:#0d1520;--card-bg:#151f2e;--border-clr:#1e2d42;
   --text-main:#ddeeff;
   /* Accent glow */
@@ -317,8 +320,9 @@ html, body {
   max-width:260px;
 }
 .q-id-badge{
-  background:rgba(34,197,94,.08);color:#22c55e;
-  border:1px solid rgba(34,197,94,.2);
+  /* Part 배지(.q-badge)와 «같은 색»으로 맞춘다 (사장님 지시 2026-09-21) */
+  background:rgba(0,196,167,.12);color:var(--teal);
+  border:1px solid rgba(0,196,167,.25);
   border-radius:6px;display:inline-flex;align-items:center;
   height:28px;padding:0 10px;font-family:inherit;font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:.02em;
 }
@@ -843,7 +847,7 @@ html, body {
 .q-pills{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0 4px;margin-bottom:2px;}
 .q-pill{width:32px;height:32px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid var(--border-clr);background:rgba(255,255,255,.04);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s;}
 .q-pill.current{border-color:var(--teal);background:var(--teal-dim);color:var(--teal);}
-.q-pill.correct{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35);color:var(--success-color);}
+.q-pill.correct{background:rgba(37,99,235,.18);border-color:rgba(37,99,235,.5);color:var(--correct-text);}
 .q-pill.wrong{background:rgba(244,63,94,.1);border-color:rgba(244,63,94,.35);color:var(--danger-color);}
 .q-pill.flagged{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--flag-color);}
 .q-pill:hover:not(.current){border-color:rgba(0,196,167,.3);}
