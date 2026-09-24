@@ -1463,10 +1463,17 @@ html, body {
   </div>
 
   <div class="api-setup">
-    <div class="exp-label">🔑 DeepSeek API Key (AI 해설용)</div>
-    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">AI 자동 해설에 사용됩니다. 한 번 저장하면 이 기기에서 자동으로 사용됩니다. <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#2563eb;font-weight:600;">platform.deepseek.com</a>에서 발급받을 수 있습니다.</div>
-    <input class="api-input" type="password" id="api-key-input" placeholder="DeepSeek API 키를 여기에 붙여넣기…"/>
+    <div class="exp-label">🔑 Gemini API Key (AI 해설용)</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;">AI 자동 해설(한국어)에 사용됩니다. 한 번 저장하면 이 기기에서 자동으로 사용됩니다. <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563eb;font-weight:600;">aistudio.google.com</a>에서 발급받을 수 있습니다.</div>
+    <input class="api-input" type="password" id="api-key-input" placeholder="Gemini API 키를 여기에 붙여넣기…"/>
     <button class="btn-primary" onclick="saveApiKey()">API 키 저장</button>
+    <button class="btn-ghost" style="margin-left:8px;" onclick="testGeminiKey()">🔍 키 테스트</button>
+    <div style="font-size:13px;color:var(--text-muted);margin-top:12px;margin-bottom:6px;">Gemini 모델</div>
+    <select class="api-input" id="gemini-model-select" onchange="saveGeminiModel(this.value)">
+      <option value="gemini-2.5-flash">gemini-2.5-flash (권장 · 속도/품질 균형)</option>
+      <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (가장 빠름 · 무료 한도 여유)</option>
+      <option value="gemini-2.5-pro">gemini-2.5-pro (최고 품질 · 무료 한도 적음)</option>
+    </select>
     <div style="font-size:13px;color:var(--text-muted);margin-top:10px;font-weight:600;" id="api-status"></div>
   </div>
 
@@ -1873,18 +1880,38 @@ CRITICAL RULES:
 - §6015(e) Innocent Spouse: MANDATORY automatic stay upon Form 8857 filing.
 ========================================================================`;
 
-// DEEPSEEK API
+// GEMINI API
 // ══════════════════════════════════════════════════════
-const DEEPSEEK_MODEL = 'deepseek-v4-pro';
-const DEEPSEEK_URL   = 'https://api.deepseek.com/v1/chat/completions';
+// ⚠️ 보안: 아래 GEMINI_DEFAULT_KEY는 이 파일을 열 수 있는 누구에게나 보입니다.
+//    공개 배포/GitHub 업로드 전에는 ''(빈 문자열)로 비우고, 설정 화면에서 키를 저장해 사용하세요.
+const GEMINI_DEFAULT_KEY   = 'AQ.Ab8RN6KCHvRk94L-s4WUohDQPzXa-5NAflfBKLVNemQc3f0Law';
+const GEMINI_DEFAULT_MODEL = 'gemini-2.5-flash';   // 설정 화면에서 flash-lite / pro로 변경 가능
+// 'AQ.' 키는 AI Studio용일 수도, Vertex AI Express용일 수도 있어 두 엔드포인트를 자동 판별합니다.
+const GEMINI_SURFACES = {
+  studio: m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,
+  vertex: m => `https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent`
+};
+const GEMINI_MIN_GAP_MS    = 6500;                 // 무료 티어 분당 호출 제한(RPM) 대응: 호출 간 최소 간격
+let   _geminiNextSlot      = 0;
+const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
+function getStoredKey(){
+  return localStorage.getItem('ea_gemini_key') || '';
+}
 function getApiKey(){
-  return localStorage.getItem('ea_deepseek_key') || '';
+  return getStoredKey() || GEMINI_DEFAULT_KEY;
+}
+function getGeminiModel(){
+  return localStorage.getItem('ea_gemini_model') || GEMINI_DEFAULT_MODEL;
 }
 
-async function callDeepSeek(systemPrompt, userPrompt){
+function getSurfaceOrder(){
+  return localStorage.getItem('ea_gemini_surface') === 'vertex' ? ['vertex','studio'] : ['studio','vertex'];
+}
+
+async function callGemini(systemPrompt, userPrompt){
   const key = getApiKey();
-  if(!key) throw new Error('No API key set. Please add your DeepSeek API key in Settings.');
+  if(!key) throw new Error('No API key set. Please add your Gemini API key in Settings.');
 
   // 2025 Tax Reference를 시스템 프롬프트에 자동 주입 (OBBBA 포함)
   const enrichedSystemPrompt = TAX_REFERENCE_2025 + '\n\n' +
@@ -1894,30 +1921,86 @@ async function callDeepSeek(systemPrompt, userPrompt){
     'CTC, §199A thresholds, QCD limit ($108,000 NOT $100,000), or partnership penalties ($255 NOT $245).\n\n' +
     systemPrompt;
 
-  const res = await fetch(DEEPSEEK_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`
-    },
-    body: JSON.stringify({
-      model: DEEPSEEK_MODEL,
-      messages: [
-        { role: 'system', content: enrichedSystemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
+  const body = JSON.stringify({
+    systemInstruction: { parts: [{ text: enrichedSystemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+    generationConfig: {
       temperature: 0.3,
-      max_tokens: 3000
-    })
+      maxOutputTokens: 8192,                 // thinking 토큰이 포함되므로 여유 있게 설정
+      responseMimeType: 'application/json',  // 호출부가 모두 JSON 응답을 파싱함
+      thinkingConfig: { thinkingBudget: 1024 }
+    }
   });
-  
-  if(!res.ok){
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err?.error?.message || `API error ${res.status}`);
+
+  const model  = getGeminiModel();
+  const errors = [];
+  for(const surface of getSurfaceOrder()){
+    try{
+      const text = await _geminiCallOnce(GEMINI_SURFACES[surface](model), key, body);
+      localStorage.setItem('ea_gemini_surface', surface);   // 성공한 엔드포인트 기억
+      return text;
+    }catch(e){
+      if(e.routeFail){ errors.push(`[${surface}] ${e.message}`); continue; }  // 인증/경로 문제 → 다른 엔드포인트 시도
+      throw e;
+    }
   }
-  
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || '';
+  const usedSrc = getStoredKey() ? '설정에 저장된 키' : '파일 내장 키';
+  throw new Error(errors.join(' | ') + ` [사용된 키: ${usedSrc} …${key.slice(-4)}]`);
+}
+
+async function _geminiCallOnce(url, key, body){
+  for(let attempt = 0; attempt < 4; attempt++){
+    // 무료 티어 RPM 보호: 호출 시작 시각을 최소 간격으로 직렬 예약
+    const now  = Date.now();
+    const slot = Math.max(now, _geminiNextSlot);
+    _geminiNextSlot = slot + GEMINI_MIN_GAP_MS;
+    if(slot > now) await _sleep(slot - now);
+
+    let res;
+    try{
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body
+      });
+    }catch(netErr){
+      const e = new Error('네트워크/CORS 오류 (' + netErr.message + ')'); e.routeFail = true; throw e;
+    }
+
+    if(res.ok){
+      const data = await res.json();
+      if(data.promptFeedback?.blockReason){
+        throw new Error('Gemini blocked the prompt: ' + data.promptFeedback.blockReason);
+      }
+      const cand = data.candidates?.[0];
+      const text = (cand?.content?.parts || []).filter(p => !p.thought).map(p => p.text || '').join('');
+      if(cand?.finishReason === 'MAX_TOKENS') throw new Error('Gemini response truncated (MAX_TOKENS)');
+      if(!text) throw new Error('Gemini returned an empty response' + (cand?.finishReason ? ` (${cand.finishReason})` : ''));
+      return text;
+    }
+
+    const err = await res.json().catch(()=>({}));
+    const msg = err?.error?.message || `API error ${res.status}`;
+
+    // 키가 이 엔드포인트용이 아닌 경우(401/403/404 또는 키 무효 400) → 호출부에서 다른 엔드포인트로 재시도
+    if([401,403,404].includes(res.status) || (res.status === 400 && /api key|API_KEY/i.test(JSON.stringify(err)))){
+      const e = new Error(`HTTP ${res.status}: ${msg}`); e.routeFail = true; throw e;
+    }
+
+    const dailyLimit = /PerDay/i.test(JSON.stringify(err));
+    const retriable  = (res.status === 429 || res.status === 503) && !dailyLimit && attempt < 3;
+    if(!retriable) throw new Error(dailyLimit ? 'Gemini 무료 일일 한도를 초과했습니다. 내일 다시 시도하거나 모델을 변경하세요. (' + msg + ')' : `HTTP ${res.status}: ${msg}`);
+
+    // 서버가 알려준 retryDelay가 있으면 사용, 없으면 점진적 대기
+    let wait = 8000 * (attempt + 1);
+    const info = (err?.error?.details || []).find(d => d && d.retryDelay);
+    if(info){
+      const sec = parseFloat(info.retryDelay);
+      if(!isNaN(sec)) wait = Math.ceil(sec * 1000) + 500;
+    }
+    _geminiNextSlot = Math.max(_geminiNextSlot, Date.now() + Math.min(wait, 60000));
+  }
+  throw new Error('Gemini request failed after retries');
 }
 
 // ══════════════════════════════════════════════════════
@@ -2013,11 +2096,15 @@ function init(){
   }catch(e){}
   renderDashboard(); renderBookmarks(); renderUploadList(); updateAvailCount();
   updateResumeBadge();
-  const k = getApiKey();
+  const k = getStoredKey();
   if(k){
     document.getElementById('api-key-input').value = '•'.repeat(Math.min(k.length, 32));
     document.getElementById('api-status').textContent = '✓ API 키가 저장되어 있습니다 — 자동으로 사용 중';
+  } else if(GEMINI_DEFAULT_KEY){
+    document.getElementById('api-status').textContent = '✓ 기본 내장 Gemini 키 사용 중 (설정에서 다른 키로 교체 가능)';
   }
+  const ms = document.getElementById('gemini-model-select');
+  if(ms) ms.value = getGeminiModel();
 }
 
 function save(){
@@ -2199,10 +2286,27 @@ function saveApiKey(){
   const input=document.getElementById('api-key-input');
   const raw=input.value.trim();
   if(!raw || /^•+$/.test(raw)){showToast('새 API 키를 입력해주세요');return;}
-  localStorage.setItem('ea_deepseek_key',raw);
+  localStorage.setItem('ea_gemini_key',raw);
   input.value='•'.repeat(Math.min(raw.length,32));
   document.getElementById('api-status').textContent='✅ API 키 저장 완료 — 이 기기에서 자동 사용됩니다';
   showToast('✅ API 키가 저장되었습니다');
+}
+async function testGeminiKey(){
+  const st  = document.getElementById('api-status');
+  const key = getApiKey();
+  const src = getStoredKey() ? '설정에 저장된 키' : '파일 내장 키';
+  if(!key){ st.textContent = '❌ API 키가 없습니다. 위 입력란에 키를 저장하세요.'; return; }
+  st.textContent = `🔍 테스트 중… (${src} …${key.slice(-4)})`;
+  try{
+    const raw = await callGemini('Reply with JSON only.', 'Return exactly {"reply":"안녕하세요"}');
+    st.textContent = `✅ 정상 작동 — ${src} …${key.slice(-4)} / 모델 ${getGeminiModel()} / 응답: ${raw.slice(0,60)}`;
+  }catch(e){
+    st.textContent = '❌ ' + String(e.message || e).slice(0,400);
+  }
+}
+function saveGeminiModel(m){
+  localStorage.setItem('ea_gemini_model', m);
+  showToast('✅ 모델 변경: ' + m);
 }
 function exportData(){
   const blob=new Blob([JSON.stringify({questions:S.questions,sessions:S.sessions,flagged:[...S.flagged],answered:S.answered},null,2)],{type:'application/json'});
@@ -2686,7 +2790,7 @@ async function pregenerateAIForQueue(questionIds) {
       let promptFields = [];
       promptFields.push('explanation: 한국어 상세 해설 (2025년 미국 세법 기준)');
       
-      const raw = await callDeepSeek(
+      const raw = await callGemini(
         `당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법(2026년 EA 시험 적용 기준)을 따릅니다. 2024년 이전 세법 기준 정보는 절대 사용하지 마세요. 아래 JSON 형식으로만 응답하세요.`,
         `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n${promptFields.map(f=>'- '+f).join('\n')}`
       );
@@ -2706,7 +2810,7 @@ async function pregenerateAIForQueue(questionIds) {
     } catch(e) {
       console.warn(`배치 생성 실패 (${qid}):`, e);
     }
-    await new Promise(r => setTimeout(r, 200)); // API 호출 간격
+    // API 호출 간격은 callGemini 내부에서 자동 조절 (무료 티어 RPM 대응)
   }
   showToast('✅ AI 해설 사전 생성 완료');
 }
@@ -2956,7 +3060,7 @@ async function fetchFullExplanation(q, origExp){
   }
 
   try{
-    const raw = await callDeepSeek(
+    const raw = await callGemini(
       `당신은 EA 시험 전문 튜터입니다. 아래 JSON 형식으로만 응답하세요.`,
       `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n문제은행 정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- explanation: 한국어 상세 해설\n- verifiedCorrect: 실제 정답 (A/B/C/D)`
     );
@@ -2994,7 +3098,7 @@ async function fetchFullExplanation(q, origExp){
     fixQuestionInCloud(q, { explanation: true, taxUpdate: false, examTip: false });
   }catch(e){
     console.error('AI error:', e);
-    document.getElementById('exp-body').innerHTML = origExp || 'AI 해설을 불러오지 못했습니다.';
+    document.getElementById('exp-body').innerHTML = origExp || ('AI 해설을 불러오지 못했습니다. ' + String(e && e.message || e).replace(/</g,'&lt;').slice(0,300));
   }
 }
 async function fetchAISections(q){
@@ -3011,7 +3115,7 @@ async function fetchAISections(q){
   }
 
   try{
-    const raw = await callDeepSeek(
+    const raw = await callGemini(
       `당신은 EA(Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법(2026년 EA 시험 적용 기준)을 따릅니다. 2024년 이전 세법 기준 정보는 절대 사용하지 마세요. 아래 JSON 형식으로만 응답하세요.`,
       `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- examTip: 반드시 2025년 미국 세법(2026년 EA 시험 적용) 기준으로, 해당 문제와 관련된 구체적인 금액·임계값·세율만 3문장 이내로 간략히 요약 (한국어). 불필요한 설명은 제외하고, 2024년 대비 변경된 수치가 있다면 함께 적어주세요. 답변 시작 시 "📌 2025 기준:" 으로 시작.`
     );
@@ -3025,7 +3129,7 @@ async function fetchAISections(q){
     await fixQuestionInCloud(q, { explanation: false, taxUpdate: false, examTip: true });
   }catch(e){
     console.error('AI sections error:', e);
-    document.getElementById('tip-body').innerHTML = '⚠️ AI 응답 오류';
+    document.getElementById('tip-body').innerHTML = '⚠️ AI 응답 오류: ' + String(e && e.message || e).replace(/</g,'&lt;').slice(0,300);
   }
 }
 
