@@ -425,6 +425,20 @@ html, body {
 .tip-label{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase;}
 .tip-body{font-size:18px;line-height:1.8;color:var(--text-mid);word-break:break-word;overflow-wrap:break-word;}
 
+/* AI 재생성 버튼 (해설/Tip 을 다시 호출) */
+.exp-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.exp-label-row .exp-label,.exp-label-row .tip-label{margin-bottom:0;}
+.btn-regen{
+  background:rgba(0,196,167,.08);color:var(--teal);
+  border:1px solid rgba(0,196,167,.25);
+  border-radius:20px;padding:5px 12px;
+  font-family:inherit;font-size:11px;font-weight:600;
+  letter-spacing:normal;text-transform:none;
+  cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;
+}
+.btn-regen:hover{background:rgba(0,196,167,.16);border-color:rgba(0,196,167,.4);}
+.btn-regen:disabled{opacity:.5;cursor:not-allowed;}
+
 /* QUESTION FEEDBACK — 해설 카드 하단 "Feedback to PracExam" 버튼 (2026-09-19) */
 .fb-btn{
   background:rgba(255,255,255,.04);color:var(--text-muted);
@@ -1290,7 +1304,10 @@ html, body {
     <div id="correction-box"></div>
 
     <div class="exp-section">
-      <div class="exp-label">Explanation</div>
+      <div class="exp-label-row">
+        <div class="exp-label">Explanation</div>
+        <button class="btn-regen" id="btn-regen-exp" onclick="regenerateExplanation()" title="AI 해설을 다시 생성합니다 (AI 답변이 틀렸을 때 사용)">🔄 AI 재생성</button>
+      </div>
       <div class="exp-body" id="exp-body"></div>
     </div>
     <!-- ✦ Why Other Options Are Incorrect 섹션 완전 삭제 -->
@@ -1301,7 +1318,10 @@ html, body {
       <div class="update-body" id="update-body"></div>
     </div>
     <div class="tip-box">
-      <div class="tip-label">EA Exam Tip · 2025 세법 기준</div>
+      <div class="exp-label-row">
+        <div class="tip-label">EA Exam Tip · 2025 세법 기준</div>
+        <button class="btn-regen" id="btn-regen-tip" onclick="regenerateExamTip()" title="Exam Tip을 다시 생성합니다 (AI 답변이 틀렸을 때 사용)">🔄 AI 재생성</button>
+      </div>
       <div class="tip-body" id="tip-body"></div>
     </div>
 
@@ -3040,21 +3060,22 @@ async function showExplanation(q, isOk, timeout){
   await fetchAISections(q);
 }
 
-async function fetchFullExplanation(q, origExp){
+async function fetchFullExplanation(q, origExp, force){
   // ★ FIX: 가드 순서 재정렬 — 마커 체크를 최우선으로 (aiEnhanced가 세션 간 사라져도 안전)
+  // force=true 이면 "AI 재생성" 버튼으로 수동 호출된 것이므로 아래 캐시 가드를 모두 건너뛴다.
   // 가드 1: explanation에 AI 마커가 있으면 무조건 재호출 금지
-  if (origExp && (origExp.includes('<!-- AI_DONE -->') || origExp.includes('AI 추가 분석'))) {
+  if (!force && origExp && (origExp.includes('<!-- AI_DONE -->') || origExp.includes('AI 추가 분석'))) {
     document.getElementById('exp-body').innerHTML = origExp;
     q.aiEnhanced = true; // 복원
     return;
   }
   // 가드 2: aiEnhanced 플래그 (위에서 마커로 복원됨)
-  if (q.aiEnhanced) {
+  if (!force && q.aiEnhanced) {
     document.getElementById('exp-body').innerHTML = q.explanation || origExp || '—';
     return;
   }
-  // 가드 3: AI 설정 꺼져 있으면 DB 값만 표시
-  if (!AI_SETTINGS.explanation) {
+  // 가드 3: AI 설정 꺼져 있으면 DB 값만 표시 (단, 수동 재생성은 이 설정과 무관하게 항상 호출)
+  if (!force && !AI_SETTINGS.explanation) {
     document.getElementById('exp-body').innerHTML = origExp || '—';
     return;
   }
@@ -3101,13 +3122,14 @@ async function fetchFullExplanation(q, origExp){
     document.getElementById('exp-body').innerHTML = origExp || ('AI 해설을 불러오지 못했습니다. ' + String(e && e.message || e).replace(/</g,'&lt;').slice(0,300));
   }
 }
-async function fetchAISections(q){
+async function fetchAISections(q, force){
   // wrongReasons 섹션은 UI에서 제거되었으므로 DOM 업데이트 생략
   // taxUpdate 섹션은 deprecated — examTip만 처리
 
   // ★ FIX: tipGenerated 플래그도 가드에 추가 (aiEnhanced와 동일한 패턴)
+  // force=true 이면 "AI 재생성" 버튼으로 수동 호출된 것이므로 캐시 가드를 건너뛴다.
   const alreadyHasTip = q.tipGenerated || (q.examTip && q.examTip.length > 2 && q.examTip !== '—');
-  const needsTip = AI_SETTINGS.examTip && !alreadyHasTip;
+  const needsTip = force || (AI_SETTINGS.examTip && !alreadyHasTip);
 
   if (!needsTip) {
     document.getElementById('tip-body').innerHTML = q.examTip || '—';
@@ -3116,7 +3138,7 @@ async function fetchAISections(q){
 
   try{
     const raw = await callGemini(
-      `당신은 EA (Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법만(2026년 EA 시험 적용 기준)을 따릅니다. 2025년 이전 세법 정보는 절대 사용하지 마세요. 강조표시 또는 볼드체 사용금지. 아래 JSON 형식으로만 응답하세요. 문제 정답이 항상 맞는답이 아닐수 있으니 당신이 답을 선택하고 설명할것.`,
+      `당신은 EA (Enrolled Agent) 시험 전문 튜터입니다. 모든 답변은 반드시 2025년 미국 세법만 기준합니다. 2025년 이전 세법 정보는 절대 사용하지 마세요. 강조표시 또는 볼드체 사용금지. 아래 JSON 형식으로만 응답하세요. 문제에 영어 explanation 내용을 참조하고 당신이 답을 선택하고 서술형으로 설명할것.`,
       `문제: ${q.text}\n보기:\n${q.options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n')}\n정답: ${String.fromCharCode(65+q.correct)}) ${q.options[q.correct]}\n\nJSON 키:\n- examTip: 반드시 2025년 미국 세법(2026년 EA 시험 적용) 기준으로, 해당 문제와 관련된 구체적인 금액·임계값·세율만 3문장 이내로 간략히 요약 (한국어). 불필요한 설명은 제외하고, 2024년 대비 변경된 수치가 있다면 함께 적어주세요. 답변 시작 시 "📌 2025 기준:" 으로 시작.`
     );
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
@@ -3130,6 +3152,66 @@ async function fetchAISections(q){
   }catch(e){
     console.error('AI sections error:', e);
     document.getElementById('tip-body').innerHTML = '⚠️ AI 응답 오류: ' + String(e && e.message || e).replace(/</g,'&lt;').slice(0,300);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AI 재생성 (수동) — AI가 잘못된 해설/정답을 제시했을 때 다시 호출
+// ─────────────────────────────────────────────────────────────────
+async function regenerateExplanation(){
+  const q = curQ();
+  if(!q){ showToast('❌ 진행 중인 문제가 없습니다'); return; }
+  if(!confirm('AI 해설을 새로 생성하시겠습니까?\n기존 AI 해설은 새 응답으로 교체됩니다.')) return;
+
+  // 기존에 붙은 AI 해설 부분을 떼어내고, 문제은행 원본 해설만 남긴다
+  let baseExp = q.explanation || '';
+  const markerIdx = baseExp.indexOf('<!-- AI_DONE -->');
+  if(markerIdx !== -1){
+    baseExp = baseExp.slice(0, markerIdx);
+  } else {
+    const legacyIdx = baseExp.indexOf('AI 추가 분석');
+    if(legacyIdx !== -1) baseExp = baseExp.slice(0, legacyIdx);
+  }
+  baseExp = baseExp.trim();
+
+  q.aiEnhanced = false;
+  q.explanation = baseExp;
+
+  const btn = document.getElementById('btn-regen-exp');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ 생성 중…'; }
+  document.getElementById('exp-body').innerHTML = '<span class="loading">AI 해설 재생성 중…</span>';
+  document.getElementById('correction-box').innerHTML = '';
+
+  try{
+    await fetchFullExplanation(q, baseExp, true);
+    showToast('✅ AI 해설이 새로 생성되었습니다');
+  }catch(e){
+    console.error('Regenerate explanation error:', e);
+    showToast('❌ 재생성 실패: ' + String(e && e.message || e).slice(0,120));
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '🔄 AI 재생성'; }
+  }
+}
+
+async function regenerateExamTip(){
+  const q = curQ();
+  if(!q){ showToast('❌ 진행 중인 문제가 없습니다'); return; }
+  if(!confirm('EA Exam Tip을 새로 생성하시겠습니까?\n기존 내용은 새 응답으로 교체됩니다.')) return;
+
+  q.tipGenerated = false;
+
+  const btn = document.getElementById('btn-regen-tip');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ 생성 중…'; }
+  document.getElementById('tip-body').innerHTML = '<span class="loading">Exam Tip 재생성 중…</span>';
+
+  try{
+    await fetchAISections(q, true);
+    showToast('✅ Exam Tip이 새로 생성되었습니다');
+  }catch(e){
+    console.error('Regenerate exam tip error:', e);
+    showToast('❌ 재생성 실패: ' + String(e && e.message || e).slice(0,120));
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '🔄 AI 재생성'; }
   }
 }
 
